@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"/>
+<title>Gate Territory</title>
+<meta name="theme-color" content="#12140F"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+:root{
+  --field:#12140F; --field-2:#1B1E16; --line:#2E332A;
+  --sand:#E8E2D0; --sand-dim:#9AA08C;
+  --amber:#E0A32E; --rust:#B4462F; --ok:#7FA65C;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
+  color:var(--sand);font-family:'Space Mono',ui-monospace,monospace;overflow-wrap:break-word;}
+#map{position:absolute;inset:0;background:var(--field);}
+.leaflet-tile-pane{filter:grayscale(1) brightness(.42) contrast(1.15);}
+.leaflet-container{background:var(--field);}
+.leaflet-control-attribution{background:rgba(18,20,15,.82)!important;color:var(--sand-dim)!important;font-size:9px!important;}
+.leaflet-control-attribution a{color:var(--sand-dim)!important;}
+
+#hud{position:absolute;top:0;left:0;right:0;z-index:600;padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;
+  background:linear-gradient(180deg,rgba(18,20,15,.94),rgba(18,20,15,0));pointer-events:none;}
+#hud-row{display:flex;align-items:center;gap:8px;}
+#brand{font-family:'Oswald',sans-serif;font-weight:700;font-size:16px;letter-spacing:.09em;
+  text-transform:uppercase;}
+#brand em{font-style:normal;color:var(--amber);}
+.chip{pointer-events:auto;border:1px solid var(--line);border-radius:100px;padding:5px 10px;
+  background:rgba(27,30,22,.92);color:var(--sand-dim);font-size:10.5px;font-family:'Space Mono',monospace;
+  cursor:pointer;}
+#who{margin-left:auto;}
+#stats{display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--sand-dim);letter-spacing:.05em;}
+#stats b{color:var(--sand);font-size:13px;font-weight:700;display:block;font-family:'Oswald',sans-serif;}
+
+/* Полоса состояния связи — видно, что игра идёт с телефона */
+#link{position:absolute;top:calc(env(safe-area-inset-top) + 74px);left:12px;z-index:600;
+  font-size:9.5px;letter-spacing:.08em;color:var(--sand-dim);pointer-events:none;}
+#link.off{color:var(--rust);}
+#link.queued{color:var(--amber);}
+
+#retic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:500;
+  pointer-events:none;width:132px;height:132px;}
+#retic svg{width:100%;height:100%;overflow:visible;}
+#retic .ring{fill:none;stroke:var(--rust);stroke-width:1.5;opacity:.85;
+  transition:stroke .5s ease, r .8s cubic-bezier(.2,.8,.2,1);}
+#retic .tick{stroke:var(--rust);stroke-width:2;transition:stroke .5s ease;}
+#retic.lock .ring,#retic.lock .tick{stroke:var(--amber);}
+#retic .spin{transform-origin:50% 50%;animation:spin 9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#retic.lock .spin{animation-duration:3.5s;}
+@media (prefers-reduced-motion:reduce){#retic .spin{animation:none;}}
+#acc{position:absolute;left:50%;top:calc(50% + 78px);transform:translateX(-50%);z-index:500;
+  font-size:10px;letter-spacing:.1em;color:var(--rust);pointer-events:none;text-align:center;}
+#retic.lock ~ #acc{color:var(--amber);}
+
+#dock{position:absolute;left:0;right:0;bottom:0;z-index:600;
+  padding:14px 12px calc(env(safe-area-inset-bottom) + 14px);
+  background:linear-gradient(0deg,rgba(18,20,15,.96) 55%,rgba(18,20,15,0));}
+#msg{font-size:11.5px;line-height:1.55;color:var(--sand-dim);margin-bottom:10px;min-height:32px;}
+#msg.warn{color:var(--rust);}
+#msg.good{color:var(--ok);}
+.btn{width:100%;border:none;border-radius:4px;padding:16px;font-family:'Oswald',sans-serif;
+  font-size:16px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;}
+#plant{background:var(--amber);color:#12140F;}
+#plant:disabled{background:var(--field-2);color:var(--sand-dim);border:1px solid var(--line);cursor:not-allowed;}
+.row{display:flex;gap:8px;margin-top:8px;}
+.btn-ghost{flex:1;background:var(--field-2);border:1px solid var(--line);color:var(--sand);
+  border-radius:4px;padding:11px;font-family:'Oswald',sans-serif;font-size:12px;
+  letter-spacing:.09em;text-transform:uppercase;cursor:pointer;}
+
+.place-pin{font-size:15px;color:#7FA65C;text-shadow:0 1px 4px #000;white-space:nowrap;
+  transform:translate(-50%,-50%);}
+.place-pin span{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;margin-left:5px;}
+.ad-box{position:relative;background:var(--field-2);border:1px solid var(--line);
+  border-radius:5px;padding:11px 12px;margin-bottom:10px;cursor:pointer;}
+.ad-box b{display:block;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.04em;}
+.ad-box span:not(.ad-tag){display:block;font-size:11px;color:var(--sand-dim);margin-top:3px;line-height:1.5;}
+.ad-box img{width:100%;border-radius:3px;margin-bottom:7px;}
+.ad-tag{position:absolute;top:7px;right:8px;font-size:8.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--sand-dim);border:1px solid var(--line);
+  border-radius:2px;padding:1px 4px;}
+.terr-label{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 4px #000,0 0 12px #000;}
+.terr-mine{color:var(--amber);} .terr-them{color:var(--rust);}
+
+#veil{position:fixed;inset:0;z-index:900;background:rgba(9,10,7,.92);display:none;
+  align-items:flex-end;justify-content:center;}
+#veil.on{display:flex;}
+#sheet{background:var(--field-2);border-top:1px solid var(--line);border-radius:10px 10px 0 0;
+  padding:22px 20px calc(env(safe-area-inset-bottom) + 20px);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;}
+#sheet h2{font-family:'Oswald',sans-serif;font-size:19px;letter-spacing:.08em;text-transform:uppercase;
+  margin:0 0 12px;}
+#sheet p{font-size:12.5px;line-height:1.7;color:var(--sand-dim);margin:0 0 14px;}
+#sheet input{width:100%;background:var(--field);border:1px solid var(--line);color:var(--sand);
+  border-radius:4px;padding:13px;font-family:'Space Mono',monospace;font-size:15px;margin-bottom:12px;}
+#shot{width:100%;border-radius:4px;border:1px solid var(--line);margin-bottom:12px;display:none;}
+
+/* Профиль */
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.pf-cell{background:var(--field);border:1px solid var(--line);border-radius:5px;padding:12px;}
+.pf-v{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--amber);line-height:1.1;}
+.pf-l{font-size:9.5px;color:var(--sand-dim);letter-spacing:.07em;text-transform:uppercase;margin-top:4px;}
+.pf-sec{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sand-dim);
+  border-bottom:1px solid var(--line);padding-bottom:6px;margin:18px 0 10px;}
+.pf-line{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;
+  color:var(--sand-dim);padding:6px 0;}
+.pf-line b{color:var(--sand);font-weight:400;text-align:right;word-break:break-all;}
+.lang-row{display:flex;flex-wrap:wrap;gap:6px;}
+.lang-btn{background:var(--field);border:1px solid var(--line);color:var(--sand-dim);
+  border-radius:4px;padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;}
+.lang-btn.on{border-color:var(--amber);color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="retic">
+  <svg viewBox="0 0 132 132">
+    <g class="spin"><circle class="ring" cx="66" cy="66" r="52" stroke-dasharray="6 12"/></g>
+    <circle class="ring" id="acc-ring" cx="66" cy="66" r="30"/>
+    <line class="tick" x1="66" y1="44" x2="66" y2="56"/>
+    <line class="tick" x1="66" y1="76" x2="66" y2="88"/>
+    <line class="tick" x1="44" y1="66" x2="56" y2="66"/>
+    <line class="tick" x1="76" y1="66" x2="88" y2="66"/>
+  </svg>
+</div>
+<div id="acc">looking for satellites</div>
+
+<div id="hud">
+  <div id="hud-row">
+    <div id="brand"><em>Gate</em> Territory</div>
+    <button class="chip" id="btn-profile" onclick="openProfile()">profile</button>
+    <button class="chip" id="who" onclick="connect()">connect</button>
+  </div>
+  <div id="stats">
+    <div><span id="lbl-yours">YOURS</span><b id="s-mine">—</b></div>
+    <div><span id="lbl-near">NEARBY</span><b id="s-near">—</b></div>
+    <div><span id="lbl-today">TODAY</span><b id="s-left">—</b></div>
+    <div><span id="lbl-players">NEAR YOU</span><b id="s-players">—</b></div>
+  </div>
+</div>
+<div id="link">on device · <span id="link-txt">starting</span></div>
+
+<div id="dock">
+  <div class="ad-box" id="ad-dock" style="display:none"></div>
+  <div id="msg">Stand where you want your bunker. The ring locks when the signal is good enough.</div>
+  <button class="btn" id="plant" onclick="plant()" disabled>Plant bunker</button>
+  <div class="row">
+    <button class="btn-ghost" id="btn-center" onclick="recenter()">Center on me</button>
+    <button class="btn-ghost" id="btn-name" onclick="askName()">Name land</button>
+  </div>
+</div>
+
+<div id="veil" onclick="if(event.target===this)closeSheet()">
+  <div id="sheet">
+    <h2 id="sheet-t">—</h2>
+    <div id="sheet-body"></div>
+    <p id="sheet-p">—</p>
+    <img id="shot" alt=""/>
+    <input id="sheet-in" style="display:none" maxlength="24" placeholder="Northside"/>
+    <button class="btn" id="sheet-ok" onclick="sheetOk()">OK</button>
+    <div class="row"><button class="btn-ghost" onclick="closeSheet()">Close</button></div>
+  </div>
+</div>
+
+<input type="file" id="cam" accept="image/*" capture="environment" style="display:none"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  Gate Territory — шаг 1
+//
+//  ЧТО СЧИТАЕТ ТЕЛЕФОН (без интернета):
+//    • хранит все бункеры у себя (IndexedDB) — карта открывается мгновенно
+//    • рисует территории, считает площадь, ведёт профиль
+//    • меряет расстояния и проверяет правила ДО обращения наружу
+//    • держит плитки карты — район работает без сети
+//    • при отсутствии связи копит постройки и отправляет позже
+//
+//  ЧТО ОСТАЁТСЯ СНАРУЖИ (и почему):
+//    только «кто занял точку первым». Двое могут встать на одно место
+//    в один момент; решить это может лишь общий судья. Уходит один
+//    короткий вопрос, ответ «да» или «нет».
+// ═══════════════════════════════════════════════════════════════════
+
+const SB_URL = 'https://hgzthbidfdqomuotdocb.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhnenRoYmlkZmRxb211b3Rkb2NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTI2NjEsImV4cCI6MjA5NjU4ODY2MX0.otgk-jq2k0COrIE3cUEnRBPYKGnzAHRi3LEIQhE7khA';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+let map, meDot, meHalo;
+let addr = null, here = null, acc = null;
+let cfg = { max_accuracy_m:40, radius_earth_m:100, min_distance_m:100, earth_per_day:1, max_earth_alive:5 };
+let layers = new Map(), labels = new Map();
+let bunkers = [], names = {}, places = [], ads = [];
+let pendingPhoto = null, sheetMode = null;
+let queue = [];
+let _lastSpeed = null, _steps = null;
+
+
+// ═══════════ ЯЗЫКИ ═══════════
+// Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
+// из телефона сам, менять можно в профиле. Неизвестный язык — английский.
+var LANG = {
+ en:{plant:'Plant bunker',connect:'Connect wallet first',center:'Center on me',name:'Name land',
+  profile:'profile',stand:'Stand where you want your bunker. The ring locks when the signal is good enough.',
+  yours:'YOURS',near:'NEARBY',today:'TODAY',players:'NEAR YOU',locked:'locked',need:'need',
+  sat:'looking for satellites',planted:'Planted. This ground is yours.',
+  weak:'Signal is too weak right now.',daily:'You have used your free bunker for today.',
+  close:'Another bunker is {d} m away. You need {n} m of clear ground.',
+  maxb:'You hold the maximum of {n} bunkers.',saved:'Saved on your phone. It will reach the map when you get signal.',
+  nearby:'Someone just planted nearby.',fake:'This device reports a faked location.'},
+ uk:{plant:'Поставити бункер',connect:'Спершу підключіть гаманець',center:'До мене',name:'Назвати землю',
+  profile:'профіль',stand:'Станьте там, де хочете бункер. Кільце засвітиться, коли сигнал буде достатній.',
+  yours:'ВАШІ',near:'ПОРУЧ',today:'СЬОГОДНІ',players:'ГРАВЦІ',locked:'готово',need:'треба',
+  sat:'шукаю супутники',planted:'Поставлено. Ця земля ваша.',
+  weak:'Сигнал зараз заслабкий.',daily:'Безкоштовний бункер на сьогодні вже використано.',
+  close:'Інший бункер за {d} м. Потрібно {n} м вільної землі.',
+  maxb:'У вас максимум — {n} бункерів.',saved:'Збережено в телефоні. Потрапить на карту, коли буде зв\u2019язок.',
+  nearby:'Хтось щойно поставив бункер поруч.',fake:'Пристрій повідомляє про підроблені координати.'},
+ ru:{plant:'Поставить бункер',connect:'Сначала подключите кошелёк',center:'Ко мне',name:'Назвать землю',
+  profile:'профиль',stand:'Встаньте там, где хотите бункер. Кольцо загорится, когда сигнал станет достаточным.',
+  yours:'ВАШИ',near:'РЯДОМ',today:'СЕГОДНЯ',players:'ИГРОКИ',locked:'готово',need:'нужно',
+  sat:'ищу спутники',planted:'Поставлено. Эта земля ваша.',
+  weak:'Сигнал сейчас слишком слабый.',daily:'Бесплатный бункер на сегодня уже использован.',
+  close:'Другой бункер в {d} м. Нужно {n} м свободной земли.',
+  maxb:'У вас максимум — {n} бункеров.',saved:'Сохранено в телефоне. Попадёт на карту, когда появится связь.',
+  nearby:'Кто-то только что поставил бункер рядом.',fake:'Устройство сообщает о поддельных координатах.'},
+ zh:{plant:'建造地堡',connect:'请先连接钱包',center:'回到我的位置',name:'命名领地',
+  profile:'个人',stand:'站在你想建地堡的位置。信号足够时准星会锁定。',
+  yours:'我的',near:'附近',today:'今日',players:'附近玩家',locked:'已锁定',need:'需要',
+  sat:'正在搜索卫星',planted:'建造完成，这块地是你的了。',
+  weak:'当前信号太弱。',daily:'今天的免费地堡已经用完。',
+  close:'另一个地堡距离 {d} 米。需要 {n} 米空地。',
+  maxb:'你最多可拥有 {n} 个地堡。',saved:'已保存在手机上，有信号后会上传。',
+  nearby:'有人刚在附近建了地堡。',fake:'该设备报告位置被伪造。'},
+ es:{plant:'Colocar búnker',connect:'Conecta tu cartera',center:'Centrar en mí',name:'Nombrar tierra',
+  profile:'perfil',stand:'Ponte donde quieras tu búnker. El anillo se fija cuando la señal es buena.',
+  yours:'TUYOS',near:'CERCA',today:'HOY',players:'JUGADORES',locked:'fijado',need:'falta',
+  sat:'buscando satélites',planted:'Colocado. Esta tierra es tuya.',
+  weak:'La señal es demasiado débil.',daily:'Ya usaste tu búnker gratis de hoy.',
+  close:'Otro búnker está a {d} m. Necesitas {n} m libres.',
+  maxb:'Tienes el máximo de {n} búnkeres.',saved:'Guardado en tu teléfono. Llegará al mapa con señal.',
+  nearby:'Alguien acaba de construir cerca.',fake:'Este aparato reporta ubicación falsa.'},
+ de:{plant:'Bunker bauen',connect:'Wallet verbinden',center:'Zu mir',name:'Land benennen',
+  profile:'Profil',stand:'Stell dich dorthin, wo der Bunker stehen soll. Der Ring rastet ein, wenn das Signal reicht.',
+  yours:'DEINE',near:'IN DER NÄHE',today:'HEUTE',players:'SPIELER',locked:'bereit',need:'nötig',
+  sat:'suche Satelliten',planted:'Gebaut. Dieser Boden gehört dir.',
+  weak:'Das Signal ist zu schwach.',daily:'Dein Gratis-Bunker für heute ist verbraucht.',
+  close:'Ein anderer Bunker ist {d} m entfernt. Du brauchst {n} m freien Boden.',
+  maxb:'Du hast das Maximum von {n} Bunkern.',saved:'Auf dem Handy gespeichert. Kommt mit Empfang auf die Karte.',
+  nearby:'Jemand hat gerade nebenan gebaut.',fake:'Dieses Gerät meldet einen gefälschten Standort.'},
+ tr:{plant:'Sığınak kur',connect:'Önce cüzdanı bağla',center:'Bana odaklan',name:'Toprağı adlandır',
+  profile:'profil',stand:'Sığınağı istediğin yere geç. Sinyal yeterli olunca halka kilitlenir.',
+  yours:'SENİN',near:'YAKIN',today:'BUGÜN',players:'OYUNCULAR',locked:'kilitli',need:'gerekli',
+  sat:'uydu aranıyor',planted:'Kuruldu. Bu toprak senin.',
+  weak:'Sinyal şu an çok zayıf.',daily:'Bugünkü ücretsiz sığınağını kullandın.',
+  close:'Başka sığınak {d} m ötede. {n} m boş alan gerek.',
+  maxb:'En fazla {n} sığınağın olabilir.',saved:'Telefonuna kaydedildi. Sinyal gelince haritaya düşecek.',
+  nearby:'Biri az önce yakına kurdu.',fake:'Bu cihaz sahte konum bildiriyor.'}
+};
+var lang = 'en';
+function T(k, vars){
+  var d = LANG[lang] || LANG.en;
+  var s = d[k] || LANG.en[k] || k;
+  if(vars) Object.keys(vars).forEach(function(n){ s = s.split('{'+n+'}').join(vars[n]); });
+  return s;
+}
+function pickLang(saved){
+  if(saved && LANG[saved]) return saved;
+  var c = (navigator.language || 'en').slice(0,2).toLowerCase();
+  return LANG[c] ? c : 'en';
+}
+function applyLang(){
+  var set = function(id, t){ var e = document.getElementById(id); if(e) e.textContent = t; };
+  set('lbl-yours', T('yours')); set('lbl-near', T('near'));
+  set('lbl-today', T('today')); set('lbl-players', T('players'));
+  var w = document.getElementById('btn-profile'); if(w) w.textContent = T('profile');
+  var c = document.getElementById('btn-center'); if(c) c.textContent = T('center');
+  var n = document.getElementById('btn-name');   if(n) n.textContent = T('name');
+  if(!addr) say(T('stand'));
+  paintReticle();
+}
+
+// ═══════════ Хранилище в телефоне ═══════════
+const DB = (function(){
+  let db = null;
+  function open(){
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('ogt', 1);
+      r.onupgradeneeded = e => {
+        const d = e.target.result;
+        if(!d.objectStoreNames.contains('bunkers')) d.createObjectStore('bunkers', { keyPath:'id' });
+        if(!d.objectStoreNames.contains('kv'))      d.createObjectStore('kv');
+        if(!d.objectStoreNames.contains('queue'))   d.createObjectStore('queue', { keyPath:'tmp' });
+        // Снимки живут ТОЛЬКО здесь. В базу уходит один отпечаток:
+        // год игры это 19 МБ вместо 21 ГБ, и карта не тяжелеет.
+        if(!d.objectStoreNames.contains('photos'))  d.createObjectStore('photos');
+      };
+      r.onsuccess = e => { db = e.target.result; res(db); };
+      r.onerror = () => rej(r.error);
+    });
+  }
+  function tx(store, mode){ return db.transaction(store, mode).objectStore(store); }
+  function all(store){
+    return new Promise(res => { const q = tx(store,'readonly').getAll(); q.onsuccess = () => res(q.result||[]); q.onerror = () => res([]); });
+  }
+  function put(store, val, key){
+    return new Promise(res => { const q = key !== undefined ? tx(store,'readwrite').put(val,key) : tx(store,'readwrite').put(val); q.onsuccess = () => res(true); q.onerror = () => res(false); });
+  }
+  function del(store, key){
+    return new Promise(res => { const q = tx(store,'readwrite').delete(key); q.onsuccess = () => res(true); q.onerror = () => res(false); });
+  }
+  function get(store, key){
+    return new Promise(res => { const q = tx(store,'readonly').get(key); q.onsuccess = () => res(q.result); q.onerror = () => res(undefined); });
+  }
+  return { open, all, put, del, get };
+})();
+
+// Отпечаток снимка. Считает сам телефон, наружу уходят 64 знака.
+// Если когда-нибудь дойдёт до разбирательства, телефон предъявит фото,
+// а отпечаток докажет, что его не подменили.
+async function photoHash(dataUrl){
+  try{
+    const bin = atob(dataUrl.split(',')[1]);
+    const buf = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) buf[i] = bin.charCodeAt(i);
+    const h = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(e){ return null; }
+}
+
+// ═══════════ Расстояние — считает телефон ═══════════
+// Формула гаверсинуса: по дуге, а не по прямой. На плоскости
+// ошибка растёт с широтой, а игра рассчитана на весь мир.
+function metersBetween(a, b, c, d){
+  const R = 6371000, t = Math.PI/180;
+  const s1 = Math.sin((c-a)*t/2), s2 = Math.sin((d-b)*t/2);
+  return 2*R*Math.asin(Math.sqrt(s1*s1 + Math.cos(a*t)*Math.cos(c*t)*s2*s2));
+}
+
+// У пушек своё расстояние: 200 м, вдвое меньше бункерного. Внутри
+// круга радиусом 250 м это даёт ровно 7 мест — одно в центре и шесть
+// кольцом. Соты, которые красиво ложатся на карту.
+function nearestUnit(lat, lng, list){
+  let bestD = Infinity;
+  for(const u of (list||[])){
+    const d = metersBetween(lat, lng, u.lat, u.lng);
+    if(d < bestD) bestD = d;
+  }
+  return bestD;
+}
+
+function nearestBunker(lat, lng){
+  let best = null, bestD = Infinity;
+  for(const b of bunkers){
+    if(Math.abs(b.lat-lat) > 0.01 || Math.abs(b.lng-lng) > 0.01) continue;
+    const d = metersBetween(lat, lng, b.lat, b.lng);
+    if(d < bestD){ bestD = d; best = b; }
+  }
+  return { b: best, d: bestD };
+}
+
+// Площадь владений: сетка 10×10 м по своим кругам. Считает процессор
+// телефона, наружу не уходит ничего.
+function myAreaM2(){
+  const mine = bunkers.filter(b => addr && b.owner === addr);
+  if(!mine.length) return 0;
+  const R = cfg.radius_earth_m, step = 10;
+  let minLat=90, maxLat=-90, minLng=180, maxLng=-180;
+  const dLat = R/111320;
+  for(const b of mine){
+    const dLng = R/(111320*Math.cos(b.lat*Math.PI/180));
+    minLat=Math.min(minLat,b.lat-dLat); maxLat=Math.max(maxLat,b.lat+dLat);
+    minLng=Math.min(minLng,b.lng-dLng); maxLng=Math.max(maxLng,b.lng+dLng);
+  }
+  const latStep = step/111320;
+  const lngStep = step/(111320*Math.cos(((minLat+maxLat)/2)*Math.PI/180));
+  let cells = 0, guard = 0;
+  for(let la=minLat; la<=maxLat && guard<400000; la+=latStep){
+    for(let ln=minLng; ln<=maxLng && guard<400000; ln+=lngStep){
+      guard++;
+      for(const b of mine){
+        if(metersBetween(la, ln, b.lat, b.lng) <= R){ cells++; break; }
+      }
+    }
+  }
+  return cells * step * step;
+}
+
+// ═══════════ Карта ═══════════
+function initMap(){
+  map = L.map('map', { zoomControl:false }).setView([50.4501, 30.5234], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(map);
+  map.on('moveend', drawLabels);
+}
+
+let followed = false;
+function watchMe(){
+  if(!navigator.geolocation){ say('This device has no location service.','warn'); return; }
+  navigator.geolocation.watchPosition(p => {
+    here = [p.coords.latitude, p.coords.longitude];
+    acc  = p.coords.accuracy;
+    if(typeof p.coords.speed === 'number' && !isNaN(p.coords.speed)) _lastSpeed = p.coords.speed;
+    if(!followed){ map.setView(here, 17); followed = true; sync(); }
+    paintMe(); paintReticle();
+  }, err => {
+    say(err.code === 1
+      ? 'Location is blocked. Allow it in your settings, then reopen.'
+      : 'No signal yet. Step outside — walls block satellites.','warn');
+  }, { enableHighAccuracy:true, maximumAge:2000, timeout:20000 });
+}
+
+function paintMe(){
+  if(!here) return;
+  if(!meDot){
+    meHalo = L.circle(here, { radius:acc||30, color:'#E0A32E', weight:1, opacity:.35,
+                              fillColor:'#E0A32E', fillOpacity:.06 }).addTo(map);
+    meDot  = L.circleMarker(here, { radius:6, color:'#12140F', weight:2,
+                                    fillColor:'#E0A32E', fillOpacity:1 }).addTo(map);
+  } else { meDot.setLatLng(here); meHalo.setLatLng(here); meHalo.setRadius(acc||30); }
+}
+
+function paintReticle(){
+  const r = document.getElementById('retic');
+  const ring = document.getElementById('acc-ring');
+  const txt = document.getElementById('acc');
+  const btn = document.getElementById('plant');
+  if(acc == null){ txt.textContent = T('sat'); return; }
+  const good = acc <= cfg.max_accuracy_m;
+  ring.setAttribute('r', Math.max(14, Math.min(52, 14 + (acc-8)*0.4)).toFixed(0));
+  r.classList.toggle('lock', good);
+  txt.textContent = good ? '± '+Math.round(acc)+' m · '+T('locked')
+                         : '± '+Math.round(acc)+' m · '+T('need')+' '+cfg.max_accuracy_m+' m';
+  btn.disabled = !(good && addr);
+  btn.textContent = addr ? T('plant') : T('connect');
+}
+
+function recenter(){ if(here) map.setView(here, 17); }
+
+// ═══════════ Кошелёк ═══════════
+async function connect(){
+  if(!window.ethereum){
+    sheetInfo('No wallet found',
+      'Open this from your wallet app browser — MetaMask, Trust Wallet or another. That is where your address lives.');
+    return;
+  }
+  try{
+    const a = await window.ethereum.request({ method:'eth_requestAccounts' });
+    addr = (a[0]||'').toLowerCase();
+    await DB.put('kv', addr, 'addr');
+    document.getElementById('who').textContent = addr.slice(0,6)+'…'+addr.slice(-4);
+    say('Ready. Stand on the spot and plant.');
+    paintReticle(); drawAll(); refreshStats();
+  }catch(e){ say('Wallet connection was refused.','warn'); }
+}
+
+// ═══════════ Синхронизация: только то, чего нет в телефоне ═══════════
+async function loadLocal(){
+  bunkers = await DB.all('bunkers');
+  queue   = await DB.all('queue');
+  const c = await DB.get('kv','cfg');   if(c) cfg = Object.assign(cfg, c);
+  const n = await DB.get('kv','names'); if(n) names = n;
+  const pl = await DB.get('kv','places'); if(pl){ places = pl; }
+  const ad = await DB.get('kv','ads');    if(ad){ ads = ad; }
+  const a = await DB.get('kv','addr');
+  if(a){ addr = a; document.getElementById('who').textContent = a.slice(0,6)+'…'+a.slice(-4); }
+  drawAll(); drawPlaces(); drawLabels(); refreshStats(); showAd('dock');
+  linkState(bunkers.length ? 'from device' : 'first run');
+}
+
+async function sync(){
+  if(!navigator.onLine){ linkState('offline', 'off'); return; }
+  try{
+    let lastId = (await DB.get('kv','lastId')) || 0;
+    // Тянем ТОЛЬКО новое: id больше того, что уже лежит в телефоне.
+    const { data, error } = await sb.from('territory_bunkers')
+      .select('id,owner,lat,lng,kind,built_at')
+      .eq('alive', true).gt('id', lastId)
+      .order('id', { ascending:true }).limit(3000);
+    if(error) throw error;
+    let added = 0;
+    for(const b of (data||[])){
+      await DB.put('bunkers', b);
+      bunkers.push(b); drawOne(b); added++;
+      if(b.id > lastId) lastId = b.id;
+    }
+    await DB.put('kv', lastId, 'lastId');
+
+    const { data:cf } = await sb.from('territory_config').select('key,value');
+    if(cf){ const o={}; cf.forEach(r=>o[r.key]=Number(r.value)); cfg=Object.assign(cfg,o); await DB.put('kv',o,'cfg'); }
+    // Отметки заведений и реклама — грузятся вместе с картой и тоже
+    // ложатся в телефон, чтобы работали без сети.
+    const { data:pl } = await sb.from('territory_places')
+      .select('id,kind,title,subtitle,lat,lng,radius_m,icon,color,perks')
+      .eq('visible', true).limit(500);
+    if(pl){ places = pl; await DB.put('kv', pl, 'places'); drawPlaces(); }
+    const { data:ad } = await sb.from('territory_ads')
+      .select('id,slot,title,body,image_url,link_url,lat,lng,radius_m,weight')
+      .eq('active', true).limit(200);
+    if(ad){ ads = ad; await DB.put('kv', ad, 'ads'); showAd('dock'); }
+
+    const { data:nm } = await sb.from('territory_names').select('owner,label');
+    if(nm){ names={}; nm.forEach(r=>names[r.owner]=r.label); await DB.put('kv',names,'names'); }
+
+    await DB.put('kv', Date.now(), 'syncedAt');
+    drawLabels(); refreshStats();
+    linkState(added ? ('+'+added+' new') : 'up to date');
+    flushQueue();
+  }catch(e){ linkState('no server', 'off'); }
+}
+
+function linkState(t, cls){
+  document.getElementById('link-txt').textContent = t + (queue.length ? ' · '+queue.length+' waiting' : '');
+  document.getElementById('link').className = queue.length ? 'queued' : (cls||'');
+}
+
+// ═══════════ Отрисовка ═══════════
+function drawAll(){
+  layers.forEach(l => map.removeLayer(l)); layers.clear();
+  bunkers.forEach(drawOne);
+}
+function drawOne(b){
+  if(layers.has(b.id)) return;
+  const mine = addr && b.owner === addr;
+  const col = mine ? '#E0A32E' : '#B4462F';
+  const g = L.layerGroup();
+  L.circle([b.lat,b.lng], { radius:cfg.radius_earth_m, color:col, weight:mine?2:1,
+    opacity:mine?.9:.55, fillColor:col, fillOpacity:mine?.14:.07,
+    dashArray:mine?null:'5 6' }).addTo(g);
+  L.circleMarker([b.lat,b.lng], { radius:5, color:'#12140F', weight:2,
+    fillColor:col, fillOpacity:1 }).addTo(g);
+  g.addTo(map); layers.set(b.id, g);
+}
+function drawLabels(){
+  labels.forEach(l => map.removeLayer(l)); labels.clear();
+  const byOwner = {};
+  bunkers.forEach(b => { (byOwner[b.owner] = byOwner[b.owner]||[]).push(b); });
+  Object.keys(byOwner).forEach(owner => {
+    const label = names[owner]; const list = byOwner[owner];
+    if(!label || list.length < 3) return;
+    const lat = list.reduce((s,b)=>s+b.lat,0)/list.length;
+    const lng = list.reduce((s,b)=>s+b.lng,0)/list.length;
+    const mine = addr && owner === addr;
+    labels.set(owner, L.marker([lat,lng], { interactive:false, icon:L.divIcon({ className:'',
+      html:'<div class="terr-label '+(mine?'terr-mine':'terr-them')+'">'+esc(label)+'</div>',
+      iconSize:[0,0] })}).addTo(map));
+  });
+}
+// Отметки заведений: кафе, спортзал, спонсор. Кружок другого рисунка,
+// чтобы не путать с бункером, и подпись рядом.
+let placeLayers = [];
+function drawPlaces(){
+  placeLayers.forEach(l => map.removeLayer(l)); placeLayers = [];
+  places.forEach(pl => {
+    const col = pl.color || '#7FA65C';
+    const g = L.layerGroup();
+    L.circle([pl.lat,pl.lng], { radius: pl.radius_m || 60, color: col, weight:1,
+      opacity:.7, fillColor:col, fillOpacity:.10, dashArray:'2 5' }).addTo(g);
+    L.marker([pl.lat,pl.lng], { interactive:false, icon: L.divIcon({ className:'',
+      html:'<div class="place-pin">'+(pl.icon||'\u2691')+'<span>'+esc(pl.title)+'</span></div>',
+      iconSize:[0,0] })}).addTo(g);
+    g.addTo(map); placeLayers.push(g);
+  });
+}
+
+// Реклама. Место показа — просто строка: dock, plant, siege, profile,
+// win, splash, map_pin. Появится новое место — добавляется значение,
+// таблицу и код загрузки менять не надо.
+function pickAd(slot){
+  const list = ads.filter(a => a.slot === slot).filter(a => {
+    if(a.lat == null || !here) return true;
+    return metersBetween(here[0], here[1], a.lat, a.lng) <= (a.radius_m || 50000);
+  });
+  if(!list.length) return null;
+  let total = list.reduce((s,a)=>s+(a.weight||100), 0), r = Math.random()*total;
+  for(const a of list){ r -= (a.weight||100); if(r <= 0) return a; }
+  return list[0];
+}
+function showAd(slot){
+  const box = document.getElementById('ad-'+slot);
+  if(!box) return;
+  const a = pickAd(slot);
+  if(!a){ box.style.display='none'; return; }
+  box.style.display='block';
+  box.innerHTML = '<span class="ad-tag">ad</span>'
+    + (a.image_url ? '<img src="'+esc(a.image_url)+'" alt=""/>' : '')
+    + '<b>'+esc(a.title)+'</b>'
+    + (a.body ? '<span>'+esc(a.body)+'</span>' : '');
+  box.onclick = () => {
+    if(a.link_url) window.open(a.link_url, '_blank', 'noopener');
+    try{ sb.rpc('territory_ad_click', { p:{ id:a.id } }); }catch(e){}
+  };
+}
+
+function refreshStats(){
+  const mine = addr ? bunkers.filter(b=>b.owner===addr) : [];
+  const today = mine.filter(b => new Date(b.built_at).toDateString() === new Date().toDateString());
+  document.getElementById('s-mine').textContent = addr ? mine.length : '—';
+  document.getElementById('s-near').textContent = bunkers.length;
+  document.getElementById('s-left').textContent = addr
+    ? Math.max(0, cfg.earth_per_day - today.length - queue.length) : '—';
+}
+
+// ═══════════ Постройка ═══════════
+// Правила проверяем НА ТЕЛЕФОНЕ до отправки: отказ приходит мгновенно
+// и без интернета. Наружу уходит только то, что прошло проверку.
+function preCheck(){
+  if(!addr) return 'connect';
+  if(!here || acc == null) return 'nogps';
+  if(acc > cfg.max_accuracy_m) return 'weak';
+  const mine = bunkers.filter(b=>b.owner===addr);
+  const today = mine.filter(b => new Date(b.built_at).toDateString() === new Date().toDateString());
+  if(today.length + queue.length >= cfg.earth_per_day) return 'daily';
+  if(mine.length + queue.length >= cfg.max_earth_alive) return 'max';
+  const n = nearestBunker(here[0], here[1]);
+  if(n.b && n.d < cfg.min_distance_m) return 'close:'+Math.round(n.d);
+  return null;
+}
+
+// Показания телефона на момент постройки. Собираем что доступно:
+// в лесу сетей нет и это нормально — тогда вес на остальном.
+function collectProof(){
+  const pr = { mocked:false, wifi:0, cells:0, device:{} };
+  try{
+    pr.device = { ua:navigator.userAgent.slice(0,120),
+                  lang:navigator.language,
+                  cores:navigator.hardwareConcurrency||0,
+                  mem:navigator.deviceMemory||0 };
+  }catch(e){}
+  if(typeof _lastSpeed === 'number') pr.speed = _lastSpeed;
+  if(typeof _steps === 'number') pr.steps = _steps;
+  return pr;
+}
+
+function plant(){
+  const bad = preCheck();
+  if(bad === 'connect'){ connect(); return; }
+  if(bad === 'weak' || bad === 'nogps'){ say(T('weak'),'warn'); return; }
+  if(bad === 'daily'){ say(T('daily'),'warn'); return; }
+  if(bad === 'max'){ say(T('maxb',{n:cfg.max_earth_alive}),'warn'); return; }
+  if(bad && bad.startsWith('close:')){
+    say(T('close',{d:bad.split(':')[1], n:cfg.min_distance_m}),'warn'); return;
+  }
+  document.getElementById('cam').click();
+}
+
+document.getElementById('cam').addEventListener('change', function(e){
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if(!f) return;
+  const fr = new FileReader(); fr.onload = () => stampPhoto(fr.result); fr.readAsDataURL(f);
+});
+
+function stampPhoto(dataUrl){
+  const img = new Image();
+  img.onload = function(){
+    const side = 900, c = document.createElement('canvas');
+    const scale = side/Math.max(img.width, img.height);
+    c.width = Math.round(img.width*scale); c.height = Math.round(img.height*scale);
+    const x = c.getContext('2d');
+    x.drawImage(img, 0, 0, c.width, c.height);
+    x.fillStyle = 'rgba(18,20,15,.82)'; x.fillRect(0, c.height-54, c.width, 54);
+    x.fillStyle = '#E8E2D0'; x.font = '13px monospace';
+    x.fillText(here[0].toFixed(5)+', '+here[1].toFixed(5)+'  ±'+Math.round(acc)+'m', 10, c.height-32);
+    x.fillText(new Date().toISOString().slice(0,19).replace('T',' ')+'  '+addr.slice(0,10), 10, c.height-12);
+    pendingPhoto = c.toDataURL('image/jpeg', 0.6);
+    sheetMode = 'plant';
+    document.getElementById('sheet-body').innerHTML = '';
+    document.getElementById('shot').src = pendingPhoto;
+    document.getElementById('shot').style.display = 'block';
+    document.getElementById('sheet-in').style.display = 'none';
+    sheet('Plant here?', 'This spot becomes yours with a '+cfg.radius_earth_m+' m ring around it. Earth bunkers are free — one a day.');
+    document.getElementById('sheet-ok').textContent = 'Plant it';
+  };
+  img.src = dataUrl;
+}
+
+async function doPlant(){
+  closeSheet();
+  const tmp = 'q'+Date.now();
+  const hash = await photoHash(pendingPhoto);
+  // Снимок остаётся в телефоне. Наружу пойдёт только отпечаток.
+  await DB.put('photos', pendingPhoto, tmp);
+  const item = { tmp:tmp, owner:addr, lat:here[0], lng:here[1],
+                 accuracy:acc, hash:hash, proof:collectProof(), at:Date.now() };
+  pendingPhoto = null;
+
+  if(!navigator.onLine){
+    // В лесу связи нет — постройка ждёт в телефоне и уйдёт позже
+    queue.push(item); await DB.put('queue', item);
+    say(T('saved'),'good');
+    refreshStats(); linkState('offline','off');
+    return;
+  }
+  say('Planting…');
+  const ok = await sendOne(item);
+  if(ok === 'network'){
+    queue.push(item); await DB.put('queue', item);
+    say('No connection. Saved on your phone and will be sent later.','good');
+    refreshStats(); linkState('offline','off');
+  }
+}
+
+async function sendOne(item){
+  try{
+    // Один аргумент jsonb: новые поля можно добавлять сколько угодно,
+    // подпись функции в базе от этого не меняется и обновлять её
+    // вручную не придётся.
+    const { data, error } = await sb.rpc('place_bunker_v2', { p: {
+      owner: item.owner, lat: item.lat, lng: item.lng,
+      accuracy: item.accuracy, photo_hash: item.hash,
+      kind: 'earth', proof: item.proof || {}
+    }});
+    if(error) return 'network';
+    if(!data || !data.ok){
+      const e = data && data.error;
+      if(e === 'too_close') say('Someone got there first — a bunker is '+data.got+' m away.','warn');
+      else if(e === 'daily_limit') say('Your free bunker for today is already used.','warn');
+      else if(e === 'max_alive')   say('You hold the maximum of '+data.limit+' bunkers.','warn');
+      else if(e === 'weak_gps')    say('Signal was too weak: ±'+data.got+' m.','warn');
+      else if(e === 'fake_location') say(T('fake'),'warn');
+      else say('Could not plant here.','warn');
+      try{ await DB.del('photos', item.tmp); }catch(_){}
+      return 'rejected';
+    }
+    const b = { id:data.id, owner:item.owner, lat:item.lat, lng:item.lng,
+                kind:'earth', built_at:new Date(item.at).toISOString() };
+    bunkers.push(b); await DB.put('bunkers', b); drawOne(b);
+    try{
+      const ph = await DB.get('photos', item.tmp);
+      if(ph){ await DB.put('photos', ph, 'b'+data.id); await DB.del('photos', item.tmp); }
+    }catch(e){}
+    const last = (await DB.get('kv','lastId'))||0;
+    if(data.id > last) await DB.put('kv', data.id, 'lastId');
+    say(T('planted'),'good');
+    refreshStats();
+    return 'ok';
+  }catch(e){ return 'network'; }
+}
+
+async function flushQueue(){
+  if(!queue.length || !navigator.onLine) return;
+  const list = queue.slice();
+  for(const item of list){
+    const r = await sendOne(item);
+    if(r === 'network') break;
+    queue = queue.filter(q => q.tmp !== item.tmp);
+    await DB.del('queue', item.tmp);
+  }
+  refreshStats(); linkState(queue.length ? 'sending' : 'up to date');
+}
+
+// ═══════════ Название земли ═══════════
+function askName(){
+  if(!addr){ connect(); return; }
+  const mine = bunkers.filter(b=>b.owner===addr).length;
+  if(mine < 3){ sheetInfo('Not enough ground','Name your land once you hold three bunkers. You have '+mine+'.'); return; }
+  sheetMode = 'name';
+  document.getElementById('sheet-body').innerHTML = '';
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'block';
+  document.getElementById('sheet-in').value = names[addr] || '';
+  sheet('Name your land','Everyone on the map will see it. Up to 24 characters.');
+  document.getElementById('sheet-ok').textContent = 'Save name';
+}
+async function doName(){
+  const label = document.getElementById('sheet-in').value.trim();
+  closeSheet();
+  try{
+    const { data, error } = await sb.rpc('name_territory', { p_owner:addr, p_label:label });
+    if(error || !data || !data.ok){ say('That name was not accepted.','warn'); return; }
+    names[addr] = label; await DB.put('kv', names, 'names');
+    drawLabels(); say('Named.','good');
+  }catch(e){ say('No connection — try naming again later.','warn'); }
+}
+
+// ═══════════ Профиль ═══════════
+async function openProfile(){
+  const mine = addr ? bunkers.filter(b=>b.owner===addr) : [];
+  const area = myAreaM2();
+  const first = mine.length ? new Date(Math.min(...mine.map(b=>+new Date(b.built_at)))) : null;
+  const syncedAt = await DB.get('kv','syncedAt');
+  let quota = '—';
+  if(navigator.storage && navigator.storage.estimate){
+    try{ const q = await navigator.storage.estimate();
+      quota = (q.usage/1048576).toFixed(1)+' MB on this phone'; }catch(e){}
+  }
+  const today = mine.filter(b => new Date(b.built_at).toDateString() === new Date().toDateString());
+
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-p').textContent = '';
+  sheetMode = 'info';
+  document.getElementById('sheet-ok').textContent = 'Back to map';
+
+  document.getElementById('sheet-body').innerHTML =
+    '<div class="pf-grid">'
+    + cell(mine.length, 'Bunkers held')
+    + cell(area >= 1000000 ? (area/1000000).toFixed(2)+' km²' : Math.round(area).toLocaleString()+' m²', 'Ground covered')
+    + cell(Math.max(0, cfg.earth_per_day - today.length - queue.length), 'Free left today')
+    + cell(bunkers.length, 'Bunkers on your map')
+    + '</div>'
+    + '<div class="pf-sec">Your land</div>'
+    + line('Name', names[addr] ? esc(names[addr]) : 'not named yet')
+    + line('First planted', first ? first.toISOString().slice(0,10) : '—')
+    + line('Wallet', addr ? esc(addr) : 'not connected')
+    + '<div class="pf-sec">On this phone</div>'
+    + line('Stored locally', bunkers.length + ' bunkers')
+    + line('Waiting to send', queue.length)
+    + line('Storage used', quota)
+    + line('Last sync', syncedAt ? new Date(syncedAt).toLocaleTimeString() : 'never')
+    + line('Map works offline', 'yes, for places you have visited')
+    + '<div class="pf-sec">Rules right now</div>'
+    + line('Free bunkers a day', cfg.earth_per_day)
+    + line('Bunkers at once', cfg.max_earth_alive)
+    + line('Distance between bunkers', cfg.min_distance_m + ' m')
+    + line('Ring around a bunker', cfg.radius_earth_m + ' m')
+    + line('Signal needed', 'better than ± ' + cfg.max_accuracy_m + ' m')
+    + '<div class="pf-sec">Language</div>'
+    + '<div class="lang-row">'
+    + Object.keys(LANG).map(function(k){
+        return '<button class="lang-btn'+(k===lang?' on':'')+'" onclick="setLang(\''+k+'\')">'+k.toUpperCase()+'</button>';
+      }).join('')
+    + '</div>'
+    + '<div class="row" style="margin:18px 0 0;">'
+    + '<button class="btn-ghost" onclick="window.open(\'https://opengate.bond\',\'_blank\')">Open OpenGate</button>'
+    + '<button class="btn-ghost" onclick="sync();closeSheet()">Sync now</button>'
+    + '</div>';
+  document.getElementById('sheet-t').textContent = 'Profile';
+  document.getElementById('veil').classList.add('on');
+}
+async function setLang(k){
+  lang = k;
+  try{ await DB.put('kv', k, 'lang'); }catch(e){}
+  applyLang(); openProfile();
+}
+function cell(v,l){ return '<div class="pf-cell"><div class="pf-v">'+v+'</div><div class="pf-l">'+l+'</div></div>'; }
+function line(l,v){ return '<div class="pf-line"><span>'+l+'</span><b>'+v+'</b></div>'; }
+
+// ═══════════ Мелочи ═══════════
+function say(t, cls){ const m = document.getElementById('msg'); m.textContent = t; m.className = cls||''; }
+function sheet(title, text){
+  document.getElementById('sheet-t').textContent = title;
+  document.getElementById('sheet-p').textContent = text;
+  document.getElementById('veil').classList.add('on');
+}
+function sheetInfo(t, p){
+  sheetMode = 'info';
+  document.getElementById('sheet-body').innerHTML = '';
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-ok').textContent = 'Got it';
+  sheet(t, p);
+}
+function closeSheet(){ document.getElementById('veil').classList.remove('on'); }
+function sheetOk(){
+  if(sheetMode === 'plant') doPlant();
+  else if(sheetMode === 'name') doName();
+  else closeSheet();
+}
+function esc(s){ return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+// Чужие постройки прилетают сами и сразу ложатся в телефон
+function live(){
+  sb.channel('territory')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'territory_bunkers' }, async p => {
+      const b = p.new;
+      if(!here || Math.abs(b.lat-here[0]) > 0.05 || Math.abs(b.lng-here[1]) > 0.05) return;
+      if(layers.has(b.id)) return;
+      bunkers.push(b); await DB.put('bunkers', b); drawOne(b); refreshStats();
+      if(addr && b.owner !== addr) say(T('nearby'),'warn');
+    }).subscribe();
+}
+
+// Кто рядом. Наружу уходит КЛЕТКА карты, а не точка, и обратно —
+// только число. Ни имён, ни чужих координат. Раз в две минуты.
+async function pingNearby(){
+  if(!addr || !here || !navigator.onLine) return;
+  try{
+    const { data } = await sb.rpc('territory_ping', { p:{ wallet:addr, lat:here[0], lng:here[1] } });
+    if(data && data.ok) document.getElementById('s-players').textContent = data.nearby;
+  }catch(e){}
+}
+setInterval(pingNearby, 120000);
+setTimeout(pingNearby, 8000);
+
+window.addEventListener('online',  () => { linkState('back online'); sync(); });
+window.addEventListener('offline', () => linkState('offline','off'));
+
+(async function start(){
+  // Регистрируем первым делом и отдельно: если споткнётся что-то ниже,
+  // приложение не должно остаться без работы вне сети.
+  if('serviceWorker' in navigator){
+    try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
+  }
+  initMap();
+  try{ await DB.open(); }catch(e){}
+  try{ lang = pickLang(await DB.get('kv','lang')); }catch(e){ lang = pickLang(); }
+  applyLang();
+  try{ await loadLocal(); }catch(e){ linkState('no local storage','off'); }
+  watchMe();
+  live();
+  sync();
+  if(window.ethereum && window.ethereum.selectedAddress) connect();
+})();
+</script>
+</body>
+</html>
