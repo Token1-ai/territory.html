@@ -1,12 +1,12 @@
 // Gate Territory — работа без сети.
 // Держим в телефоне оболочку приложения и плитки карты тех мест, где
 // человек уже был. Ходил по району — район открывается без интернета.
-const SHELL = 'ogt-shell-v2';
+const SHELL = 'ogt-shell-v3';
 const TILES = 'ogt-tiles-v1';
 const TILE_CAP = 900;                 // примерно 25-40 МБ, дальше чистим старое
 
 const SHELL_FILES = [
-  './', './index.html', './manifest.json',
+  './', './index.html', './manifest.json', './splash-1080.webp',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
@@ -48,10 +48,10 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       const c = await caches.open(TILES);
       const hit = await c.match(e.request);
-      if(hit){
-        fetch(e.request).then(r => { if(r && r.ok){ c.put(e.request, r.clone()); trimTiles(c); } }).catch(()=>{});
-        return hit;
-      }
+      // Плитка уже есть — отдаём и НИЧЕГО не докачиваем. Карта улиц
+      // не меняется неделями, а фоновая перекачка жгла и трафик, и
+      // батарею на каждом просмотре одного и того же двора.
+      if(hit) return hit;
       try{
         const r = await fetch(e.request);
         if(r && r.ok){ c.put(e.request, r.clone()); trimTiles(c); }
