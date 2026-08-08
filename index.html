@@ -141,7 +141,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   <div id="hud-row">
     <div id="brand"><em>Gate</em> Territory</div>
     <button class="chip" id="btn-profile" onclick="openProfile()">profile</button>
-    <button class="chip" id="who" onclick="connect()">connect</button>
+    <button class="chip" id="who" onclick="openProfile()">guest</button>
   </div>
   <div id="stats">
     <div><span id="lbl-yours">YOURS</span><b id="s-mine">—</b></div>
@@ -444,27 +444,30 @@ function paintReticle(){
   r.classList.toggle('lock', good);
   txt.textContent = good ? '± '+Math.round(acc)+' m · '+T('locked')
                          : '± '+Math.round(acc)+' m · '+T('need')+' '+cfg.max_accuracy_m+' m';
-  btn.disabled = !(good && addr);
-  btn.textContent = addr ? T('plant') : T('connect');
+  btn.disabled = !good;
+  btn.textContent = T('plant');
 }
 
 function recenter(){ if(here) map.setView(here, 17); }
 
-// ═══════════ Кошелёк ═══════════
-async function connect(){
-  if(!window.ethereum){
-    sheetInfo('No wallet found',
-      'Open this from your wallet app browser — MetaMask, Trust Wallet or another. That is where your address lives.');
-    return;
+// ═══════════ Кто ты ═══════════
+// Кошелёк для игры не нужен. Телефон один раз делает себе постоянный
+// номер и держит его у себя. Вид номера такой же, как у адреса кошелька
+// (0x и 40 знаков) — чтобы потом, когда появятся покупки, тот же столбец
+// в базе принял настоящий адрес без переделки схемы.
+async function ensureId(){
+  let a = null;
+  try{ a = await DB.get('kv','addr'); }catch(e){}
+  if(!a || !/^0x[0-9a-f]{40}$/.test(a)){
+    const r = new Uint8Array(20);
+    (window.crypto || self.crypto).getRandomValues(r);
+    a = '0x' + Array.from(r).map(function(x){ return x.toString(16).padStart(2,'0'); }).join('');
+    try{ await DB.put('kv', a, 'addr'); }catch(e){}
   }
-  try{
-    const a = await window.ethereum.request({ method:'eth_requestAccounts' });
-    addr = (a[0]||'').toLowerCase();
-    await DB.put('kv', addr, 'addr');
-    document.getElementById('who').textContent = addr.slice(0,6)+'…'+addr.slice(-4);
-    say('Ready. Stand on the spot and plant.');
-    paintReticle(); drawAll(); refreshStats();
-  }catch(e){ say('Wallet connection was refused.','warn'); }
+  addr = a;
+  const w = document.getElementById('who');
+  if(w) w.textContent = a.slice(0,6)+'…'+a.slice(-4);
+  return a;
 }
 
 // ═══════════ Синхронизация: только то, чего нет в телефоне ═══════════
@@ -618,7 +621,6 @@ function refreshStats(){
 // Правила проверяем НА ТЕЛЕФОНЕ до отправки: отказ приходит мгновенно
 // и без интернета. Наружу уходит только то, что прошло проверку.
 function preCheck(){
-  if(!addr) return 'connect';
   if(!here || acc == null) return 'nogps';
   if(acc > cfg.max_accuracy_m) return 'weak';
   const mine = bunkers.filter(b=>b.owner===addr);
@@ -647,7 +649,6 @@ function collectProof(){
 
 function plant(){
   const bad = preCheck();
-  if(bad === 'connect'){ connect(); return; }
   if(bad === 'weak' || bad === 'nogps'){ say(T('weak'),'warn'); return; }
   if(bad === 'daily'){ say(T('daily'),'warn'); return; }
   if(bad === 'max'){ say(T('maxb',{n:cfg.max_earth_alive}),'warn'); return; }
@@ -764,7 +765,6 @@ async function flushQueue(){
 
 // ═══════════ Название земли ═══════════
 function askName(){
-  if(!addr){ connect(); return; }
   const mine = bunkers.filter(b=>b.owner===addr).length;
   if(mine < 3){ sheetInfo('Not enough ground','Name your land once you hold three bunkers. You have '+mine+'.'); return; }
   sheetMode = 'name';
@@ -815,7 +815,8 @@ async function openProfile(){
     + '<div class="pf-sec">Your land</div>'
     + line('Name', names[addr] ? esc(names[addr]) : 'not named yet')
     + line('First planted', first ? first.toISOString().slice(0,10) : '—')
-    + line('Wallet', addr ? esc(addr) : 'not connected')
+    + line('Player', esc(addr))
+    + line('Wallet', 'not needed — only for buying')
     + '<div class="pf-sec">On this phone</div>'
     + line('Stored locally', bunkers.length + ' bunkers')
     + line('Waiting to send', queue.length)
@@ -907,13 +908,13 @@ window.addEventListener('offline', () => linkState('offline','off'));
   }
   initMap();
   try{ await DB.open(); }catch(e){}
+  try{ await ensureId(); }catch(e){}
   try{ lang = pickLang(await DB.get('kv','lang')); }catch(e){ lang = pickLang(); }
   applyLang();
   try{ await loadLocal(); }catch(e){ linkState('no local storage','off'); }
   watchMe();
   live();
   sync();
-  if(window.ethereum && window.ethereum.selectedAddress) connect();
 })();
 </script>
 </body>
