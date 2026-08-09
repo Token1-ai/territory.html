@@ -252,64 +252,26 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = {
- en:{plant:'Plant bunker',connect:'Connect wallet first',center:'Center on me',name:'Name land',
-  profile:'profile',stand:'Stand where you want your bunker. The ring locks when the signal is good enough.',
-  yours:'YOURS',near:'NEARBY',today:'TODAY',players:'NEAR YOU',locked:'locked',need:'need',
-  sat:'looking for satellites',planted:'Planted. This ground is yours.',
-  weak:'Signal is too weak right now.',daily:'You have used your free bunker for today.',
-  close:'Another bunker is {d} m away. You need {n} m of clear ground.',
-  maxb:'You hold the maximum of {n} bunkers.',saved:'Saved on your phone. It will reach the map when you get signal.',
-  nearby:'Someone just planted nearby.',fake:'This device reports a faked location.'},
- uk:{plant:'Поставити бункер',connect:'Спершу підключіть гаманець',center:'До мене',name:'Назвати землю',
-  profile:'профіль',stand:'Станьте там, де хочете бункер. Кільце засвітиться, коли сигнал буде достатній.',
-  yours:'ВАШІ',near:'ПОРУЧ',today:'СЬОГОДНІ',players:'ГРАВЦІ',locked:'готово',need:'треба',
-  sat:'шукаю супутники',planted:'Поставлено. Ця земля ваша.',
-  weak:'Сигнал зараз заслабкий.',daily:'Безкоштовний бункер на сьогодні вже використано.',
-  close:'Інший бункер за {d} м. Потрібно {n} м вільної землі.',
-  maxb:'У вас максимум — {n} бункерів.',saved:'Збережено в телефоні. Потрапить на карту, коли буде зв\u2019язок.',
-  nearby:'Хтось щойно поставив бункер поруч.',fake:'Пристрій повідомляє про підроблені координати.'},
- ru:{plant:'Поставить бункер',connect:'Сначала подключите кошелёк',center:'Ко мне',name:'Назвать землю',
-  profile:'профиль',stand:'Встаньте там, где хотите бункер. Кольцо загорится, когда сигнал станет достаточным.',
-  yours:'ВАШИ',near:'РЯДОМ',today:'СЕГОДНЯ',players:'ИГРОКИ',locked:'готово',need:'нужно',
-  sat:'ищу спутники',planted:'Поставлено. Эта земля ваша.',
-  weak:'Сигнал сейчас слишком слабый.',daily:'Бесплатный бункер на сегодня уже использован.',
-  close:'Другой бункер в {d} м. Нужно {n} м свободной земли.',
-  maxb:'У вас максимум — {n} бункеров.',saved:'Сохранено в телефоне. Попадёт на карту, когда появится связь.',
-  nearby:'Кто-то только что поставил бункер рядом.',fake:'Устройство сообщает о поддельных координатах.'},
- zh:{plant:'建造地堡',connect:'请先连接钱包',center:'回到我的位置',name:'命名领地',
-  profile:'个人',stand:'站在你想建地堡的位置。信号足够时准星会锁定。',
-  yours:'我的',near:'附近',today:'今日',players:'附近玩家',locked:'已锁定',need:'需要',
-  sat:'正在搜索卫星',planted:'建造完成，这块地是你的了。',
-  weak:'当前信号太弱。',daily:'今天的免费地堡已经用完。',
-  close:'另一个地堡距离 {d} 米。需要 {n} 米空地。',
-  maxb:'你最多可拥有 {n} 个地堡。',saved:'已保存在手机上，有信号后会上传。',
-  nearby:'有人刚在附近建了地堡。',fake:'该设备报告位置被伪造。'},
- es:{plant:'Colocar búnker',connect:'Conecta tu cartera',center:'Centrar en mí',name:'Nombrar tierra',
-  profile:'perfil',stand:'Ponte donde quieras tu búnker. El anillo se fija cuando la señal es buena.',
-  yours:'TUYOS',near:'CERCA',today:'HOY',players:'JUGADORES',locked:'fijado',need:'falta',
-  sat:'buscando satélites',planted:'Colocado. Esta tierra es tuya.',
-  weak:'La señal es demasiado débil.',daily:'Ya usaste tu búnker gratis de hoy.',
-  close:'Otro búnker está a {d} m. Necesitas {n} m libres.',
-  maxb:'Tienes el máximo de {n} búnkeres.',saved:'Guardado en tu teléfono. Llegará al mapa con señal.',
-  nearby:'Alguien acaba de construir cerca.',fake:'Este aparato reporta ubicación falsa.'},
- de:{plant:'Bunker bauen',connect:'Wallet verbinden',center:'Zu mir',name:'Land benennen',
-  profile:'Profil',stand:'Stell dich dorthin, wo der Bunker stehen soll. Der Ring rastet ein, wenn das Signal reicht.',
-  yours:'DEINE',near:'IN DER NÄHE',today:'HEUTE',players:'SPIELER',locked:'bereit',need:'nötig',
-  sat:'suche Satelliten',planted:'Gebaut. Dieser Boden gehört dir.',
-  weak:'Das Signal ist zu schwach.',daily:'Dein Gratis-Bunker für heute ist verbraucht.',
-  close:'Ein anderer Bunker ist {d} m entfernt. Du brauchst {n} m freien Boden.',
-  maxb:'Du hast das Maximum von {n} Bunkern.',saved:'Auf dem Handy gespeichert. Kommt mit Empfang auf die Karte.',
-  nearby:'Jemand hat gerade nebenan gebaut.',fake:'Dieses Gerät meldet einen gefälschten Standort.'},
- tr:{plant:'Sığınak kur',connect:'Önce cüzdanı bağla',center:'Bana odaklan',name:'Toprağı adlandır',
-  profile:'profil',stand:'Sığınağı istediğin yere geç. Sinyal yeterli olunca halka kilitlenir.',
-  yours:'SENİN',near:'YAKIN',today:'BUGÜN',players:'OYUNCULAR',locked:'kilitli',need:'gerekli',
-  sat:'uydu aranıyor',planted:'Kuruldu. Bu toprak senin.',
-  weak:'Sinyal şu an çok zayıf.',daily:'Bugünkü ücretsiz sığınağını kullandın.',
-  close:'Başka sığınak {d} m ötede. {n} m boş alan gerek.',
-  maxb:'En fazla {n} sığınağın olabilir.',saved:'Telefonuna kaydedildi. Sinyal gelince haritaya düşecek.',
-  nearby:'Biri az önce yakına kurdu.',fake:'Bu cihaz sahte konum bildiriyor.'}
-};
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} bunkers.", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} bunkers", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name"} };
+// Остальные языки лежат в отдельном файле lang.json: телефон берёт его
+// ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
+// правка одного файла, а не всей игры, и никто не качает 23 словаря,
+// которых никогда не увидит.
+var LANG_V = 1;
+async function loadLangPack(){
+  try{
+    const p = await DB.get('kv','langpack');
+    if(p && p.v === LANG_V && p.d){ Object.assign(LANG, p.d); return true; }
+  }catch(e){}
+  try{
+    const r = await fetch('lang.json?v='+LANG_V, { cache:'force-cache' });
+    if(!r.ok) return false;
+    const d = await r.json();
+    Object.assign(LANG, d);
+    try{ await DB.put('kv', { v:LANG_V, d:d }, 'langpack'); }catch(e){}
+    return true;
+  }catch(e){ return false; }
+}
 var lang = 'en';
 function T(k, vars){
   var d = LANG[lang] || LANG.en;
@@ -329,6 +291,8 @@ function applyLang(){
   var w = document.getElementById('btn-profile'); if(w) w.textContent = T('profile');
   var c = document.getElementById('btn-center'); if(c) c.textContent = T('center');
   var n = document.getElementById('btn-name');   if(n) n.textContent = T('name');
+  var k = document.getElementById('sheet-ok'); if(k) k.textContent = T('closebtn');
+  var b = document.getElementById('plant'); if(b) b.textContent = T('plant');
   if(!addr) say(T('stand'));
   paintReticle();
 }
@@ -574,7 +538,7 @@ function initMap(){
 let followed = false;
 let _watchId = null, _lastCell = null;
 function watchMe(){
-  if(!navigator.geolocation){ say('This device has no location service.','warn'); return; }
+  if(!navigator.geolocation){ say(T('nogeo'),'warn'); return; }
   if(_watchId !== null) return;
   _watchId = navigator.geolocation.watchPosition(p => {
     const nlat = p.coords.latitude, nlng = p.coords.longitude;
@@ -693,23 +657,23 @@ async function showMove(){
   document.getElementById('shot').style.display = 'none';
   document.getElementById('sheet-in').style.display = 'none';
   document.getElementById('sheet-p').textContent = '';
-  document.getElementById('sheet-ok').textContent = 'Back';
+  document.getElementById('sheet-ok').textContent = T('back');
   document.getElementById('sheet-body').innerHTML =
-      '<div class="pf-sec">Move player to another phone</div>'
-    + '<div class="mv-warn">Send this link to yourself and open it on the other phone. '
-    + 'Anyone who gets this link becomes you — do not post it publicly.</div>'
+      '<div class="pf-sec">'+T('mv_head')+'</div>'
+    + '<div class="mv-warn">'+esc(T('mv_warn'))+'</div>'
+    
     + '<div class="mv-link" id="mv-link">' + esc(url) + '</div>'
     + '<div class="row" style="margin:14px 0 0;">'
-    + '<button class="btn-ghost" onclick="copyMove()">Copy link</button>'
-    + '<button class="btn-ghost" onclick="shareMove()">Send</button>'
+    + '<button class="btn-ghost" onclick="copyMove()">'+esc(T('mv_copy'))+'</button>'
+    + '<button class="btn-ghost" onclick="shareMove()">'+esc(T('mv_send'))+'</button>'
     + '</div>';
-  document.getElementById('sheet-t').textContent = 'Same player, two phones';
+  document.getElementById('sheet-t').textContent = T('mv_title');
   document.getElementById('veil').classList.add('on');
 }
 async function copyMove(){
   const url = await moveLink();
-  try{ await navigator.clipboard.writeText(url); say('Link copied.'); }
-  catch(e){ say('Hold the link and copy it by hand.','warn'); }
+  try{ await navigator.clipboard.writeText(url); say(T('mv_copied')); }
+  catch(e){ say(T('mv_manual'),'warn'); }
 }
 async function shareMove(){
   const url = await moveLink();
@@ -725,12 +689,10 @@ async function checkMoveLink(){
   let data = null;
   try{ data = JSON.parse(unb64u(m[1])); }catch(e){}
   if(!data || !/^0x[0-9a-f]{40}$/.test(data.a||'')){
-    sheetInfo('Link is broken','That transfer link could not be read.'); return false;
+    sheetInfo(T('mv_bad'), T('mv_bad2')); return false;
   }
   if(data.a === addr) return false;
-  const ok = confirm('Become player ' + data.a.slice(0,6)+'…'+data.a.slice(-4) +
-                     ' on this phone?\n\nThe player currently on this phone will be replaced. ' +
-                     'Its bunkers stay on the map but stop being yours here.');
+  const ok = confirm(T('mv_ask', { p: data.a.slice(0,6)+'…'+data.a.slice(-4) }));
   if(!ok) return false;
   await DB.put('kv', data.a, 'addr');
   if(data.k) await DB.put('kv', data.k, 'key');
@@ -751,7 +713,7 @@ async function loadLocal(){
   const a = await DB.get('kv','addr');
   if(a){ addr = a; document.getElementById('who').textContent = a.slice(0,6)+'…'+a.slice(-4); }
   drawAll(); drawPlaces(); drawLabels(); refreshStats(); showAd('dock');
-  linkState(bunkers.length ? 'from device' : 'first run');
+  linkState(bunkers.length ? T('st_device') : T('st_first'));
 }
 
 // Мир нарезан на клетки по 0,02° — это примерно 2,2 км. Телефон берёт
@@ -766,7 +728,7 @@ function boxAround(lat,lng){
 const haveIds = new Set();
 
 async function sync(){
-  if(!navigator.onLine){ linkState('offline', 'off'); return; }
+  if(!navigator.onLine){ linkState(T('st_offline'), 'off'); return; }
   try{
     let added = 0;
     if(here){
@@ -820,13 +782,13 @@ async function sync(){
 
     await DB.put('kv', Date.now(), 'syncedAt');
     drawLabels(); refreshStats();
-    linkState(added ? ('+'+added+' new') : 'up to date');
+    linkState(added ? T('st_new',{n:added}) : T('st_ok'));
     flushQueue();
-  }catch(e){ linkState('no server', 'off'); }
+  }catch(e){ linkState(T('st_noserver'), 'off'); }
 }
 
 function linkState(t, cls){
-  document.getElementById('link-txt').textContent = t + (queue.length ? ' · '+queue.length+' waiting' : '');
+  document.getElementById('link-txt').textContent = t + (queue.length ? ' · '+queue.length+' '+T('st_wait') : '');
   document.getElementById('link').className = queue.length ? 'queued' : (cls||'');
 }
 
@@ -982,8 +944,8 @@ function stampPhoto(dataUrl){
     document.getElementById('shot').src = pendingPhoto;
     document.getElementById('shot').style.display = 'block';
     document.getElementById('sheet-in').style.display = 'none';
-    sheet('Plant here?', 'This spot becomes yours with a '+cfg.radius_earth_m+' m ring around it. Earth bunkers are free — one a day.');
-    document.getElementById('sheet-ok').textContent = 'Plant it';
+    sheet(T('planthere'), T('planthere2', { r: cfg.radius_earth_m }));
+    document.getElementById('sheet-ok').textContent = T('plantit');
   };
   img.src = dataUrl;
 }
@@ -1002,15 +964,15 @@ async function doPlant(){
     // В лесу связи нет — постройка ждёт в телефоне и уйдёт позже
     queue.push(item); await DB.put('queue', item);
     say(T('saved'),'good');
-    refreshStats(); linkState('offline','off');
+    refreshStats(); linkState(T('st_offline'),'off');
     return;
   }
-  say('Planting…');
+  say(T('planting'));
   const ok = await sendOne(item);
   if(ok === 'network'){
     queue.push(item); await DB.put('queue', item);
-    say('No connection. Saved on your phone and will be sent later.','good');
-    refreshStats(); linkState('offline','off');
+    say(T('noconn'),'good');
+    refreshStats(); linkState(T('st_offline'),'off');
   }
 }
 
@@ -1027,12 +989,12 @@ async function sendOne(item){
     if(error) return 'network';
     if(!data || !data.ok){
       const e = data && data.error;
-      if(e === 'too_close') say('Someone got there first — a bunker is '+data.got+' m away.','warn');
-      else if(e === 'daily_limit') say('Your free bunker for today is already used.','warn');
-      else if(e === 'max_alive')   say('You hold the maximum of '+data.limit+' bunkers.','warn');
-      else if(e === 'weak_gps')    say('Signal was too weak: ±'+data.got+' m.','warn');
+      if(e === 'too_close') say(T('taken',{d:data.got}),'warn');
+      else if(e === 'daily_limit') say(T('daily'),'warn');
+      else if(e === 'max_alive')   say(T('maxb',{n:data.limit}),'warn');
+      else if(e === 'weak_gps')    say(T('weaksig',{n:data.got}),'warn');
       else if(e === 'fake_location') say(T('fake'),'warn');
-      else say('Could not plant here.','warn');
+      else say(T('failed'),'warn');
       try{ await DB.del('photos', item.tmp); }catch(_){}
       return 'rejected';
     }
@@ -1060,30 +1022,30 @@ async function flushQueue(){
     queue = queue.filter(q => q.tmp !== item.tmp);
     await DB.del('queue', item.tmp);
   }
-  refreshStats(); linkState(queue.length ? 'sending' : 'up to date');
+  refreshStats(); linkState(queue.length ? T('st_sending') : T('st_ok'));
 }
 
 // ═══════════ Название земли ═══════════
 function askName(){
   const mine = bunkers.filter(b=>b.owner===addr).length;
-  if(mine < 3){ sheetInfo('Not enough ground','Name your land once you hold three bunkers. You have '+mine+'.'); return; }
+  if(mine < 3){ sheetInfo(T('noground'), T('noground2',{n:mine})); return; }
   sheetMode = 'name';
   document.getElementById('sheet-body').innerHTML = '';
   document.getElementById('shot').style.display = 'none';
   document.getElementById('sheet-in').style.display = 'block';
   document.getElementById('sheet-in').value = names[addr] || '';
-  sheet('Name your land','Everyone on the map will see it. Up to 24 characters.');
-  document.getElementById('sheet-ok').textContent = 'Save name';
+  sheet(T('nameland'), T('nameland2'));
+  document.getElementById('sheet-ok').textContent = T('savename');
 }
 async function doName(){
   const label = document.getElementById('sheet-in').value.trim();
   closeSheet();
   try{
     const { data, error } = await sb.rpc('name_territory', { p_owner:addr, p_label:label });
-    if(error || !data || !data.ok){ say('That name was not accepted.','warn'); return; }
+    if(error || !data || !data.ok){ say(T('namebad'),'warn'); return; }
     names[addr] = label; await DB.put('kv', names, 'names');
-    drawLabels(); say('Named.','good');
-  }catch(e){ say('No connection — try naming again later.','warn'); }
+    drawLabels(); say(T('named'),'good');
+  }catch(e){ say(T('namelater'),'warn'); }
 }
 
 // ═══════════ Профиль ═══════════
@@ -1103,7 +1065,7 @@ async function openProfile(){
   document.getElementById('sheet-in').style.display = 'none';
   document.getElementById('sheet-p').textContent = '';
   sheetMode = 'info';
-  document.getElementById('sheet-ok').textContent = 'Back to map';
+  document.getElementById('sheet-ok').textContent = T('backmap');
 
   document.getElementById('sheet-body').innerHTML =
     '<div class="pf-grid">'
@@ -1113,22 +1075,22 @@ async function openProfile(){
     + cell(bunkers.length, 'Bunkers on your map')
     + '</div>'
     + '<div class="pf-sec">Your land</div>'
-    + line('Name', names[addr] ? esc(names[addr]) : 'not named yet')
-    + line('First planted', first ? first.toISOString().slice(0,10) : '—')
-    + line('Player', esc(addr))
-    + line('Wallet', 'not needed yet — only for buying')
+    + line(T('pf_name'), names[addr] ? esc(names[addr]) : 'not named yet')
+    + line(T('pf_first'), first ? first.toISOString().slice(0,10) : '—')
+    + line(T('pf_player'), esc(addr))
+    + line(T('pf_wallet'), T('pf_walno'))
     + '<div class="pf-sec">On this phone</div>'
-    + line('Stored locally', bunkers.length + ' bunkers')
-    + line('Waiting to send', queue.length)
-    + line('Storage used', quota)
-    + line('Last sync', syncedAt ? new Date(syncedAt).toLocaleTimeString() : 'never')
-    + line('Map works offline', 'yes, for places you have visited')
+    + line(T('pf_stored'), bunkers.length + ' bunkers')
+    + line(T('pf_queue'), queue.length)
+    + line(T('pf_space'), quota)
+    + line(T('pf_sync'), syncedAt ? new Date(syncedAt).toLocaleTimeString() : 'never')
+    + line(T('pf_off'), 'yes, for places you have visited')
     + '<div class="pf-sec">Rules right now</div>'
-    + line('Free bunkers a day', cfg.earth_per_day)
-    + line('Bunkers at once', cfg.max_earth_alive)
-    + line('Distance between bunkers', cfg.min_distance_m + ' m')
-    + line('Ring around a bunker', cfg.radius_earth_m + ' m')
-    + line('Signal needed', 'better than ± ' + cfg.max_accuracy_m + ' m')
+    + line(T('pf_free'), cfg.earth_per_day)
+    + line(T('pf_at'), cfg.max_earth_alive)
+    + line(T('pf_dist'), cfg.min_distance_m + ' m')
+    + line(T('pf_ring'), cfg.radius_earth_m + ' m')
+    + line(T('pf_sig'), 'better than ± ' + cfg.max_accuracy_m + ' m')
     + '<div class="pf-sec">Language</div>'
     + '<div class="lang-row">'
     + Object.keys(LANG).map(function(k){
@@ -1136,13 +1098,13 @@ async function openProfile(){
       }).join('')
     + '</div>'
     + '<div class="row" style="margin:18px 0 0;">'
-    + '<button class="btn-ghost" onclick="window.open(\'https://opengate.bond\',\'_blank\')">Open OpenGate</button>'
-    + '<button class="btn-ghost" onclick="sync();closeSheet()">Sync now</button>'
+    + '<button class="btn-ghost" onclick="window.open(\'https://opengate.bond\',\'_blank\')">'+esc(T('pf_og'))+'</button>'
+    + '<button class="btn-ghost" onclick="sync();closeSheet()">'+esc(T('pf_sync2'))+'</button>'
     + '</div>'
     + '<div class="row" style="margin:10px 0 0;">'
-    + '<button class="btn-ghost" onclick="showMove()">Play on another phone</button>'
+    + '<button class="btn-ghost" onclick="showMove()">'+esc(T('mv_btn'))+'</button>'
     + '</div>';
-  document.getElementById('sheet-t').textContent = 'Profile';
+  document.getElementById('sheet-t').textContent = T('pf_title');
   document.getElementById('veil').classList.add('on');
 }
 async function setLang(k){
@@ -1165,7 +1127,7 @@ function sheetInfo(t, p){
   document.getElementById('sheet-body').innerHTML = '';
   document.getElementById('shot').style.display = 'none';
   document.getElementById('sheet-in').style.display = 'none';
-  document.getElementById('sheet-ok').textContent = 'Got it';
+  document.getElementById('sheet-ok').textContent = T('gotit');
   sheet(t, p);
 }
 function closeSheet(){ document.getElementById('veil').classList.remove('on'); }
@@ -1204,8 +1166,8 @@ setTimeout(pingNearby, 8000);
 // страница не перезагружается, меняется только хвост адреса.
 window.addEventListener('hashchange', function(){ checkMoveLink(); });
 
-window.addEventListener('online',  () => { linkState('back online'); sync(); });
-window.addEventListener('offline', () => linkState('offline','off'));
+window.addEventListener('online',  () => { linkState(T('st_back')); sync(); });
+window.addEventListener('offline', () => linkState(T('st_offline'),'off'));
 
 (async function start(){
   // Регистрируем первым делом и отдельно: если споткнётся что-то ниже,
@@ -1218,9 +1180,10 @@ window.addEventListener('offline', () => linkState('offline','off'));
   try{ await ensureId(); }catch(e){}
   try{ if(await checkMoveLink()) return; }catch(e){}
   ensureKey();
+  await loadLangPack();
   try{ lang = pickLang(await DB.get('kv','lang')); }catch(e){ lang = pickLang(); }
   applyLang();
-  try{ await loadLocal(); }catch(e){ linkState('no local storage','off'); }
+  try{ await loadLocal(); }catch(e){ linkState(T('st_nolocal'),'off'); }
   bunkers.forEach(b => haveIds.add(b.id));
   watchMe();
   startPoll();
