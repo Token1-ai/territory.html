@@ -1,7 +1,7 @@
 // Gate Territory — работа без сети.
 // Держим в телефоне оболочку приложения и плитки карты тех мест, где
 // человек уже был. Ходил по району — район открывается без интернета.
-const SHELL = 'ogt-shell-v8';
+const SHELL = 'ogt-shell-v9';
 const TILES = 'ogt-tiles-v1';
 const TILE_CAP = 900;                 // примерно 25-40 МБ, дальше чистим старое
 
@@ -83,5 +83,38 @@ self.addEventListener('fetch', e => {
       }
       return new Response('', { status:504, statusText:'offline' });
     }
+  })());
+});
+
+// ═══════════ Уведомления ═══════════
+// Приходят, даже когда игра закрыта. На Android работает из обычного
+// браузера, на iPhone — только если значок вынесен на экран.
+self.addEventListener('push', e => {
+  let d = {};
+  try{ d = e.data ? e.data.json() : {}; }catch(_){ d = {}; }
+  e.waitUntil(self.registration.showNotification(
+    d.title || 'Gate Territory',
+    {
+      body: d.body || '',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      tag: d.tag || 'ogt',
+      renotify: true,
+      vibrate: [200, 80, 200],
+      data: { url: d.url || './' }
+    }
+  ));
+});
+
+// Нажал на уведомление — открываем уже запущенную игру, а не вторую копию
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './';
+  e.waitUntil((async () => {
+    const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for(const c of all){
+      if(c.url.indexOf(self.registration.scope) === 0){ await c.focus(); return; }
+    }
+    await clients.openWindow(url);
   })());
 });
