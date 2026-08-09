@@ -264,7 +264,7 @@ async function loadLangPack(){
     if(p && p.v === LANG_V && p.d){ Object.assign(LANG, p.d); return true; }
   }catch(e){}
   try{
-    const r = await fetch('lang.json?v='+LANG_V, { cache:'force-cache' });
+    const r = await fetch('lang.json', { cache:'force-cache' });
     if(!r.ok) return false;
     const d = await r.json();
     Object.assign(LANG, d);
@@ -696,8 +696,8 @@ async function checkMoveLink(){
   if(!ok) return false;
   await DB.put('kv', data.a, 'addr');
   if(data.k) await DB.put('kv', data.k, 'key');
-  // Чужие бункеры в памяти были помечены как чужие — перечитываем всё заново.
-  await DB.put('kv', 0, 'lastId');
+  // Бункеры в памяти телефона трогать не надо: чей круг золотой, а чей
+  // красный, считается при отрисовке по новому номеру игрока.
   location.reload();
   return true;
 }
@@ -1005,8 +1005,10 @@ async function sendOne(item){
       const ph = await DB.get('photos', item.tmp);
       if(ph){ await DB.put('photos', ph, 'b'+data.id); await DB.del('photos', item.tmp); }
     }catch(e){}
-    const last = (await DB.get('kv','lastId'))||0;
-    if(data.id > last) await DB.put('kv', data.id, 'lastId');
+    haveIds.add(data.id);
+    const ck = cellKey(item.lat, item.lng);
+    const last = (await DB.get('kv', ck)) || 0;
+    if(data.id > last) await DB.put('kv', data.id, ck);
     say(T('planted'),'good');
     refreshStats();
     return 'ok';
