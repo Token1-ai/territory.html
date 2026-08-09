@@ -146,6 +146,20 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   background:rgba(18,20,15,.9);border:1px solid rgba(201,162,39,.5);border-radius:9px;
   padding:7px 10px;font-size:11.5px;line-height:1.35;color:#C9A227;pointer-events:none;}
 #ring-badge.broken{border-color:rgba(178,58,46,.7);color:#E27A5F;}
+#siege-box{position:absolute;left:12px;right:12px;top:96px;z-index:620;
+  background:rgba(18,20,15,.94);border:1px solid rgba(178,58,46,.65);border-radius:12px;
+  padding:11px 13px;color:#E8E3D5;}
+#siege-box.defend{border-color:rgba(127,191,106,.6);}
+.sg-top{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#B23A2E;font-weight:700;}
+#siege-box.defend .sg-top{color:#7FBF6A;}
+.sg-time{font-size:27px;font-weight:700;line-height:1.1;margin-top:1px;
+  font-variant-numeric:tabular-nums;}
+.sg-sub{font-size:11.5px;color:#9A9585;margin-top:2px;}
+.sg-bar{height:6px;border-radius:3px;background:#2A2E24;margin-top:9px;overflow:hidden;}
+.sg-bar i{display:block;height:100%;background:#B23A2E;border-radius:3px;}
+#siege-box.defend .sg-bar i{background:#7FBF6A;}
+.sg-row{display:flex;gap:8px;margin-top:9px;}
+.sg-row .btn-ghost{flex:1;}
 .btn-gun[disabled]{opacity:.4;}
 .lang-btn{background:var(--field);border:1px solid var(--line);color:var(--sand-dim);
   border-radius:4px;padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;}
@@ -183,6 +197,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   </div>
 </div>
 <div id="ring-badge" style="display:none"></div>
+<div id="siege-box" style="display:none"></div>
 <div id="link">on device · <span id="link-txt">starting</span></div>
 
 <div id="dock">
@@ -260,12 +275,12 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link"} };
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "You are close enough. Cannons fall first, then the bunker.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "This player has already been attacked {n} times today.", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target"} };
 // Остальные языки лежат в отдельном файле lang.json: телефон берёт его
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 4;
+var LANG_V = 6;
 async function loadLangPack(){
   try{
     const p = await DB.get('kv','langpack');
@@ -548,7 +563,7 @@ const Sprites = (function(){
       const b = bunkers[i];
       const p = map.latLngToContainerPoint([b.lat, b.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
-      if(fogHides(b.lat, b.lng, b.owner)) continue;
+      if(fogHides(b.lat, b.lng, b.owner, 'b'+b.id)) continue;
       ctx.drawImage(sprite(b.kind||'earth', px, !(addr && b.owner===addr)),
                     p.x-half, p.y-half, px, px);
       drawn++;
@@ -560,7 +575,7 @@ const Sprites = (function(){
       if(u.alive === false) continue;
       const p = map.latLngToContainerPoint([u.lat, u.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
-      if(fogHides(u.lat, u.lng, u.owner)) continue;
+      if(fogHides(u.lat, u.lng, u.owner, 'u'+u.id)) continue;
       ctx.drawImage(sprite(u.code||'gun', gp, !(addr && u.owner===addr)),
                     p.x-gh, p.y-gh, gp, gp);
       drawn++;
@@ -577,6 +592,7 @@ function initMap(){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(map);
   map.on('moveend', drawLabels);
+  map.on('click', onMapTap);
   Sprites.attach();
 }
 
@@ -600,7 +616,7 @@ function watchMe(){
     const ck = cellKey(nlat, nlng);
     if(ck !== _lastCell){ _lastCell = ck; sync(); }
     if(moved) _movedAt = Date.now();
-    if(markSeen(nlat, nlng)){ if(Number(cfg.fog_on)) drawAll(); saveSeen(); }
+    if(scanAround()){ drawAll(); saveSeen(); }
     if(moved || accCh){ paintMe(); paintReticle(); Sprites.refresh(); }
   }, err => {
     say(err.code === 1
@@ -615,8 +631,8 @@ function stopWatch(){
 // Свернули игру — глушим спутники, опрос и сеть. Это самая большая
 // экономия батареи: свёрнутой игра бывает дольше, чем открытой.
 document.addEventListener('visibilitychange', () => {
-  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); }
-  else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); }
+  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); stopSiegeLoop(); }
+  else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); if(siege) startSiegeLoop(); }
 });
 
 function paintMe(){
@@ -670,32 +686,53 @@ async function ensureId(){
 
 
 // ═══════════ Туман войны ═══════════
-// Выключен. Включается одним числом в базе (fog_on = 1), по городам,
-// без выкладки новой версии игры. Клетки, где человек побывал ногами,
-// телефон помнит ВСЕГДА — значит в день включения тумана история уже
-// накоплена и карта не обнулится.
-let seenCells = new Set();
+// Выключен. Включается одним числом в базе (fog_on = 1), по городам.
+//
+// Видно только то, что попало в круг обзора вокруг тебя — 150 м.
+// Не клетку, не район, а именно круг: идёшь и находишь. Что нашёл —
+// телефон запоминает навсегда, поэтому карта не обнуляется каждый раз.
+// Дрон открывает 2 км на десять минут, не заходя ногами.
+let seenIds = new Set();      // что уже найдено
 let seenDirty = false;
-function fogCell(lat, lng){
-  const step = cfg.fog_cell || 0.004;              // примерно 440 м
-  return Math.floor(lat/step) + ':' + Math.floor(lng/step);
-}
-function markSeen(lat, lng){
-  const k = fogCell(lat, lng);
-  if(seenCells.has(k)) return false;
-  seenCells.add(k); seenDirty = true;
-  return true;                                      // клетка новая
+let droneUntil = 0, droneAt = null;
+
+function sightM(){ return cfg.fog_sight_m || 150; }
+function markFound(id){
+  if(seenIds.has(id)) return false;
+  seenIds.add(id); seenDirty = true;
+  return true;
 }
 async function saveSeen(){
   if(!seenDirty) return;
   seenDirty = false;
-  try{ await DB.put('kv', Array.from(seenCells).slice(-4000), 'seen'); }catch(e){}
+  try{ await DB.put('kv', Array.from(seenIds).slice(-6000), 'seenIds'); }catch(e){}
+}
+// Обход всего, что рядом: что попало в круг — то найдено
+function scanAround(){
+  if(!Number(cfg.fog_on) || !here) return false;
+  const r = sightM();
+  let found = false;
+  for(const b of bunkers)
+    if(metersBetween(b.lat,b.lng,here[0],here[1]) <= r && markFound('b'+b.id)) found = true;
+  for(const u of units)
+    if(metersBetween(u.lat,u.lng,here[0],here[1]) <= r && markFound('u'+u.id)) found = true;
+  // дрон: тот же обход, но из своей точки и на свой радиус
+  if(droneUntil > Date.now() && droneAt){
+    const dr = cfg.drone_r_m || 2000;
+    for(const b of bunkers)
+      if(metersBetween(b.lat,b.lng,droneAt[0],droneAt[1]) <= dr && markFound('b'+b.id)) found = true;
+    for(const u of units)
+      if(metersBetween(u.lat,u.lng,droneAt[0],droneAt[1]) <= dr && markFound('u'+u.id)) found = true;
+  }
+  return found;
 }
 // Скрыто ли это от меня прямо сейчас
-function fogHides(lat, lng, owner){
+function fogHides(lat, lng, owner, id){
   if(!Number(cfg.fog_on)) return false;
   if(addr && owner === addr) return false;
-  return !seenCells.has(fogCell(lat, lng));
+  if(id && seenIds.has(id)) return false;
+  if(here && metersBetween(lat, lng, here[0], here[1]) <= sightM()) return false;
+  return true;
 }
 
 // ═══════════ Пушки ═══════════
@@ -943,6 +980,201 @@ function paintRingBadge(broken){
   }
 }
 
+
+// ═══════════ Осада ═══════════
+// Отсчёт рисует телефон, а урон считает сервер по своим часам.
+// Наружу уходит только «я здесь, бью вот по этому» раз в полминуты.
+let siege = null;          // текущая осада, если я в ней
+let sieges = [];           // живые осады в районе, чтобы видеть на карте
+let siegeTarget = null;    // по какой пушке бью
+let _siegeTimer = null;
+
+// Если осаждают мою точку и я рядом — включаюсь защитником: сервер
+// начнёт считать починку, а на экране появится своя панель.
+function checkMySiege(){
+  if(siege) return;
+  for(const s of sieges){
+    const b = bunkerById(s.bunker_id);
+    if(!b || b.owner !== addr) continue;
+    siege = { id:s.id, bunker_id:b.id, total_hp:s.total_hp, damage:s.damage,
+              guns_left:gunsOf(b.id).length, attackers:1, defenders:0,
+              side:'defend', started:Date.parse(s.started_at) };
+    startSiegeLoop();
+    say(T('sg_alarm'),'warn');
+    return;
+  }
+}
+function bunkerById(id){ return bunkers.find(b => b.id === id) || null; }
+function gunsOf(id){ return units.filter(u => u.bunker_id === id && u.alive !== false); }
+
+// ── Нажатие по карте: что там стоит ──────────────────────────────
+function onMapTap(e){
+  const ll = e.latlng;
+  let best = null, bd = 1e9, kind = null;
+  for(const b of bunkers){
+    if(b.alive === false) continue;
+    if(fogHides(b.lat, b.lng, b.owner, 'b'+b.id)) continue;
+    const d = metersBetween(b.lat, b.lng, ll.lat, ll.lng);
+    if(d < bd){ bd = d; best = b; kind = 'bunker'; }
+  }
+  for(const u of units){
+    if(u.alive === false) continue;
+    if(fogHides(u.lat, u.lng, u.owner, 'u'+u.id)) continue;
+    const d = metersBetween(u.lat, u.lng, ll.lat, ll.lng);
+    if(d < bd){ bd = d; best = u; kind = 'unit'; }
+  }
+  if(!best || bd > 60) return;
+  if(kind === 'unit'){
+    // во время осады тычок по пушке выбирает её целью
+    if(siege && siege.bunker_id === best.bunker_id && best.owner !== addr){
+      // Цель запирается: взялся за пушку — добей её.
+      if(siege.target && siege.target !== best.id){ say(T('sg_locked'),'warn'); return; }
+      siegeTarget = best.id; say(T('sg_target')); paintSiege();
+    }
+    return;
+  }
+  showBunker(best);
+}
+
+function showBunker(b){
+  const mine = b.owner === addr;
+  const d = here ? Math.round(metersBetween(b.lat, b.lng, here[0], here[1])) : null;
+  const guns = gunsOf(b.id).length;
+  const under = sieges.find(x => x.bunker_id === b.id);
+  const leash = cfg.siege_leash_m || 100;
+  sheetMode = 'bunker'; window._sheetBunker = b;
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-t').textContent =
+      mine ? T('sg_mine') : (names[b.owner] || T('sg_foreign'));
+  document.getElementById('sheet-body').innerHTML =
+      '<div class="pf-row"><span>' + T('sg_guns') + '</span><b>' + guns + ' / 7</b></div>'
+    + '<div class="pf-row"><span>' + T('sg_dist') + '</span><b>'
+        + (d === null ? '—' : d + ' м') + '</b></div>'
+    + (under ? '<div class="pf-row"><span>' + T('sg_state') + '</span><b>' + T('sg_live') + '</b></div>' : '');
+  document.getElementById('sheet-p').textContent =
+      mine ? T('sg_mine_p')
+           : (d !== null && d <= leash ? T('sg_can') : T('sg_come', { n: leash }));
+  document.getElementById('sheet-ok').textContent =
+      (!mine && d !== null && d <= leash) ? T('sg_attack') : T('closebtn');
+  document.getElementById('veil').classList.add('on');
+}
+
+async function doAttack(){
+  const b = window._sheetBunker;
+  closeSheet();
+  if(!b || !here) return;
+  if(!navigator.onLine){ say(T('gun_neednet'),'warn'); return; }
+  try{
+    const { data, error } = await sb.rpc('siege_start_v1', { p:{
+      wallet: addr, bunker_id: b.id, lat: here[0], lng: here[1] }});
+    if(error) throw error;
+    if(!data || !data.ok){
+      const e = data && data.error;
+      if(e === 'too_far')            return say(T('sg_come',{n:data.need}),'warn');
+      if(e === 'own_bunker')         return say(T('sg_mine_p'),'warn');
+      if(e === 'already_under_siege')return say(T('sg_busy'),'warn');
+      if(e === 'cooldown')           return say(T('sg_wait',{n:data.minutes}),'warn');
+      if(e === 'owner_shielded')     return say(T('sg_shield',{n:data.limit}),'warn');
+      if(e === 'newbie')             return say(T('sg_newbie',{n:data.hours}),'warn');
+      return say(T('failed'),'warn');
+    }
+    siege = { id:data.siege_id, bunker_id:b.id, total_hp:data.total_hp,
+              damage:0, guns_left:gunsOf(b.id).length, attackers:1, defenders:0,
+              side:'attack', started:Date.now() };
+    siegeTarget = null;
+    startSiegeLoop();
+    say(T('sg_started'),'good');
+  }catch(e){ say(T('gun_neednet'),'warn'); }
+}
+
+function startSiegeLoop(){
+  stopSiegeLoop();
+  paintSiege();
+  siegeTick();
+  _siegeTimer = setInterval(siegeTick, 30000);
+}
+function stopSiegeLoop(){
+  if(_siegeTimer){ clearInterval(_siegeTimer); _siegeTimer = null; }
+}
+
+async function siegeTick(){
+  if(!siege || !here || document.hidden) return;
+  try{
+    const { data } = await sb.rpc('siege_tick_v1', { p:{
+      wallet: addr, siege_id: siege.id, lat: here[0], lng: here[1],
+      target_unit: siegeTarget }});
+    if(!data || !data.ok) return;
+    if(data.left){ endSiege(T('sg_left')); return; }
+    siege.damage    = data.damage;
+    siege.total_hp  = data.total_hp || siege.total_hp;
+    siege.guns_left = data.guns_left;
+    siege.attackers = data.attackers;
+    siege.defenders = data.defenders;
+    siege.repair    = data.repair;
+    siege.power     = data.power;
+    siege.target    = data.target;
+    siege.dist      = data.dist;
+    if(Array.isArray(data.killed) && data.killed.length){
+      for(const id of data.killed){
+        const u = units.find(x => x.id === id);
+        if(u) u.alive = false;
+        await DB.put('units', Object.assign({}, u || {id:id, alive:false}, {alive:false}));
+      }
+      Sprites.refresh(); drawRing();
+      say(T('sg_gun_down',{n:data.guns_left}),'good');
+    }
+    if(data.done){
+      const b = bunkerById(siege.bunker_id);
+      if(b){ b.alive = false; await DB.put('bunkers', b); }
+      drawAll();
+      endSiege(siege.side === 'attack' ? T('sg_won') : T('sg_lost'), true);
+      return;
+    }
+    paintSiege();
+  }catch(e){}
+}
+
+async function siegeLeave(){
+  if(!siege) return;
+  const id = siege.id;
+  endSiege(T('sg_left'));
+  try{ await sb.rpc('siege_leave_v1', { p:{ wallet: addr, siege_id: id } }); }catch(e){}
+}
+function endSiege(msg, good){
+  stopSiegeLoop();
+  siege = null; siegeTarget = null;
+  paintSiege();
+  if(msg) say(msg, good ? 'good' : 'warn');
+}
+
+// ── Панель осады ─────────────────────────────────────────────────
+function paintSiege(){
+  const el = document.getElementById('siege-box');
+  if(!el) return;
+  if(!siege){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const pow  = Math.max((siege.power || 12) - (siege.repair || 0), 1);
+  const left = Math.max(0, siege.total_hp - siege.damage);
+  const mins = left / pow;
+  const mm = Math.floor(mins), ss = Math.floor((mins - mm) * 60);
+  const pct = Math.min(100, Math.round(siege.damage / Math.max(siege.total_hp,1) * 100));
+  const def = siege.side === 'defend';
+  el.className = def ? 'defend' : '';
+  el.innerHTML =
+      '<div class="sg-top">' + (def ? T('sg_hold') : T('sg_title')) + '</div>'
+    + '<div class="sg-time">' + mm + ':' + String(ss).padStart(2,'0') + '</div>'
+    + '<div class="sg-sub">' + T('sg_line', {
+        g: siege.guns_left, a: siege.attackers, d: siege.defenders,
+        p: pow }) + '</div>'
+    + (siege.dist != null
+        ? '<div class="sg-sub">' + T('sg_totarget', { n: siege.dist }) + '</div>' : '')
+    + '<div class="sg-bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="sg-row">'
+    + '<button class="btn-ghost" onclick="siegeLeave()">' + esc(T('sg_leave')) + '</button>'
+    + '</div>';
+}
+
 // ═══════════ Ключ устройства ═══════════
 // Номер игрока сам по себе ничего не доказывает — это просто строка.
 // Поэтому телефон заводит себе настоящий ключ. Делает его сам браузер,
@@ -1104,6 +1336,17 @@ async function sync(){
         units.push(u); added++;
       }
       await DB.put('kv', uLast, ukey);
+
+      // Живые осады района: чтобы видеть, что где горит, и чтобы
+      // хозяин узнал о нападении на свою точку.
+      const ids = bunkers.map(x => x.id).slice(0, 200);
+      if(ids.length){
+        const { data:sg } = await sb.from('territory_sieges')
+          .select('id,bunker_id,attacker,started_at,total_hp,damage,state')
+          .eq('state','live').in('bunker_id', ids).limit(50);
+        sieges = sg || [];
+        checkMySiege();
+      }
       Sprites.refresh(); paintGunBtn(); drawRing();
     }
 
@@ -1165,7 +1408,7 @@ function drawAll(){
   drawRing();
 }
 function drawOne(b){
-  if(fogHides(b.lat, b.lng, b.owner)) return;
+  if(fogHides(b.lat, b.lng, b.owner, 'b'+b.id)) return;
   if(layers.has(b.id)) return;
   const mine = addr && b.owner === addr;
   const col = mine ? '#E0A32E' : '#B4462F';
@@ -1502,6 +1745,7 @@ function sheetInfo(t, p){
 function closeSheet(){ document.getElementById('veil').classList.remove('on'); }
 function sheetOk(){
   if(sheetMode === 'plant') doPlant();
+  else if(sheetMode === 'bunker') doAttack();
   else if(sheetMode === 'gun') doGun();
   else if(sheetMode === 'name') doName();
   else closeSheet();
@@ -1573,8 +1817,8 @@ window.addEventListener('offline', () => linkState(T('st_offline'),'off'));
     units.forEach(u => haveUnitIds.add(u.id));
   }catch(e){ units = []; }
   try{
-    const sc = await DB.get('kv','seen');
-    if(Array.isArray(sc)) seenCells = new Set(sc);
+    const sc = await DB.get('kv','seenIds');
+    if(Array.isArray(sc)) seenIds = new Set(sc);
   }catch(e){}
   paintGunBtn(); Sprites.refresh(); drawRing();
   watchMe();
