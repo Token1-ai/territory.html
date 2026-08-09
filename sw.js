@@ -1,12 +1,12 @@
 // Gate Territory — работа без сети.
 // Держим в телефоне оболочку приложения и плитки карты тех мест, где
 // человек уже был. Ходил по району — район открывается без интернета.
-const SHELL = 'ogt-shell-v3';
+const SHELL = 'ogt-shell-v4';
 const TILES = 'ogt-tiles-v1';
 const TILE_CAP = 900;                 // примерно 25-40 МБ, дальше чистим старое
 
 const SHELL_FILES = [
-  './', './index.html', './manifest.json', './splash-1080.webp',
+  './', './index.html', './manifest.json', './splash-1080.webp', './lang.json',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
