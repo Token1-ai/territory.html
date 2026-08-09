@@ -142,6 +142,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 .pf-line b{color:var(--sand);font-weight:400;text-align:right;word-break:break-all;}
 .lang-row{display:flex;flex-wrap:wrap;gap:6px;}
 .btn-gun{width:100%;margin-top:8px;border-color:rgba(224,163,46,.45);}
+#ring-badge{position:absolute;left:12px;top:96px;z-index:600;max-width:64vw;
+  background:rgba(18,20,15,.9);border:1px solid rgba(201,162,39,.5);border-radius:9px;
+  padding:7px 10px;font-size:11.5px;line-height:1.35;color:#C9A227;pointer-events:none;}
+#ring-badge.broken{border-color:rgba(178,58,46,.7);color:#E27A5F;}
 .btn-gun[disabled]{opacity:.4;}
 .lang-btn{background:var(--field);border:1px solid var(--line);color:var(--sand-dim);
   border-radius:4px;padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;}
@@ -178,6 +182,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
     <div><span id="lbl-players">NEAR YOU</span><b id="s-players">—</b></div>
   </div>
 </div>
+<div id="ring-badge" style="display:none"></div>
 <div id="link">on device · <span id="link-txt">starting</span></div>
 
 <div id="dock">
@@ -255,12 +260,12 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server."} };
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link"} };
 // Остальные языки лежат в отдельном файле lang.json: телефон берёт его
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 3;
+var LANG_V = 4;
 async function loadLangPack(){
   try{
     const p = await DB.get('kv','langpack');
@@ -783,7 +788,7 @@ async function doGun(){
     haveUnitIds.add(u.id);
     units.push(u);
     await DB.put('units', u);
-    Sprites.refresh(); refreshStats(); paintGunBtn();
+    Sprites.refresh(); refreshStats(); paintGunBtn(); drawRing();
     say(T('gun_ok') + ' · ' + T('gun_left', { n: data.left_today }), 'good');
   }catch(e){ say(T('gun_neednet'),'warn'); }
 }
@@ -793,6 +798,149 @@ function paintGunBtn(){
   const left = gunsLeftToday();
   b.textContent = T('gun_btn') + ' · ' + left;
   b.disabled = left <= 0;
+}
+
+
+// ═══════════ Замкнутая территория ═══════════
+// Кольцо смыкается по перекрытию кругов влияния:
+//   бункер даёт 250 м, пушка 100 м. Значит
+//   пушка—пушка   до 200 м   (ровно шаг расстановки)
+//   пушка—бункер  до 350 м
+//   бункер—бункер до 500 м
+// Считает телефон: у него уже есть все точки района, сервер не нужен.
+let ring = null;              // { pts:[[lat,lng]…], area:м², at:время }
+let ringLostAt = 0;           // когда кольцо разорвалось
+
+function linkR(o){ return o.kind ? (cfg.unit_influence_m || 250) : (cfg.unit_link_m || 100); }
+
+// Мои живые точки: бункеры и пушки вперемешку
+function myNodes(){
+  const out = [];
+  for(const b of bunkers) if(b.owner === addr && b.alive !== false)
+    out.push({ id:'b'+b.id, lat:b.lat, lng:b.lng, kind:b.kind||'earth' });
+  for(const u of units) if(u.owner === addr && u.alive !== false)
+    out.push({ id:'u'+u.id, lat:u.lat, lng:u.lng, kind:null });
+  return out;
+}
+
+// Площадь многоугольника в квадратных метрах
+function polyArea(pts){
+  if(pts.length < 3) return 0;
+  const lat0 = pts[0][0] * Math.PI/180;
+  const mx = 111320 * Math.cos(lat0), my = 110540;
+  let s = 0;
+  for(let i=0;i<pts.length;i++){
+    const a = pts[i], b = pts[(i+1)%pts.length];
+    s += (a[1]*mx)*(b[0]*my) - (b[1]*mx)*(a[0]*my);
+  }
+  return Math.abs(s/2);
+}
+// Сама себя пересекающая фигура кольцом не считается
+function selfCrosses(pts){
+  const n = pts.length;
+  const cross = (o,a,b) => (a[1]-o[1])*(b[0]-o[0]) - (a[0]-o[0])*(b[1]-o[1]);
+  const hit = (p1,p2,p3,p4) => {
+    const d1=cross(p3,p4,p1), d2=cross(p3,p4,p2), d3=cross(p1,p2,p3), d4=cross(p1,p2,p4);
+    return ((d1>0)!==(d2>0)) && ((d3>0)!==(d4>0));
+  };
+  for(let i=0;i<n;i++)
+    for(let j=i+2;j<n;j++){
+      if(i===0 && j===n-1) continue;
+      if(hit(pts[i], pts[(i+1)%n], pts[j], pts[(j+1)%n])) return true;
+    }
+  return false;
+}
+
+// Находим кольцо. Сначала отсекаем «хвосты» — точки, у которых меньше
+// двух соседей: они не могут быть частью замкнутой линии. Что осталось,
+// то и есть кольцо.
+function findRing(){
+  const nodes = myNodes();
+  if(nodes.length < 3) return null;
+  const link = [];
+  for(let i=0;i<nodes.length;i++){
+    link[i] = [];
+    for(let j=0;j<nodes.length;j++){
+      if(i===j) continue;
+      const d = metersBetween(nodes[i].lat, nodes[i].lng, nodes[j].lat, nodes[j].lng);
+      if(d <= linkR(nodes[i]) + linkR(nodes[j])) link[i].push(j);
+    }
+  }
+  // отсекаем хвосты, пока отсекается
+  const alive = nodes.map(() => true);
+  let cut = true;
+  while(cut){
+    cut = false;
+    for(let i=0;i<nodes.length;i++){
+      if(!alive[i]) continue;
+      if(link[i].filter(j => alive[j]).length < 2){ alive[i] = false; cut = true; }
+    }
+  }
+  const core = [];
+  for(let i=0;i<nodes.length;i++) if(alive[i]) core.push(i);
+  if(core.length < 3) return null;
+  const bunks = core.filter(i => nodes[i].kind).length;
+  if(bunks < 2) return null;                    // минимум два бункера
+
+  // обходим кольцо: из каждой точки идём в ещё не пройденного соседа
+  const order = [core[0]];
+  const used = new Set([core[0]]);
+  let cur = core[0], guard = 0;
+  while(guard++ < 500){
+    const next = link[cur].filter(j => alive[j] && !used.has(j));
+    if(!next.length) break;
+    // держимся ближайшего — так линия не петляет
+    next.sort((a,b) =>
+      metersBetween(nodes[cur].lat,nodes[cur].lng,nodes[a].lat,nodes[a].lng) -
+      metersBetween(nodes[cur].lat,nodes[cur].lng,nodes[b].lat,nodes[b].lng));
+    cur = next[0]; used.add(cur); order.push(cur);
+  }
+  if(order.length < 3) return null;
+  // линия должна вернуться к началу
+  const first = nodes[order[0]], last = nodes[order[order.length-1]];
+  const back = metersBetween(first.lat, first.lng, last.lat, last.lng);
+  if(back > linkR(first) + linkR(last)) return null;
+
+  const pts = order.map(i => [nodes[i].lat, nodes[i].lng]);
+  if(selfCrosses(pts)) return null;
+  return { pts: pts, area: polyArea(pts), nodes: order.length, bunkers: bunks };
+}
+
+let ringLayer = null;
+function drawRing(){
+  const found = findRing();
+  if(found) { ring = found; ringLostAt = 0; }
+  else if(ring && !ringLostAt) { ringLostAt = Date.now(); }
+
+  const grace = (cfg.ring_grace_min || 20) * 60000;
+  const broken = ringLostAt && (Date.now() - ringLostAt) < grace;
+  if(!found && !broken) ring = null;
+
+  if(ringLayer){ map.removeLayer(ringLayer); ringLayer = null; }
+  if(!ring) { paintRingBadge(); return; }
+  ringLayer = L.polygon(ring.pts, {
+    color: broken ? '#B23A2E' : '#C9A227',
+    weight: broken ? 2 : 3,
+    dashArray: broken ? '6 6' : null,
+    fillColor: '#C9A227',
+    fillOpacity: broken ? 0.06 : 0.16
+  }).addTo(map);
+  paintRingBadge(broken);
+}
+function paintRingBadge(broken){
+  const el = document.getElementById('ring-badge');
+  if(!el) return;
+  if(!ring){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const ha = (ring.area/10000).toFixed(ring.area < 100000 ? 2 : 1);
+  if(broken){
+    const left = Math.max(0, Math.ceil(((cfg.ring_grace_min||20)*60000 - (Date.now()-ringLostAt))/60000));
+    el.className = 'broken';
+    el.textContent = T('ring_broken', { n: left });
+  } else {
+    el.className = '';
+    el.textContent = T('ring_ok', { n: ha, k: ring.nodes });
+  }
 }
 
 // ═══════════ Ключ устройства ═══════════
@@ -956,7 +1104,7 @@ async function sync(){
         units.push(u); added++;
       }
       await DB.put('kv', uLast, ukey);
-      Sprites.refresh(); paintGunBtn();
+      Sprites.refresh(); paintGunBtn(); drawRing();
     }
 
     // Правила, отметки заведений и реклама меняются раз в недели, а не
@@ -1014,6 +1162,7 @@ function drawAll(){
   layers.forEach(l => map.removeLayer(l)); layers.clear();
   bunkers.forEach(drawOne);
   Sprites.refresh();
+  drawRing();
 }
 function drawOne(b){
   if(fogHides(b.lat, b.lng, b.owner)) return;
@@ -1427,7 +1576,7 @@ window.addEventListener('offline', () => linkState(T('st_offline'),'off'));
     const sc = await DB.get('kv','seen');
     if(Array.isArray(sc)) seenCells = new Set(sc);
   }catch(e){}
-  paintGunBtn(); Sprites.refresh();
+  paintGunBtn(); Sprites.refresh(); drawRing();
   watchMe();
   startPoll();
   sync();
