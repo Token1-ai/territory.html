@@ -1041,7 +1041,7 @@ function showBunker(b){
   const d = here ? Math.round(metersBetween(b.lat, b.lng, here[0], here[1])) : null;
   const guns = gunsOf(b.id).length;
   const under = sieges.find(x => x.bunker_id === b.id);
-  const leash = cfg.siege_leash_m || 100;
+  const reach = cfg.siege_reach_m || 80;
   sheetMode = 'bunker'; window._sheetBunker = b;
   document.getElementById('shot').style.display = 'none';
   document.getElementById('sheet-in').style.display = 'none';
@@ -1054,9 +1054,9 @@ function showBunker(b){
     + (under ? '<div class="pf-row"><span>' + T('sg_state') + '</span><b>' + T('sg_live') + '</b></div>' : '');
   document.getElementById('sheet-p').textContent =
       mine ? T('sg_mine_p')
-           : (d !== null && d <= leash ? T('sg_can') : T('sg_come', { n: leash }));
+           : (d !== null && d <= reach ? T('sg_can') : T('sg_come', { n: reach }));
   document.getElementById('sheet-ok').textContent =
-      (!mine && d !== null && d <= leash) ? T('sg_attack') : T('closebtn');
+      (!mine && d !== null && d <= reach) ? T('sg_attack') : T('closebtn');
   document.getElementById('veil').classList.add('on');
 }
 
