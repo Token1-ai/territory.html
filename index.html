@@ -521,6 +521,7 @@ const Sprites = (function(){
       const b = bunkers[i];
       const p = map.latLngToContainerPoint([b.lat, b.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
+      if(fogHides(b.lat, b.lng, b.owner)) continue;
       ctx.drawImage(sprite(b.kind||'earth', px, !(addr && b.owner===addr)),
                     p.x-half, p.y-half, px, px);
       drawn++;
@@ -532,6 +533,7 @@ const Sprites = (function(){
       if(u.alive === false) continue;
       const p = map.latLngToContainerPoint([u.lat, u.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
+      if(fogHides(u.lat, u.lng, u.owner)) continue;
       ctx.drawImage(sprite(u.code||'gun', gp, !(addr && u.owner===addr)),
                     p.x-gh, p.y-gh, gp, gp);
       drawn++;
@@ -570,6 +572,8 @@ function watchMe(){
     // Ушёл в соседнюю клетку — подтянуть её бункеры.
     const ck = cellKey(nlat, nlng);
     if(ck !== _lastCell){ _lastCell = ck; sync(); }
+    if(moved) _movedAt = Date.now();
+    if(markSeen(nlat, nlng)){ if(Number(cfg.fog_on)) drawAll(); saveSeen(); }
     if(moved || accCh){ paintMe(); paintReticle(); Sprites.refresh(); }
   }, err => {
     say(err.code === 1
@@ -584,8 +588,8 @@ function stopWatch(){
 // Свернули игру — глушим спутники, опрос и сеть. Это самая большая
 // экономия батареи: свёрнутой игра бывает дольше, чем открытой.
 document.addEventListener('visibilitychange', () => {
-  if(document.hidden){ stopWatch(); stopPoll(); }
-  else { watchMe(); startPoll(); sync(); }
+  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); }
+  else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); }
 });
 
 function paintMe(){
@@ -636,6 +640,36 @@ async function ensureId(){
 }
 
 
+
+
+// ═══════════ Туман войны ═══════════
+// Выключен. Включается одним числом в базе (fog_on = 1), по городам,
+// без выкладки новой версии игры. Клетки, где человек побывал ногами,
+// телефон помнит ВСЕГДА — значит в день включения тумана история уже
+// накоплена и карта не обнулится.
+let seenCells = new Set();
+let seenDirty = false;
+function fogCell(lat, lng){
+  const step = cfg.fog_cell || 0.004;              // примерно 440 м
+  return Math.floor(lat/step) + ':' + Math.floor(lng/step);
+}
+function markSeen(lat, lng){
+  const k = fogCell(lat, lng);
+  if(seenCells.has(k)) return false;
+  seenCells.add(k); seenDirty = true;
+  return true;                                      // клетка новая
+}
+async function saveSeen(){
+  if(!seenDirty) return;
+  seenDirty = false;
+  try{ await DB.put('kv', Array.from(seenCells).slice(-4000), 'seen'); }catch(e){}
+}
+// Скрыто ли это от меня прямо сейчас
+function fogHides(lat, lng, owner){
+  if(!Number(cfg.fog_on)) return false;
+  if(addr && owner === addr) return false;
+  return !seenCells.has(fogCell(lat, lng));
+}
 
 // ═══════════ Пушки ═══════════
 // Пушка охраняет точку: ставится внутри круга своего бункера,
@@ -845,6 +879,15 @@ function boxAround(lat,lng){
   return { latMin:(i-1)*CELL, latMax:(i+2)*CELL, lngMin:(j-1)*CELL, lngMax:(j+2)*CELL };
 }
 const haveIds = new Set();
+const namesAsked = new Set();
+
+// Пора ли снова спрашивать редкие вещи
+async function staleFor(key, ms){
+  try{
+    const t = await DB.get('kv', key + 'At');
+    return !t || (Date.now() - t) > ms;
+  }catch(e){ return true; }
+}
 
 async function sync(){
   if(!navigator.onLine){ linkState(T('st_offline'), 'off'); return; }
@@ -894,29 +937,41 @@ async function sync(){
       Sprites.refresh(); paintGunBtn();
     }
 
-    const { data:cf } = await sb.from('territory_config').select('key,value');
-    if(cf){ const o={}; cf.forEach(r=>o[r.key]=Number(r.value)); cfg=Object.assign(cfg,o); await DB.put('kv',o,'cfg'); }
-    // Отметки заведений и реклама — грузятся вместе с картой и тоже
-    // ложатся в телефон, чтобы работали без сети.
-    const box2 = here ? boxAround(here[0], here[1]) : null;
-    let pq = sb.from('territory_places')
-      .select('id,kind,title,subtitle,lat,lng,radius_m,icon,color,perks')
-      .eq('visible', true);
-    if(box2) pq = pq.gte('lat',box2.latMin).lte('lat',box2.latMax)
-                    .gte('lng',box2.lngMin).lte('lng',box2.lngMax);
-    const { data:pl } = await pq.limit(200);
-    if(pl){ places = pl; await DB.put('kv', pl, 'places'); drawPlaces(); }
-    const { data:ad } = await sb.from('territory_ads')
-      .select('id,slot,title,body,image_url,link_url,lat,lng,radius_m,weight')
-      .eq('active', true).limit(200);
-    if(ad){ ads = ad; await DB.put('kv', ad, 'ads'); showAd('dock'); }
+    // Правила, отметки заведений и реклама меняются раз в недели, а не
+    // раз в три минуты. Спрашиваем их РЕДКО и держим в телефоне.
+    // Раньше на каждую проверку уходило шесть запросов вместо двух.
+    if(await staleFor('slow', 6*3600*1000)){
+      const { data:cf } = await sb.from('territory_config').select('key,value');
+      if(cf){ const o={}; cf.forEach(r=>o[r.key]=Number(r.value)); cfg=Object.assign(cfg,o); await DB.put('kv',o,'cfg'); }
 
-    // Названия земель — только тех хозяев, чьи бункеры у нас есть.
-    // Раньше тянулась вся таблица: при 5 млн игроков это 5 млн строк.
-    const owners = Array.from(new Set(bunkers.map(b=>b.owner))).slice(0,300);
-    if(owners.length){
+      const box2 = here ? boxAround(here[0], here[1]) : null;
+      let pq = sb.from('territory_places')
+        .select('id,kind,title,subtitle,lat,lng,radius_m,icon,color,perks')
+        .eq('visible', true);
+      if(box2) pq = pq.gte('lat',box2.latMin).lte('lat',box2.latMax)
+                      .gte('lng',box2.lngMin).lte('lng',box2.lngMax);
+      const { data:pl } = await pq.limit(200);
+      if(pl){ places = pl; await DB.put('kv', pl, 'places'); drawPlaces(); }
+
+      const { data:ad } = await sb.from('territory_ads')
+        .select('id,slot,title,body,image_url,link_url,lat,lng,radius_m,weight')
+        .eq('active', true).limit(200);
+      if(ad){ ads = ad; await DB.put('kv', ad, 'ads'); showAd('dock'); }
+
+      // Запоминаем «спросили» только если сервер правда ответил.
+      // Иначе одна пустая выдача заморозила бы правила на шесть часов.
+      if(cf && cf.length) await DB.put('kv', Date.now(), 'slowAt');
+    }
+
+    // Названия спрашиваем только для тех хозяев, чьё имя нам ещё
+    // неизвестно. У кого уже знаем — второй раз не тревожим.
+    const fresh = Array.from(new Set(bunkers.map(b=>b.owner)))
+                       .filter(o => o && !(o in names) && !namesAsked.has(o))
+                       .slice(0, 200);
+    if(fresh.length){
+      fresh.forEach(o => namesAsked.add(o));
       const { data:nm } = await sb.from('territory_names')
-        .select('owner,label').in('owner', owners);
+        .select('owner,label').in('owner', fresh);
       if(nm){ nm.forEach(r=>names[r.owner]=r.label); await DB.put('kv',names,'names'); }
     }
 
@@ -939,6 +994,7 @@ function drawAll(){
   Sprites.refresh();
 }
 function drawOne(b){
+  if(fogHides(b.lat, b.lng, b.owner)) return;
   if(layers.has(b.id)) return;
   const mine = addr && b.owner === addr;
   const col = mine ? '#E0A32E' : '#B4462F';
@@ -1286,10 +1342,24 @@ function esc(s){ return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;
 // подключённых — 25 миллиардов сообщений в сутки при включённых
 // пяти миллионах в месяц. Вместо него редкий опрос своего района,
 // и только пока игра на экране.
-let _poll = null;
+let _poll = null, _lastSync = 0, _lastPing = 0, _lastPingAt = null, _movedAt = 0;
+// Идёшь — спрашиваем раз в 3 минуты. Стоишь — раз в 10.
+// Человек на диване не должен стоить столько же, сколько идущий по городу.
+function pollEvery(){ return (Date.now() - _movedAt < 5*60000) ? 180000 : 600000; }
+function tick(){
+  if(document.hidden || !navigator.onLine) return;
+  const now = Date.now();
+  if(now - _lastSync >= pollEvery()){ _lastSync = now; sync(); }
+  // «Кто рядом» — только если сдвинулся на 100 м или прошло 10 минут
+  const far = here && _lastPingAt
+      ? metersBetween(_lastPingAt[0], _lastPingAt[1], here[0], here[1]) : 1e9;
+  if(here && (far > 100 || now - _lastPing >= 600000)){
+    _lastPing = now; _lastPingAt = here.slice(); pingNearby();
+  }
+}
 function startPoll(){
   if(_poll) return;
-  _poll = setInterval(() => { if(!document.hidden) sync(); }, 180000);
+  _poll = setInterval(tick, 60000);
 }
 function stopPoll(){ if(_poll){ clearInterval(_poll); _poll = null; } }
 
@@ -1302,8 +1372,7 @@ async function pingNearby(){
     if(data && data.ok) document.getElementById('s-players').textContent = data.nearby;
   }catch(e){}
 }
-setInterval(pingNearby, 120000);
-setTimeout(pingNearby, 8000);
+setTimeout(tick, 8000);
 
 // Ссылку переноса могли открыть, когда игра уже запущена — тогда
 // страница не перезагружается, меняется только хвост адреса.
@@ -1332,6 +1401,10 @@ window.addEventListener('offline', () => linkState(T('st_offline'),'off'));
     units = (await DB.all('units')) || [];
     units.forEach(u => haveUnitIds.add(u.id));
   }catch(e){ units = []; }
+  try{
+    const sc = await DB.get('kv','seen');
+    if(Array.isArray(sc)) seenCells = new Set(sc);
+  }catch(e){}
   paintGunBtn(); Sprites.refresh();
   watchMe();
   startPoll();
