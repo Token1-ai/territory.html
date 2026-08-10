@@ -154,6 +154,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 #mode-row{margin-top:8px;}
 .mode{flex:1;}
 .mode.on{background:rgba(224,163,46,.18);border-color:#E0A32E;color:#E0A32E;}
+#chat-list{max-height:46vh;overflow-y:auto;margin:4px 0 8px;}
+.chat-m{padding:6px 9px;margin:4px 0;border-radius:9px;background:rgba(255,255,255,.05);}
+.chat-m.me{background:rgba(224,163,46,.14);}
+.chat-m b{font-size:11px;color:#C9A227;margin-right:6px;font-family:'Space Mono',monospace;}
+.chat-m i{font-size:10px;color:#6E7566;font-style:normal;}
+.chat-m span{display:block;font-size:13.5px;margin-top:2px;word-break:break-word;}
+.chat-empty{padding:14px;text-align:center;color:#6E7566;font-size:12.5px;}
+.chat-send{display:flex;gap:8px;}
+.chat-send input{flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(224,163,46,.3);
+  border-radius:9px;padding:9px 11px;color:#E8E3D5;font-size:14px;}
 #siege-box{position:absolute;left:12px;right:12px;top:96px;z-index:620;
   background:rgba(18,20,15,.94);border:1px solid rgba(178,58,46,.65);border-radius:12px;
   padding:11px 13px;color:#E8E3D5;}
@@ -240,7 +250,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
     <img id="shot" alt=""/>
     <input id="sheet-in" style="display:none" maxlength="24" placeholder="Northside"/>
     <button class="btn" id="sheet-ok" onclick="sheetOk()">OK</button>
-    <div class="row"><button class="btn-ghost" onclick="closeSheet()">Close</button></div>
+    <div class="row"><button class="btn-ghost" id="sheet-close" onclick="closeSheet()">Close</button></div>
   </div>
 </div>
 
@@ -299,12 +309,12 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "You are close enough. Cannons fall first, then the bunker.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "This player has already been attacked {n} times today.", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device"} };
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "You are close enough. Cannons fall first, then the bunker.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "This player has already been attacked {n} times today.", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device", "cl_title": "Clan", "cl_name": "Name", "cl_members": "Members", "cl_list": "Who is in", "cl_you": "you", "cl_chat": "Clan chat", "cl_leave": "Leave clan", "cl_leave_ask": "Leave the clan? You can join another only after a day.", "cl_none": "You are on your own. A clan is who you do NOT fight and who shares the loot.", "cl_create": "Create a clan", "cl_near": "Clans around you", "cl_nonear": "No clans nearby yet — be the first", "cl_join": "Join", "cl_ask_name": "Clan name (3 to 24 characters)", "cl_created": "Clan {n} created. You are the leader.", "cl_joined": "You joined {n}.", "cl_left": "You left the clan.", "cl_badname": "Name must be 3 to 24 characters.", "cl_taken": "That name is taken.", "cl_already": "You are already in a clan.", "cl_needbunker": "Plant a bunker first.", "cl_full": "This clan is full.", "cl_closed": "This clan does not take newcomers.", "cl_cooldown": "You left a clan recently — {n} min left.", "cl_say": "Message to the clan", "cl_send": "Send", "cl_empty": "No messages yet. Say something.", "cl_toofast": "Not so fast — wait {n} s."} };
 // Остальные языки лежат в отдельном файле lang.json: телефон берёт его
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 11;
+var LANG_V = 12;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -376,6 +386,7 @@ function applyLang(){
   var n = document.getElementById('btn-name');   if(n) n.textContent = T('name');
   var k = document.getElementById('sheet-ok'); if(k) k.textContent = T('closebtn');
   var lp = document.getElementById('link-pre'); if(lp) lp.textContent = T('on_device');
+  var sc = document.getElementById('sheet-close'); if(sc) sc.textContent = T('closebtn');
   var b = document.getElementById('plant'); if(b) b.textContent = T('plant');
   if(typeof paintGunBtn === 'function') paintGunBtn();
   var mb=document.getElementById('m-bunker'); if(mb) mb.textContent=T('mode_b');
@@ -600,7 +611,9 @@ const Sprites = (function(){
     const w = map.getSize().x, h = map.getSize().y;
     ctx.clearRect(0,0,w,h);
     const px = sizeFor(map.getZoom());
-    if(!px) return;
+    // Эффекты рисуем ВСЕГДА, даже когда значки скрыты на мелком
+    // масштабе: иначе вспышка боя пропадает при отдалении карты.
+    if(!px){ try{ FX.paint(ctx, map, w, h); }catch(e){} return; }
     const pad = px, half = px/2;
     let drawn = 0;
     for(let i=0;i<bunkers.length && drawn<400;i++){
@@ -677,7 +690,7 @@ function stopWatch(){
 // Свернули игру — глушим спутники, опрос и сеть. Это самая большая
 // экономия батареи: свёрнутой игра бывает дольше, чем открытой.
 document.addEventListener('visibilitychange', () => {
-  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); stopSiegeLoop(); }
+  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); stopSiegeLoop(); stopChat(); }
   else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); if(siege) startSiegeLoop(); }
 });
 
@@ -1233,9 +1246,9 @@ const FX = (function(){
   // Пушка пала: разлёт осколков
   function burst(lat, lng){
     const bits = [];
-    for(let i=0;i<14;i++){
-      const a = Math.random()*Math.PI*2, v = 22 + Math.random()*46;
-      bits.push({ dx:Math.cos(a)*v, dy:Math.sin(a)*v, s:1.6+Math.random()*2.6 });
+    for(let i=0;i<20;i++){
+      const a = Math.random()*Math.PI*2, v = 34 + Math.random()*72;
+      bits.push({ dx:Math.cos(a)*v, dy:Math.sin(a)*v, s:2.4+Math.random()*3.4 });
     }
     add({ kind:'burst', lat, lng, ms:900, bits });
     try{ if(navigator.vibrate) navigator.vibrate(70); }catch(e){}
@@ -1268,21 +1281,35 @@ const FX = (function(){
       if(p.x < -80 || p.y < -80 || p.x > w+80 || p.y > h+80) continue;
       const mPerPx = metersPerPixel();
       if(o.kind === 'aim'){
-        const rr = (o.r / mPerPx) * (1 - k*0.55);
-        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(4, rr), 0, 7);
+        const base = Math.max(30, o.r / mPerPx);
+        const rr = base * (1 - k*0.45);
+        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(8, rr), 0, 7);
         ctx.strokeStyle = 'rgba(178,58,46,' + (0.5 + 0.5*Math.sin(now/90)) + ')';
         ctx.lineWidth = 2.5; ctx.setLineDash([6,5]); ctx.stroke(); ctx.setLineDash([]);
         ctx.fillStyle = 'rgba(178,58,46,.13)'; ctx.fill();
+        // сжимающаяся дуга — сколько осталось до удара
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(8, rr) + 7, -Math.PI/2, -Math.PI/2 + (1-k)*Math.PI*2);
+        ctx.strokeStyle = '#FFD67A'; ctx.lineWidth = 3; ctx.stroke();
       }
       if(o.kind === 'blast'){
-        const rr = (o.r / mPerPx) * (0.4 + k*1.5);
-        ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 7);
-        ctx.strokeStyle = 'rgba(226,122,95,' + (1-k) + ')';
-        ctx.lineWidth = 4*(1-k) + 1; ctx.stroke();
-        if(k < 0.3){
-          const f = 1 - k/0.3;
-          ctx.beginPath(); ctx.arc(p.x, p.y, (o.r/mPerPx)*0.7*f + 6, 0, 7);
-          ctx.fillStyle = 'rgba(255,214,122,' + (0.75*f) + ')'; ctx.fill();
+        const base = Math.max(34, o.r / mPerPx);
+        // две волны подряд — так удар читается даже краем глаза
+        for(const [d, wmul] of [[0, 1], [0.18, 0.62]]){
+          const kk = Math.max(0, Math.min(1, (k - d) / (1 - d)));
+          if(kk <= 0) continue;
+          ctx.beginPath(); ctx.arc(p.x, p.y, base * (0.35 + kk*2.1) * wmul + 4, 0, 7);
+          ctx.strokeStyle = 'rgba(226,122,95,' + (1-kk)*0.9 + ')';
+          ctx.lineWidth = 6*(1-kk) + 1; ctx.stroke();
+        }
+        if(k < 0.35){
+          const f = 1 - k/0.35;
+          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, base*1.1*f + 10);
+          gr.addColorStop(0, 'rgba(255,246,214,' + (0.95*f) + ')');
+          gr.addColorStop(0.5, 'rgba(255,196,90,' + (0.6*f) + ')');
+          gr.addColorStop(1, 'rgba(178,58,46,0)');
+          ctx.beginPath(); ctx.arc(p.x, p.y, base*1.1*f + 10, 0, 7);
+          ctx.fillStyle = gr; ctx.fill();
         }
       }
       if(o.kind === 'burst'){
@@ -1291,20 +1318,23 @@ const FX = (function(){
           ctx.beginPath(); ctx.arc(x, y, b.s*(1-k*0.7), 0, 7);
           ctx.fillStyle = 'rgba(255,190,110,' + (1-k) + ')'; ctx.fill();
         }
-        if(k < 0.25){
-          const f = 1 - k/0.25;
-          ctx.beginPath(); ctx.arc(p.x, p.y, 26*f + 4, 0, 7);
-          ctx.fillStyle = 'rgba(255,236,180,' + (0.8*f) + ')'; ctx.fill();
+        if(k < 0.3){
+          const f = 1 - k/0.3;
+          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 46*f + 6);
+          gr.addColorStop(0, 'rgba(255,248,222,' + f + ')');
+          gr.addColorStop(1, 'rgba(255,150,60,0)');
+          ctx.beginPath(); ctx.arc(p.x, p.y, 46*f + 6, 0, 7);
+          ctx.fillStyle = gr; ctx.fill();
         }
       }
       if(o.kind === 'num'){
-        ctx.font = '700 16px system-ui, sans-serif';
+        ctx.font = '700 20px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.globalAlpha = 1 - k;
         ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(18,20,15,.85)';
-        ctx.strokeText(o.text, p.x, p.y - 12 - 34*k);
+        ctx.strokeText(o.text, p.x, p.y - 14 - 46*k);
         ctx.fillStyle = o.color || '#E27A5F';
-        ctx.fillText(o.text, p.x, p.y - 12 - 34*k);
+        ctx.fillText(o.text, p.x, p.y - 14 - 46*k);
         ctx.globalAlpha = 1;
       }
     }
@@ -1322,6 +1352,170 @@ function metersPerPixel(){
   const d = map.latLngToContainerPoint([here[0] + 0.001, here[1]]);
   const px = Math.max(1, Math.abs(c.y - d.y));
   return 111.0 / px;                                  // 0.001° ≈ 111 м
+}
+
+
+// ═══════════ Клан и чат ═══════════
+// Клан — это те, с кем ты НЕ воюешь и с кем делишь добычу.
+// Чат виден только своим: таблица закрыта наглухо, сервер сперва
+// проверяет, что человек правда в этом клане.
+let clan = null;              // мой клан
+let chatMsgs = [];            // сообщения, что уже видел
+let chatSince = 0;
+let _chatTimer = null;
+
+async function loadClan(){
+  try{
+    const { data } = await sb.rpc('clan_info_v1', { p:{ wallet: addr } });
+    clan = (data && data.in_clan) ? data : null;
+  }catch(e){}
+  return clan;
+}
+
+async function openClan(){
+  await loadClan();
+  sheetMode = 'info';
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-p').textContent = '';
+  document.getElementById('sheet-ok').textContent = T('closebtn');
+  document.getElementById('sheet-t').textContent = T('cl_title');
+  document.getElementById('veil').classList.add('on');
+
+  if(clan){
+    let html = '<div class="pf-row"><span>'+T('cl_name')+'</span><b>'+esc(clan.name)+'</b></div>'
+             + '<div class="pf-row"><span>'+T('cl_members')+'</span><b>'+clan.members+' / '+clan.max+'</b></div>'
+             + '<div class="pf-sec">'+T('cl_list')+'</div>';
+    for(const m of (clan.list||[])){
+      const me = m.wallet === addr;
+      html += '<div class="pf-row"><span>' + (m.role === 'leader' ? '★ ' : '')
+            + esc(m.wallet.slice(0,6)+'…'+m.wallet.slice(-4)) + (me ? ' ('+T('cl_you')+')' : '')
+            + '</span><b>' + m.bunkers + '</b></div>';
+    }
+    html += '<div class="row" style="margin:12px 0 0;">'
+          + '<button class="btn-ghost" onclick="openChat()">'+esc(T('cl_chat'))+'</button>'
+          + '<button class="btn-ghost" onclick="doClanLeave()">'+esc(T('cl_leave'))+'</button>'
+          + '</div>';
+    document.getElementById('sheet-body').innerHTML = html;
+  } else {
+    let html = '<div class="mv-warn">'+esc(T('cl_none'))+'</div>'
+             + '<div class="row" style="margin:10px 0 0;">'
+             + '<button class="btn-ghost" onclick="askClanName()">'+esc(T('cl_create'))+'</button>'
+             + '</div><div class="pf-sec">'+T('cl_near')+'</div>'
+             + '<div id="clan-near">…</div>';
+    document.getElementById('sheet-body').innerHTML = html;
+    try{
+      const { data } = await sb.rpc('clans_near_v1', { p:{ lat: here?here[0]:0, lng: here?here[1]:0 } });
+      const box = document.getElementById('clan-near');
+      if(!data || !data.length){ box.textContent = T('cl_nonear'); return; }
+      box.innerHTML = data.map(c =>
+        '<div class="pf-row"><span>'+esc(c.name)+' · '+c.members+'/'+c.max+'</span>'
+        + '<button class="btn-ghost" style="padding:5px 10px" onclick="doClanJoin('+c.id+')">'
+        + esc(T('cl_join'))+'</button></div>').join('');
+    }catch(e){}
+  }
+}
+
+function askClanName(){
+  const name = prompt(T('cl_ask_name'));
+  if(!name) return;
+  doClanCreate(name.trim());
+}
+async function doClanCreate(name){
+  try{
+    const { data } = await sb.rpc('clan_create_v1', { p:{ wallet: addr, name: name } });
+    if(!data || !data.ok){
+      const e = data && data.error;
+      if(e === 'bad_name')        return say(T('cl_badname'),'warn');
+      if(e === 'name_taken')      return say(T('cl_taken'),'warn');
+      if(e === 'already_in_clan') return say(T('cl_already'),'warn');
+      if(e === 'need_bunker')     return say(T('cl_needbunker'),'warn');
+      return say(T('failed'),'warn');
+    }
+    say(T('cl_created',{ n: data.name }),'good');
+    openClan();
+  }catch(e){ say(T('gun_neednet'),'warn'); }
+}
+async function doClanJoin(id){
+  try{
+    const { data } = await sb.rpc('clan_join_v1', { p:{ wallet: addr, clan_id: id } });
+    if(!data || !data.ok){
+      const e = data && data.error;
+      if(e === 'full')     return say(T('cl_full'),'warn');
+      if(e === 'cooldown') return say(T('cl_cooldown',{ n: data.left_min }),'warn');
+      if(e === 'closed')   return say(T('cl_closed'),'warn');
+      return say(T('failed'),'warn');
+    }
+    say(T('cl_joined',{ n: data.name }),'good');
+    openClan();
+  }catch(e){ say(T('gun_neednet'),'warn'); }
+}
+async function doClanLeave(){
+  if(!confirm(T('cl_leave_ask'))) return;
+  try{ await sb.rpc('clan_leave_v1', { p:{ wallet: addr } }); }catch(e){}
+  clan = null; say(T('cl_left'));
+  openClan();
+}
+
+// ── Чат. Живой, пока экран открыт: опрос раз в 3 секунды.
+//    Постоянное соединение у всех держать нельзя — упрёмся в пределы.
+function openChat(){
+  sheetMode = 'chat';
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-t').textContent = T('cl_chat') + (clan ? ' · ' + clan.name : '');
+  document.getElementById('sheet-p').textContent = '';
+  document.getElementById('sheet-ok').textContent = T('back');
+  document.getElementById('sheet-body').innerHTML =
+      '<div id="chat-list"></div>'
+    + '<div class="chat-send">'
+    + '<input id="chat-in" maxlength="240" placeholder="' + esc(T('cl_say')) + '"/>'
+    + '<button class="btn-ghost" onclick="chatSend()">' + esc(T('cl_send')) + '</button>'
+    + '</div>';
+  document.getElementById('veil').classList.add('on');
+  paintChat();
+  chatPull();
+  if(_chatTimer) clearInterval(_chatTimer);
+  _chatTimer = setInterval(chatPull, 3000);
+}
+function stopChat(){ if(_chatTimer){ clearInterval(_chatTimer); _chatTimer = null; } }
+
+async function chatPull(){
+  if(!clan || document.hidden) return;
+  try{
+    const { data } = await sb.rpc('chat_read_v1', { p:{ wallet: addr, since: chatSince } });
+    if(Array.isArray(data) && data.length){
+      for(const m of data){ chatMsgs.push(m); if(m.id > chatSince) chatSince = m.id; }
+      if(chatMsgs.length > 200) chatMsgs = chatMsgs.slice(-200);
+      try{ await DB.put('kv', chatMsgs.slice(-100), 'chat'); }catch(e){}
+      paintChat();
+    }
+  }catch(e){}
+}
+function paintChat(){
+  const box = document.getElementById('chat-list');
+  if(!box) return;
+  if(!chatMsgs.length){ box.innerHTML = '<div class="chat-empty">'+esc(T('cl_empty'))+'</div>'; return; }
+  box.innerHTML = chatMsgs.map(m => {
+    const me = m.wallet === addr;
+    const t = new Date(m.at);
+    const hh = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+    return '<div class="chat-m'+(me?' me':'')+'">'
+         + '<b>'+esc(m.wallet.slice(0,6))+'</b><i>'+hh+'</i>'
+         + '<span>'+esc(m.body)+'</span></div>';
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function chatSend(){
+  const el = document.getElementById('chat-in');
+  const body = (el.value||'').trim();
+  if(!body) return;
+  el.value = '';
+  try{
+    const { data } = await sb.rpc('chat_send_v1', { p:{ wallet: addr, body: body } });
+    if(data && !data.ok && data.error === 'too_fast') say(T('cl_toofast',{n:data.wait}),'warn');
+  }catch(e){ say(T('gun_neednet'),'warn'); }
+  chatPull();
 }
 
 // ═══════════ Осада ═══════════
@@ -1443,6 +1637,7 @@ function startSiegeLoop(){
 function stopSiegeLoop(){
   if(_siegeTimer){ clearInterval(_siegeTimer); _siegeTimer = null; }
   stopShells();
+  FX.stop();
 }
 
 async function siegeTick(){
@@ -1463,11 +1658,18 @@ async function siegeTick(){
     siege.power     = data.power;
     siege.target    = data.target;
     siege.dist      = data.dist;
-    if(data.hits > 0) say(T('sh_hit', { n: Math.round(data.lost_sec) }), 'warn');
+    if(data.hits > 0){
+      say(T('sh_hit', { n: Math.round(data.lost_sec) }), 'warn');
+      if(here) FX.blast(here[0], here[1], cfg.siege_blast_m || 20, true);
+    }
     if(Array.isArray(data.killed) && data.killed.length){
       for(const id of data.killed){
         const u = units.find(x => x.id === id);
-        if(u) u.alive = false;
+        if(u){
+          FX.burst(u.lat, u.lng);
+          FX.num(u.lat, u.lng, '−' + (cfg.hp_gun || 50), '#FFD67A');
+          u.alive = false;
+        }
         await DB.put('units', Object.assign({}, u || {id:id, alive:false}, {alive:false}));
       }
       Sprites.refresh(); drawRing();
@@ -1491,7 +1693,13 @@ async function siegeLeave(){
   try{ await sb.rpc('siege_leave_v1', { p:{ wallet: addr, siege_id: id } }); }catch(e){}
 }
 function endSiege(msg, good){
+  // на прощание — вспышка по цели, если победили
+  if(good && siege){
+    const b = bunkerById(siege.bunker_id);
+    if(b){ FX.burst(b.lat, b.lng); FX.blast(b.lat, b.lng, 40, false); }
+  }
   stopSiegeLoop();
+  FX.stop();
   siege = null; siegeTarget = null;
   paintSiege();
   if(msg) say(msg, good ? 'good' : 'warn');
@@ -1539,12 +1747,25 @@ function pendingShell(){
   }
   return null;
 }
+let _lastShell = null;
 function paintShell(){
   const sh = pendingShell();
   if(shellLayer){ map.removeLayer(shellLayer); shellLayer = null; }
   const warnEl = document.getElementById('shell-warn');
-  if(!sh){ if(warnEl) warnEl.style.display = 'none'; return; }
   const r = cfg.siege_blast_m || 20;
+
+  // снаряд лёг: вспышка, волна и — если накрыло — дрожание с вибрацией
+  if(_lastShell && (!sh || sh.land !== _lastShell.land)){
+    const inside = here && metersBetween(here[0], here[1],
+                        _lastShell.lat, _lastShell.lng) <= r;
+    FX.blast(_lastShell.lat, _lastShell.lng, r, inside);
+    if(inside) FX.num(_lastShell.lat, _lastShell.lng,
+                      '−' + (cfg.siege_hit_pause_sec || 10) + ' с', '#E27A5F');
+    _lastShell = null;
+  }
+  if(!sh){ if(warnEl) warnEl.style.display = 'none'; return; }
+  _lastShell = sh;
+  FX.aim(sh.lat, sh.lng, r, Math.max(0, sh.land - Date.now()));
   shellLayer = L.circle([sh.lat, sh.lng], {
     radius: r, color:'#B23A2E', weight:2.5, dashArray:'5 4',
     fillColor:'#B23A2E', fillOpacity:0.25 }).addTo(map);
@@ -2158,6 +2379,9 @@ async function openProfile(){
     + '<button class="btn-ghost" onclick="showMove()">'+esc(T('mv_btn'))+'</button>'
     + '</div>'
     + '<div class="row" style="margin:8px 0 0;">'
+    + '<button class="btn-ghost" onclick="openClan()">'+esc(T('cl_title'))+'</button>'
+    + '</div>'
+    + '<div class="row" style="margin:8px 0 0;">'
     + '<button class="btn-ghost" onclick="pushToggle()">'
     +   esc(T(pushIsOn ? 'nt_btn_off' : 'nt_btn_on')) + '</button>'
     + '</div>';
@@ -2187,7 +2411,8 @@ function sheetInfo(t, p){
   document.getElementById('sheet-ok').textContent = T('gotit');
   sheet(t, p);
 }
-function closeSheet(){ document.getElementById('veil').classList.remove('on'); }
+function closeSheet(){
+  stopChat(); document.getElementById('veil').classList.remove('on'); }
 function sheetOk(){
   if(sheetMode === 'plant') doPlant();
   else if(sheetMode === 'bunker') doAttack();
