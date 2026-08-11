@@ -916,7 +916,10 @@ async function doGun(){
     await DB.put('units', u);
     Sprites.refresh(); refreshStats(); paintGunBtn(); drawRing();
     say(T('gun_ok') + ' · ' + T('gun_left', { n: data.left_today }), 'good');
-  }catch(e){ say(T('gun_neednet'),'warn'); }
+  }catch(e){
+    const m = (e && (e.message || e.hint || e.details)) ? String(e.message || e.hint || e.details) : '';
+    say(m ? (T('failed') + ' · ' + m.slice(0, 90)) : T('gun_neednet'), 'warn');
+  }
 }
 function paintGunBtn(){
   const b = document.getElementById('btn-gun');
@@ -1256,6 +1259,20 @@ const FX = (function(){
   // Цифра урона, уплывающая вверх
   function num(lat, lng, text, color){ add({ kind:'num', lat, lng, ms:1100, text, color }); }
 
+  // Ракета летит от точки к точке, оставляя след
+  function rocket(fromLat, fromLng, toLat, toLng, ms){
+    add({ kind:'rocket', lat:fromLat, lng:fromLng, toLat, toLng, ms: ms || 6000, trail:[] });
+  }
+  // Дрон вылетает, обходит круг и возвращается
+  function drone(lat, lng, r, ms){
+    add({ kind:'drone', lat, lng, r: r || 2000, ms: ms || 4200 });
+  }
+  // Бункер укреплён: расходящееся золотое кольцо и искры
+  function upgrade(lat, lng){
+    add({ kind:'upgrade', lat, lng, ms:1400 });
+    try{ if(navigator.vibrate) navigator.vibrate([25,40,25]); }catch(e){}
+  }
+
   function run(){
     if(raf) return;
     const step = () => {
@@ -1327,6 +1344,67 @@ const FX = (function(){
           ctx.fillStyle = gr; ctx.fill();
         }
       }
+      if(o.kind === 'rocket'){
+        const q = map.latLngToContainerPoint([o.toLat, o.toLng]);
+        const ease = k*k*0.55 + k*0.45;                 // разгон и подлёт
+        const x = p.x + (q.x - p.x)*ease;
+        const y = p.y + (q.y - p.y)*ease - Math.sin(Math.PI*ease)*46;   // дуга
+        o.trail.push([x,y]); if(o.trail.length > 26) o.trail.shift();
+        // след
+        for(let i=0;i<o.trail.length;i++){
+          const t = i/o.trail.length;
+          ctx.beginPath(); ctx.arc(o.trail[i][0], o.trail[i][1], 1.5 + t*3.5, 0, 7);
+          ctx.fillStyle = 'rgba(226,150,95,' + (t*0.55) + ')'; ctx.fill();
+        }
+        if(k < 0.98){
+          const ang = Math.atan2(q.y-p.y, q.x-p.x);
+          ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
+          ctx.fillStyle = '#FFD67A';
+          ctx.beginPath(); ctx.moveTo(9,0); ctx.lineTo(-6,4); ctx.lineTo(-6,-4); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = 'rgba(255,150,60,.9)';
+          ctx.beginPath(); ctx.moveTo(-6,0); ctx.lineTo(-15-Math.random()*8,0);
+          ctx.lineTo(-6,3); ctx.closePath(); ctx.fill();
+          ctx.restore();
+        }
+      }
+      if(o.kind === 'drone'){
+        const rr = (o.r / mPerPx);
+        const shown = Math.min(rr, 190);               // на весь экран не растягиваем
+        // расходящаяся волна обзора
+        const wave = shown * Math.min(1, k*1.6);
+        ctx.beginPath(); ctx.arc(p.x, p.y, wave, 0, 7);
+        ctx.strokeStyle = 'rgba(127,191,106,' + (1-k)*0.8 + ')';
+        ctx.lineWidth = 2; ctx.setLineDash([7,6]); ctx.stroke(); ctx.setLineDash([]);
+        // сам дрон облетает по кругу
+        const a = k*Math.PI*4;
+        const dr = shown*0.55;
+        const dx = p.x + Math.cos(a)*dr, dy = p.y + Math.sin(a)*dr*0.6;
+        ctx.fillStyle = '#2C4327'; ctx.beginPath(); ctx.arc(dx,dy,5,0,7); ctx.fill();
+        ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 1.6; ctx.stroke();
+        for(const [ox,oy] of [[-6,-5],[6,-5],[-6,5],[6,5]]){
+          ctx.beginPath(); ctx.arc(dx+ox, dy+oy, 2.6, 0, 7);
+          ctx.strokeStyle = 'rgba(201,162,39,.85)'; ctx.lineWidth = 1.2; ctx.stroke();
+        }
+        // луч под дроном
+        ctx.beginPath(); ctx.moveTo(dx,dy); ctx.lineTo(p.x,p.y);
+        ctx.strokeStyle = 'rgba(127,191,106,.35)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+      if(o.kind === 'upgrade'){
+        for(const d of [0, 0.25]){
+          const kk = Math.max(0, (k-d)/(1-d));
+          if(kk <= 0 || kk >= 1) continue;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 12 + kk*54, 0, 7);
+          ctx.strokeStyle = 'rgba(201,162,39,' + (1-kk) + ')';
+          ctx.lineWidth = 3*(1-kk) + 1; ctx.stroke();
+        }
+        for(let i=0;i<10;i++){
+          const a = i*Math.PI/5 + k*2;
+          const rr = 16 + k*44;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(a)*rr, p.y + Math.sin(a)*rr, 2.4*(1-k), 0, 7);
+          ctx.fillStyle = 'rgba(255,226,150,' + (1-k) + ')'; ctx.fill();
+        }
+      }
       if(o.kind === 'num'){
         ctx.font = '700 20px system-ui, sans-serif';
         ctx.textAlign = 'center';
@@ -1341,7 +1419,8 @@ const FX = (function(){
     if(shake > 0) ctx.restore();
   }
   function stop(){ items = []; shake = 0; }
-  return { aim, blast, burst, num, paint, stop, get busy(){ return items.length > 0; } };
+  return { aim, blast, burst, num, rocket, drone, upgrade, paint, stop,
+           get busy(){ return items.length > 0; } };
 })();
 
 // Сколько метров в одной точке экрана — нужно, чтобы круги эффектов
