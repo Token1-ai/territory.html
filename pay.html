@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8"/>
+<meta name="google" content="notranslate"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Gate Territory · pay</title>
+<style>
+  :root{--bg:#12140F;--gold:#E0A32E;--txt:#E8E3D5;--dim:#9A9585;--bad:#B4462F;--ok:#7FBF6A;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:15px/1.5 -apple-system,system-ui,Roboto,sans-serif;
+    padding:22px 18px;max-width:520px;margin:0 auto;}
+  h1{font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 18px}
+  .sum{font-size:40px;font-weight:700;line-height:1.1}
+  .sub{color:var(--dim);font-size:13px;margin-top:4px}
+  .box{border:1px solid rgba(224,163,46,.3);border-radius:12px;padding:14px;margin:16px 0;
+    background:rgba(224,163,46,.06)}
+  .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13.5px;
+    border-bottom:1px solid rgba(255,255,255,.06)}
+  .row:last-child{border:0}
+  .row span{color:var(--dim)}
+  button{width:100%;padding:15px;border:0;border-radius:12px;font-size:16px;font-weight:700;
+    background:var(--gold);color:#12140F;margin-top:10px}
+  button.ghost{background:transparent;color:var(--gold);border:1px solid rgba(224,163,46,.45)}
+  button[disabled]{opacity:.45}
+  #msg{margin-top:16px;padding:12px;border-radius:10px;font-size:14px;display:none}
+  #msg.bad{background:rgba(180,70,47,.9);color:#fff;display:block}
+  #msg.ok{background:rgba(127,191,106,.9);color:#12140F;display:block;font-weight:700}
+  #msg.wait{background:rgba(255,255,255,.07);color:var(--dim);display:block}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);word-break:break-all}
+</style>
+</head>
+<body>
+<h1>Gate Territory</h1>
+<div class="sum" id="sum">—</div>
+<div class="sub" id="sub"></div>
+
+<div class="box">
+  <div class="row"><span id="l-who">Player</span><b id="who">—</b></div>
+  <div class="row"><span id="l-net">Network</span><b>BNB Chain</b></div>
+  <div class="row"><span id="l-pay">You pay</span><b id="pay">—</b></div>
+</div>
+
+<button id="go">—</button>
+<button class="ghost" id="back" style="display:none">—</button>
+<div id="msg"></div>
+
+<script>
+// ═══════════ Страница оплаты ═══════════
+// Открывается ВНУТРИ браузера кошелька. Здесь есть window.ethereum,
+// поэтому перевод проходит. Игра остаётся у себя и сама досчитает
+// зачисление — сюда она не переезжает.
+//
+// Ничего не весит: ни библиотек, ни картинок.
+
+var P = new URLSearchParams(location.search);
+var PLAYER = (P.get('u') || '').toLowerCase();
+var USD    = parseFloat(P.get('a') || '0');
+var KIND   = (P.get('k') || 'bnb');           // bnb | usd
+var RATE   = parseFloat(P.get('r') || '600'); // курс, чтобы не гадать
+var HOME   = P.get('h') || './index.html';
+
+var GATE_BNB = '0x7c9411a216a425EcAa7f0c1a9bAA7554e4fcE1bf';
+var GATE_USD = '0xb6C1dA2D079aB8fAFc149Cd74370567b57aB364B';
+var USDT_BNB = '0x55d398326f99059fF775485246999027B3197955';
+var SEL_TOPUP   = '0x2e007e98';
+var SEL_TOPUSD  = '0xa9e1d5f2';
+var SEL_APPROVE = '0x095ea7b3';
+var BSC = '0x38';
+
+var L = {
+  en:{who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
+      nowal:'No wallet here. Open this page inside your wallet app.',
+      wrong:'Switch your wallet to BNB Chain.',sent:'Sent. Go back to the game — the money will arrive in about a minute.',
+      cancel:'Payment cancelled.',step1:'Step 1 of 2 — allow the payment',step2:'Step 2 of 2 — confirm the transfer',
+      bad:'Broken link. Open the shop in the game again.'},
+  ru:{who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
+      nowal:'Здесь нет кошелька. Открой эту страницу внутри приложения кошелька.',
+      wrong:'Переключи кошелёк на BNB Chain.',sent:'Отправлено. Возвращайся в игру — деньги придут примерно через минуту.',
+      cancel:'Оплата отменена.',step1:'Шаг 1 из 2 — разреши списание',step2:'Шаг 2 из 2 — подтверди перевод',
+      bad:'Ссылка испорчена. Открой лавку в игре заново.'},
+  uk:{who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
+      nowal:'Тут немає гаманця. Відкрий цю сторінку в застосунку гаманця.',
+      wrong:'Перемкни гаманець на BNB Chain.',sent:'Надіслано. Повертайся у гру — гроші прийдуть за хвилину.',
+      cancel:'Оплату скасовано.',step1:'Крок 1 з 2 — дозволь списання',step2:'Крок 2 з 2 — підтверди переказ',
+      bad:'Посилання пошкоджено. Відкрий крамницю заново.'},
+  pl:{who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
+      nowal:'Tu nie ma portfela. Otwórz tę stronę w aplikacji portfela.',
+      wrong:'Przełącz portfel na BNB Chain.',sent:'Wysłane. Wróć do gry — pieniądze dojdą za około minutę.',
+      cancel:'Płatność anulowana.',step1:'Krok 1 z 2 — zezwól na pobranie',step2:'Krok 2 z 2 — potwierdź przelew',
+      bad:'Uszkodzony link. Otwórz sklep w grze ponownie.'}
+};
+var lang = (navigator.language || 'en').slice(0,2).toLowerCase();
+var T = L[lang] || L.en;
+
+function $(id){ return document.getElementById(id); }
+function msg(text, cls){ var m = $('msg'); m.textContent = text; m.className = cls || 'wait'; }
+
+function pad(h, right){
+  h = String(h).replace(/^0x/,'');
+  return right ? h.padEnd(64,'0') : h.padStart(64,'0');
+}
+// Считаем строкой, чтобы не потерять копейки на больших числах
+function units(amount, dec){
+  var s = String(amount).split('.');
+  var frac = ((s[1]||'') + new Array(dec+1).join('0')).slice(0, dec);
+  return BigInt(s[0] + frac).toString(16);
+}
+
+$('l-who').textContent = T.who;
+$('l-net').textContent = T.net;
+$('l-pay').textContent = T.pay;
+$('go').textContent    = T.go;
+$('back').textContent  = T.back;
+
+var okLink = /^0x[0-9a-f]{40}$/.test(PLAYER) && USD > 0;
+if(!okLink){
+  msg(T.bad, 'bad');
+  $('go').disabled = true;
+} else {
+  $('sum').textContent = '$' + USD.toFixed(2);
+  $('who').textContent = PLAYER.slice(0,6) + '…' + PLAYER.slice(-4);
+  var amountBnb = (USD / RATE).toFixed(6);
+  $('pay').textContent = (KIND === 'usd') ? (USD.toFixed(2) + ' USDT') : (amountBnb + ' BNB');
+  $('sub').textContent = (KIND === 'usd')
+      ? 'USDT · 1 = $1'
+      : 'BNB · $' + RATE.toFixed(0) + ' ' + (lang==='ru'?'за монету':'per coin');
+}
+
+async function chain(){
+  var id = await ethereum.request({ method:'eth_chainId' });
+  if(id === BSC) return true;
+  try{
+    await ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId: BSC }] });
+    return true;
+  }catch(e){
+    // сети нет в кошельке — предлагаем добавить
+    try{
+      await ethereum.request({ method:'wallet_addEthereumChain', params:[{
+        chainId: BSC, chainName:'BNB Smart Chain',
+        nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 },
+        rpcUrls:['https://bsc-dataseed.bnbchain.org'],
+        blockExplorerUrls:['https://bscscan.com'] }] });
+      return true;
+    }catch(_){ msg(T.wrong, 'bad'); return false; }
+  }
+}
+
+$('go').onclick = async function(){
+  if(!window.ethereum){ msg(T.nowal, 'bad'); return; }
+  $('go').disabled = true;
+  try{
+    if(!await chain()){ $('go').disabled = false; return; }
+    var acc = await ethereum.request({ method:'eth_requestAccounts' });
+    var tx;
+    if(KIND === 'usd'){
+      var amt = units(USD, 18);
+      msg(T.step1);
+      await ethereum.request({ method:'eth_sendTransaction', params:[{
+        from: acc[0], to: USDT_BNB,
+        data: SEL_APPROVE + pad(GATE_USD.toLowerCase()) + pad(amt) }] });
+      msg(T.step2);
+      tx = await ethereum.request({ method:'eth_sendTransaction', params:[{
+        from: acc[0], to: GATE_USD,
+        data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) }] });
+    } else {
+      var wei = units((USD / RATE).toFixed(6), 18);
+      tx = await ethereum.request({ method:'eth_sendTransaction', params:[{
+        from: acc[0], to: GATE_BNB, value: '0x' + wei,
+        data: SEL_TOPUP + pad(PLAYER, true) }] });
+    }
+    msg(T.sent, 'ok');
+    $('go').style.display = 'none';
+    $('back').style.display = 'block';
+    // говорим серверу номер сделки, чтобы зачислил, не дожидаясь игры
+    try{
+      fetch('/api/topup', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ tx_hash: tx }), keepalive:true }).catch(function(){});
+    }catch(e){}
+    // и кладём его рядом, чтобы игра подхватила при возвращении
+    try{ localStorage.setItem('ogt_last_tx', tx); }catch(e){}
+  }catch(e){
+    msg(T.cancel, 'bad');
+    $('go').disabled = false;
+  }
+};
+
+$('back').onclick = function(){ location.href = HOME; };
+</script>
+</body>
+</html>
