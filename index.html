@@ -948,6 +948,7 @@ async function doGun(){
                 lat:here[0], lng:here[1], hp_left:data.hp, alive:true,
                 built_at:new Date().toISOString() };
     haveUnitIds.add(u.id);
+    try{ FX.place('gun', u.lat, u.lng); }catch(e){}
     units.push(u);
     await DB.put('units', u);
     Sprites.refresh(); refreshStats(); paintGunBtn(); drawRing();
@@ -1309,6 +1310,39 @@ const FX = (function(){
     try{ if(navigator.vibrate) navigator.vibrate([25,40,25]); }catch(e){}
   }
 
+  // ── Бункер пал: обвал. Самое крупное событие в игре, поэтому и
+  //    показываем его крупно: столб пыли, каменные обломки, тряска.
+  function collapse(lat, lng, mine){
+    const bits = [];
+    for(let i=0;i<26;i++){
+      const a = Math.random()*Math.PI*2, v = 30 + Math.random()*90;
+      bits.push({ dx:Math.cos(a)*v, dy:Math.sin(a)*v - 20 - Math.random()*40,
+                  s:3 + Math.random()*6, rot:Math.random()*6.3,
+                  spin:(Math.random()-0.5)*0.5 });
+    }
+    const dust = [];
+    for(let i=0;i<16;i++){
+      const a = Math.random()*Math.PI*2;
+      dust.push({ dx:Math.cos(a)*(10+Math.random()*70), dy:Math.sin(a)*(8+Math.random()*40),
+                  r:14 + Math.random()*26, t0:Math.random()*0.3 });
+    }
+    add({ kind:'collapse', lat, lng, ms:2200, bits, dust, mine });
+    shake = 16;
+    try{ if(navigator.vibrate) navigator.vibrate(mine ? [120,70,120,70,200] : [90,50,140]); }catch(e){}
+  }
+
+  // Территория перешла: волна по кругу влияния
+  function claim(lat, lng, r){ add({ kind:'claim', lat, lng, r: r||250, ms:1600 }); }
+
+  // Дым над повреждённой точкой: тихо тлеет, пока идёт осада
+  function smoke(lat, lng){ add({ kind:'smoke', lat, lng, ms:2600, seed:Math.random()*10 }); }
+
+  // Каждая вещь при установке даёт свой знак
+  function place(kind, lat, lng){
+    add({ kind:'place', lat, lng, ms:1100, what:kind });
+    try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}
+  }
+
   function run(){
     if(raf) return;
     const step = () => {
@@ -1441,6 +1475,97 @@ const FX = (function(){
           ctx.fillStyle = 'rgba(255,226,150,' + (1-k) + ')'; ctx.fill();
         }
       }
+      if(o.kind === 'collapse'){
+        // пыль поднимается и расползается
+        for(const d of o.dust){
+          const kk = Math.max(0, (k - d.t0) / (1 - d.t0));
+          if(kk <= 0) continue;
+          const x = p.x + d.dx*kk, y = p.y + d.dy*kk - 26*kk;
+          ctx.beginPath(); ctx.arc(x, y, d.r*(0.4 + kk*1.5), 0, 7);
+          ctx.fillStyle = 'rgba(120,110,96,' + (0.4*(1-kk)) + ')'; ctx.fill();
+        }
+        // каменные обломки летят и падают
+        for(const b2 of o.bits){
+          const x = p.x + b2.dx*k, y = p.y + b2.dy*k + 130*k*k;
+          ctx.save(); ctx.translate(x, y); ctx.rotate(b2.rot + b2.spin*k*10);
+          ctx.fillStyle = 'rgba(154,150,138,' + (1-k*0.8) + ')';
+          ctx.fillRect(-b2.s/2, -b2.s/2, b2.s, b2.s*0.8);
+          ctx.restore();
+        }
+        // вспышка и обод в первый миг
+        if(k < 0.3){
+          const f = 1 - k/0.3;
+          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 70*f + 12);
+          gr.addColorStop(0, 'rgba(255,240,200,' + (0.9*f) + ')');
+          gr.addColorStop(0.6, 'rgba(226,122,95,' + (0.5*f) + ')');
+          gr.addColorStop(1, 'rgba(178,58,46,0)');
+          ctx.beginPath(); ctx.arc(p.x, p.y, 70*f + 12, 0, 7); ctx.fillStyle = gr; ctx.fill();
+        }
+        if(k < 0.7){
+          ctx.beginPath(); ctx.arc(p.x, p.y, 20 + k*120, 0, 7);
+          ctx.strokeStyle = 'rgba(178,58,46,' + (1-k/0.7) + ')';
+          ctx.lineWidth = 5*(1-k/0.7) + 1; ctx.stroke();
+        }
+      }
+      if(o.kind === 'claim'){
+        const rr = (o.r / mPerPx);
+        for(const d of [0, 0.3]){
+          const kk = Math.max(0, (k-d)/(1-d));
+          if(kk <= 0 || kk >= 1) continue;
+          ctx.beginPath(); ctx.arc(p.x, p.y, rr*kk, 0, 7);
+          ctx.strokeStyle = 'rgba(201,162,39,' + (1-kk)*0.9 + ')';
+          ctx.lineWidth = 4*(1-kk) + 1; ctx.stroke();
+          ctx.fillStyle = 'rgba(201,162,39,' + (0.10*(1-kk)) + ')'; ctx.fill();
+        }
+      }
+      if(o.kind === 'smoke'){
+        for(let i=0;i<4;i++){
+          const t = (k + i*0.25) % 1;
+          const x = p.x + Math.sin((o.seed + i + t*2)*2.1) * 12;
+          const y = p.y - 6 - t*44;
+          ctx.beginPath(); ctx.arc(x, y, 5 + t*13, 0, 7);
+          ctx.fillStyle = 'rgba(96,92,84,' + (0.38*(1-t)) + ')'; ctx.fill();
+        }
+      }
+      if(o.kind === 'place'){
+        // у каждой вещи свой знак: бункер — квадрат, пушка — луч,
+        // радар — дуги, дрон — винты, раскраска — цветное кольцо
+        const c1 = o.what === 'radar' ? '#7FBF6A'
+                 : o.what === 'skin'  ? '#9FD3E8'
+                 : o.what === 'bunker'? '#C9A227' : '#E0A32E';
+        ctx.strokeStyle = c1; ctx.lineWidth = 3*(1-k) + 1;
+        if(o.what === 'bunker'){
+          const sz = 16 + k*30;
+          ctx.globalAlpha = 1-k;
+          ctx.strokeRect(p.x-sz/2, p.y-sz/2, sz, sz);
+          ctx.globalAlpha = 1;
+        } else if(o.what === 'radar'){
+          for(let i=1;i<=3;i++){
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, (10+i*11)*(0.5+k), -Math.PI*0.8, -Math.PI*0.2);
+            ctx.globalAlpha = (1-k)*0.9; ctx.stroke(); ctx.globalAlpha = 1;
+          }
+        } else if(o.what === 'skin'){
+          const cols = ['#C9A227','#1E7A4A','#B23A2E','#9FD3E8','#BFE0A8'];
+          for(let i=0;i<cols.length;i++){
+            const a = i*2*Math.PI/cols.length + k*3;
+            ctx.beginPath();
+            ctx.arc(p.x + Math.cos(a)*(14+k*26), p.y + Math.sin(a)*(14+k*26), 4*(1-k)+1, 0, 7);
+            ctx.fillStyle = cols[i]; ctx.globalAlpha = 1-k; ctx.fill(); ctx.globalAlpha = 1;
+          }
+        } else {
+          for(let i=0;i<6;i++){
+            const a = i*Math.PI/3;
+            ctx.beginPath();
+            ctx.moveTo(p.x + Math.cos(a)*(8+k*18), p.y + Math.sin(a)*(8+k*18));
+            ctx.lineTo(p.x + Math.cos(a)*(16+k*34), p.y + Math.sin(a)*(16+k*34));
+            ctx.globalAlpha = 1-k; ctx.stroke(); ctx.globalAlpha = 1;
+          }
+        }
+        ctx.beginPath(); ctx.arc(p.x, p.y, 8 + k*40, 0, 7);
+        ctx.strokeStyle = c1; ctx.globalAlpha = (1-k)*0.8;
+        ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+      }
       if(o.kind === 'num'){
         ctx.font = '700 20px system-ui, sans-serif';
         ctx.textAlign = 'center';
@@ -1455,7 +1580,8 @@ const FX = (function(){
     if(shake > 0) ctx.restore();
   }
   function stop(){ items = []; shake = 0; }
-  return { aim, blast, burst, num, rocket, drone, upgrade, paint, stop,
+  return { aim, blast, burst, num, rocket, drone, upgrade,
+           collapse, claim, smoke, place, paint, stop,
            get busy(){ return items.length > 0; } };
 })();
 
@@ -1574,6 +1700,36 @@ function itemHelp(code){
     +   '<button class="btn-ghost" style="flex:1" onclick="openShop()">' + esc(T('back')) + '</button>'
     + '</div>';
   document.getElementById('sheet-t').textContent = T('it_' + code);
+}
+
+// Дальняя ракета: летит с моего места в цель. Пока лавка не умеет
+// её применять, но эффект уже подключён — сработает, как только
+// появится кнопка снаряжения в осаде.
+function fireLongRocket(targetLat, targetLng){
+  if(!here) return;
+  const secs = (cfg.siege_warn_sec || 15) * 4;      // летит около минуты
+  FX.rocket(here[0], here[1], targetLat, targetLng, secs * 1000);
+  setTimeout(() => {
+    FX.blast(targetLat, targetLng, cfg.siege_blast_m || 20, false);
+    FX.num(targetLat, targetLng, '−60', '#FFD67A');
+  }, secs * 1000);
+}
+
+// Применение вещи на карте: у каждой свой знак
+function itemFx(code, lat, lng){
+  try{
+    if(code === 'reinforce' || code === 'steel' || code === 'fort'){
+      FX.upgrade(lat, lng); FX.place('bunker', lat, lng);
+    } else if(code === 'radar'){
+      FX.place('radar', lat, lng);
+    } else if(code === 'skin'){
+      FX.place('skin', lat, lng);
+    } else if(code === 'drone'){
+      FX.drone(lat, lng, cfg.drone_r_m || 2000, 4200);
+    } else {
+      FX.place('gun', lat, lng);
+    }
+  }catch(e){}
 }
 
 async function doBuy(code){
@@ -2061,9 +2217,16 @@ async function doAttack(){
   }catch(e){ say(T('gun_neednet'),'warn'); }
 }
 
+let _smokeTimer = null;
 function startSiegeLoop(){
   stopSiegeLoop();
   track = []; pushTrack();
+  // точка дымит, пока её грызут — видно даже боковым зрением
+  _smokeTimer = setInterval(() => {
+    if(document.hidden || !siege) return;
+    const b = bunkerById(siege.bunker_id);
+    if(b) FX.smoke(b.lat, b.lng);
+  }, 2200);
   paintSiege();
   siegeTick();
   _siegeTimer = setInterval(siegeTick, 30000);
@@ -2071,6 +2234,7 @@ function startSiegeLoop(){
 }
 function stopSiegeLoop(){
   if(_siegeTimer){ clearInterval(_siegeTimer); _siegeTimer = null; }
+  if(_smokeTimer){ clearInterval(_smokeTimer); _smokeTimer = null; }
   stopShells();
   FX.stop();
 }
@@ -2112,9 +2276,15 @@ async function siegeTick(){
     }
     if(data.done){
       const b = bunkerById(siege.bunker_id);
-      if(b){ b.alive = false; await DB.put('bunkers', b); }
-      drawAll();
-      endSiege(siege.side === 'attack' ? T('sg_won') : T('sg_lost'), true);
+      const win = siege.side === 'attack';
+      if(b){
+        FX.collapse(b.lat, b.lng, !win);
+        FX.num(b.lat, b.lng, win ? '+' + money$(cfg.loot_cents || 25) : '', '#FFD67A');
+        if(win) setTimeout(() => FX.claim(b.lat, b.lng, cfg.radius_earth_m || 250), 700);
+        b.alive = false; await DB.put('bunkers', b);
+      }
+      setTimeout(() => drawAll(), 900);      // даём обвалу доиграть
+      endSiege(win ? T('sg_won') : T('sg_lost'), true);
       return;
     }
     paintSiege();
@@ -2710,6 +2880,7 @@ async function sendOne(item){
       if(ph){ await DB.put('photos', ph, 'b'+data.id); await DB.del('photos', item.tmp); }
     }catch(e){}
     haveIds.add(data.id);
+    try{ FX.place('bunker', item.lat, item.lng); FX.claim(item.lat, item.lng, cfg.radius_earth_m || 250); }catch(e){}
     const ck = cellKey(item.lat, item.lng);
     const last = (await DB.get('kv', ck)) || 0;
     if(data.id > last) await DB.put('kv', data.id, ck);
