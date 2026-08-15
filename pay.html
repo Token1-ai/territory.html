@@ -117,6 +117,28 @@ function revertReason(err){
   if(/insufficient funds/i.test(m)) return 'insufficient funds';
   return '';
 }
+// Прогоняем варианты вхолостую и берём первый, который проходит.
+// Ничего не отправляется и не стоит ни копейки: eth_call только
+// спрашивает у ноды «а что было бы, если».
+async function pickCall(from, to, value, variants){
+  for(var i = 0; i < variants.length; i++){
+    var body = { from: from, to: to };
+    if(value) body.value = value;
+    if(variants[i]) body.data = variants[i];
+    var why = await dryRun(body);
+    if(!why){
+      if(i > 0) console.log('pay: подошёл вариант вызова №' + (i + 1));
+      return body;
+    }
+    // если контракт объяснил причину словами — она важнее подбора
+    if(why && why !== 'revert' && why !== 'insufficient funds'){
+      msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
+      return null;
+    }
+  }
+  return null;
+}
+
 async function dryRun(tx){
   try{
     await ethereum.request({ method:'eth_call', params:[tx, 'latest'] });
@@ -234,11 +256,13 @@ $('go').onclick = async function(){
         from: acc[0], to: USDT_BNB,
         data: SEL_APPROVE + pad(GATE_USD.toLowerCase()) + pad(amt) }] });
       msg(T.step2);
-      var body2 = { from: acc[0], to: GATE_USD,
-                    data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) };
-      var why2 = await dryRun(body2);
-      if(why2){
-        msg((T.reject || 'The contract refused') + ': ' + why2, 'bad');
+      var body2 = await pickCall(acc[0], GATE_USD, null, [
+        SEL_TOPUSD + pad(PLAYER) + pad(amt),
+        SEL_TOPUSD + pad(PLAYER, true) + pad(amt),
+        SEL_TOPUSD + pad(amt)
+      ]);
+      if(!body2){
+        msg((T.reject || 'The contract refused') + ': revert', 'bad');
         $('go').disabled = false;
         return;
       }
@@ -251,13 +275,19 @@ $('go').onclick = async function(){
       await liveRate();
       paintSum();
       var wei = units((USD / RATE * 1.01).toFixed(6), 18);
-      var body = { from: acc[0], to: GATE_BNB, value: '0x' + wei,
-                   data: SEL_TOPUP + pad(PLAYER, true) };
-      // сперва вхолостую: если контракт откажет, скажем почему,
-      // вместо бесполезного «недостаточно средств» от кошелька
-      var why = await dryRun(body);
-      if(why){
-        msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
+      // Подбираем рабочую запись вызова холостыми прогонами — они
+      // бесплатны и ничего не отправляют. Раньше адрес игрока
+      // дописывался нулями СПРАВА, а по правилам ABI адрес стоит в
+      // младших байтах слова, то есть нули идут СЛЕВА. Контракт
+      // получал мусор вместо кошелька и молча отбивал перевод.
+      var body = await pickCall(acc[0], GATE_BNB, '0x' + wei, [
+        SEL_TOPUP + pad(PLAYER),            // адрес по правилам
+        SEL_TOPUP + pad(PLAYER, true),      // как было раньше
+        SEL_TOPUP,                          // без доводов
+        ''                                  // просто перевод
+      ]);
+      if(!body){
+        msg((T.reject || 'The contract refused') + ': revert', 'bad');
         $('go').disabled = false;
         return;
       }
