@@ -58,7 +58,44 @@ var P = new URLSearchParams(location.search);
 var PLAYER = (P.get('u') || '').toLowerCase();
 var USD    = parseFloat(P.get('a') || '0');
 var KIND   = (P.get('k') || 'bnb');           // bnb | usd
-var RATE   = parseFloat(P.get('r') || '600'); // курс, чтобы не гадать
+var RATE   = parseFloat(P.get('r') || '600'); // запасной курс из игры
+
+// ═══════════ Курс BNB в реальном времени ═══════════
+// Число из ссылки — только подпорка. Между нажатием в игре и нажатием
+// здесь человек мог уйти в кошелёк, поспать и вернуться через час.
+// Спрашиваем биржу прямо перед тем, как строить перевод, иначе спишем
+// не ту сумму и обманем человека.
+var RATE_LIVE = false;
+async function liveRate(){
+  var tries = [
+    ['https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT',
+     function(j){ return parseFloat(j.price); }],
+    ['https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd',
+     function(j){ return parseFloat(j.binancecoin && j.binancecoin.usd); }],
+    ['https://api.coinbase.com/v2/prices/BNB-USD/spot',
+     function(j){ return parseFloat(j.data && j.data.amount); }]
+  ];
+  for(var i = 0; i < tries.length; i++){
+    try{
+      var c = new AbortController();
+      var t = setTimeout(function(){ c.abort(); }, 4000);
+      var r = await fetch(tries[i][0], { signal: c.signal, cache: 'no-store' });
+      clearTimeout(t);
+      if(!r.ok) continue;
+      var v = tries[i][1](await r.json());
+      if(isFinite(v) && v > 50 && v < 20000){ RATE = v; RATE_LIVE = true; return v; }
+    }catch(e){}
+  }
+  return RATE;
+}
+function paintSum(){
+  if(!okLink) return;
+  var amountBnb = (USD / RATE).toFixed(6);
+  $('pay').textContent = (KIND === 'usd') ? (USD.toFixed(2) + ' USDT') : (amountBnb + ' BNB');
+  $('sub').textContent = (KIND === 'usd')
+      ? 'USDT \u00b7 1 = $1'
+      : 'BNB \u00b7 $' + RATE.toFixed(2) + (RATE_LIVE ? ' \u2713' : ' ?');
+}
 var HOME   = P.get('h') || './index.html';
 
 var GATE_BNB = '0x7c9411a216a425EcAa7f0c1a9bAA7554e4fcE1bf';
@@ -121,11 +158,9 @@ if(!okLink){
 } else {
   $('sum').textContent = '$' + USD.toFixed(2);
   $('who').textContent = PLAYER.slice(0,6) + '…' + PLAYER.slice(-4);
-  var amountBnb = (USD / RATE).toFixed(6);
-  $('pay').textContent = (KIND === 'usd') ? (USD.toFixed(2) + ' USDT') : (amountBnb + ' BNB');
-  $('sub').textContent = (KIND === 'usd')
-      ? 'USDT · 1 = $1'
-      : 'BNB · $' + RATE.toFixed(0) + ' ' + (lang==='ru'?'за монету':'per coin');
+  paintSum();
+  // и тут же уточняем курс у биржи, цифра на экране обновится сама
+  liveRate().then(paintSum);
 }
 
 async function chain(){
@@ -165,7 +200,13 @@ $('go').onclick = async function(){
         from: acc[0], to: GATE_USD,
         data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) }] });
     } else {
-      var wei = units((USD / RATE).toFixed(6), 18);
+      // Последняя проверка курса — за миг до подписи. Плюс небольшой
+      // запас: контракт считает по своему оракулу Chainlink, и если
+      // прислать копейка в копейку, он отобьёт перевод из-за разницы
+      // в доли процента. Излишек человеку зачтётся, он не пропадёт.
+      await liveRate();
+      paintSum();
+      var wei = units((USD / RATE * 1.01).toFixed(6), 18);
       tx = await ethereum.request({ method:'eth_sendTransaction', params:[{
         from: acc[0], to: GATE_BNB, value: '0x' + wei,
         data: SEL_TOPUP + pad(PLAYER, true) }] });
