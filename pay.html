@@ -88,6 +88,44 @@ async function liveRate(){
   }
   return RATE;
 }
+// ── Холостой прогон ───────────────────────────────────────────────
+// MetaMask пишет «недостаточно средств на комиссию», когда на самом
+// деле контракт ОТКАЗЫВАЕТСЯ принимать перевод: кошелёк не смог
+// посчитать газ и свалил вину на баланс. Прогоняем сделку вхолостую
+// и достаём настоящую причину отказа словами.
+function hexToStr(h){
+  h = String(h||'').replace(/^0x/,'');
+  var out = '';
+  for(var i=0;i<h.length;i+=2){
+    var c = parseInt(h.substr(i,2),16);
+    if(c) out += String.fromCharCode(c);
+  }
+  return out;
+}
+function revertReason(err){
+  var d = (err && (err.data && (err.data.data || err.data.originalError && err.data.originalError.data || err.data))) || '';
+  if(typeof d !== 'string') d = (d && d.data) || '';
+  d = String(d);
+  // Error(string): 0x08c379a0 + смещение + длина + текст
+  var i = d.indexOf('08c379a0');
+  if(i >= 0){
+    var body = d.slice(i + 8);
+    var len = parseInt(body.slice(64, 128), 16);
+    if(len > 0 && len < 400) return hexToStr(body.slice(128, 128 + len*2)).trim();
+  }
+  var m = err && (err.message || '');
+  if(/insufficient funds/i.test(m)) return 'insufficient funds';
+  return '';
+}
+async function dryRun(tx){
+  try{
+    await ethereum.request({ method:'eth_call', params:[tx, 'latest'] });
+    return null;                       // прошло бы
+  }catch(e){
+    return revertReason(e) || 'revert';
+  }
+}
+
 function paintSum(){
   if(!okLink) return;
   var amountBnb = (USD / RATE).toFixed(6);
@@ -107,22 +145,22 @@ var SEL_APPROVE = '0x095ea7b3';
 var BSC = '0x38';
 
 var L = {
-  en:{who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
+  en:{reject:'The contract refused the payment',who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
       nowal:'No wallet here. Open this page inside your wallet app.',
       wrong:'Switch your wallet to BNB Chain.',sent:'Sent. Go back to the game — the money will arrive in about a minute.',
       cancel:'Payment cancelled.',step1:'Step 1 of 2 — allow the payment',step2:'Step 2 of 2 — confirm the transfer',
       bad:'Broken link. Open the shop in the game again.'},
-  ru:{who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
+  ru:{reject:'Контракт отказался принять платёж',who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
       nowal:'Здесь нет кошелька. Открой эту страницу внутри приложения кошелька.',
       wrong:'Переключи кошелёк на BNB Chain.',sent:'Отправлено. Возвращайся в игру — деньги придут примерно через минуту.',
       cancel:'Оплата отменена.',step1:'Шаг 1 из 2 — разреши списание',step2:'Шаг 2 из 2 — подтверди перевод',
       bad:'Ссылка испорчена. Открой лавку в игре заново.'},
-  uk:{who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
+  uk:{reject:'Контракт відмовився прийняти платіж',who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
       nowal:'Тут немає гаманця. Відкрий цю сторінку в застосунку гаманця.',
       wrong:'Перемкни гаманець на BNB Chain.',sent:'Надіслано. Повертайся у гру — гроші прийдуть за хвилину.',
       cancel:'Оплату скасовано.',step1:'Крок 1 з 2 — дозволь списання',step2:'Крок 2 з 2 — підтверди переказ',
       bad:'Посилання пошкоджено. Відкрий крамницю заново.'},
-  pl:{who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
+  pl:{reject:'Kontrakt odrzucił płatność',who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
       nowal:'Tu nie ma portfela. Otwórz tę stronę w aplikacji portfela.',
       wrong:'Przełącz portfel na BNB Chain.',sent:'Wysłane. Wróć do gry — pieniądze dojdą za około minutę.',
       cancel:'Płatność anulowana.',step1:'Krok 1 z 2 — zezwól na pobranie',step2:'Krok 2 z 2 — potwierdź przelew',
@@ -196,9 +234,15 @@ $('go').onclick = async function(){
         from: acc[0], to: USDT_BNB,
         data: SEL_APPROVE + pad(GATE_USD.toLowerCase()) + pad(amt) }] });
       msg(T.step2);
-      tx = await ethereum.request({ method:'eth_sendTransaction', params:[{
-        from: acc[0], to: GATE_USD,
-        data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) }] });
+      var body2 = { from: acc[0], to: GATE_USD,
+                    data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) };
+      var why2 = await dryRun(body2);
+      if(why2){
+        msg((T.reject || 'The contract refused') + ': ' + why2, 'bad');
+        $('go').disabled = false;
+        return;
+      }
+      tx = await ethereum.request({ method:'eth_sendTransaction', params:[body2] });
     } else {
       // Последняя проверка курса — за миг до подписи. Плюс небольшой
       // запас: контракт считает по своему оракулу Chainlink, и если
@@ -207,9 +251,17 @@ $('go').onclick = async function(){
       await liveRate();
       paintSum();
       var wei = units((USD / RATE * 1.01).toFixed(6), 18);
-      tx = await ethereum.request({ method:'eth_sendTransaction', params:[{
-        from: acc[0], to: GATE_BNB, value: '0x' + wei,
-        data: SEL_TOPUP + pad(PLAYER, true) }] });
+      var body = { from: acc[0], to: GATE_BNB, value: '0x' + wei,
+                   data: SEL_TOPUP + pad(PLAYER, true) };
+      // сперва вхолостую: если контракт откажет, скажем почему,
+      // вместо бесполезного «недостаточно средств» от кошелька
+      var why = await dryRun(body);
+      if(why){
+        msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
+        $('go').disabled = false;
+        return;
+      }
+      tx = await ethereum.request({ method:'eth_sendTransaction', params:[body] });
     }
     msg(T.sent, 'ok');
     $('go').style.display = 'none';
