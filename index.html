@@ -180,10 +180,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 #siege-box .sg-top{font-size:10px;}
 #siege-box .sg-row{margin-top:7px;}
 #siege-box .btn-ghost{padding:7px !important;font-size:12px;}
-#fog-btn{position:absolute;right:10px;top:96px;z-index:600;width:44px;height:44px;
-  border-radius:999px;background:rgba(18,20,15,.9);border:1px solid rgba(224,163,46,.5);
-  color:#E0A32E;font-size:19px;}
-#fog-btn.on{background:rgba(224,163,46,.22);}
+#bag-btn{position:absolute;right:10px;top:96px;z-index:600;width:46px;height:46px;
+  border-radius:999px;background:rgba(18,20,15,.92);border:1px solid rgba(224,163,46,.55);
+  color:#E0A32E;font-size:20px;display:none;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);}
+#bag-btn i{position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:999px;background:#B23A2E;color:#fff;font:700 11px/18px ui-monospace,monospace;
+  font-style:normal;text-align:center;}
+#aim-bar{position:fixed;left:12px;right:12px;top:96px;z-index:900;display:none;
+  padding:11px 14px;border-radius:12px;text-align:center;font-size:13px;
+  background:rgba(224,163,46,.92);color:#141610;font-weight:700;}
 .chip-hot{background:rgba(224,163,46,.16);border-color:#E0A32E;color:#E0A32E;font-weight:700;}
 #btn-profile{background:rgba(224,163,46,.16);border-color:#E0A32E;color:#E0A32E;font-weight:700;}
 .wallet-row{display:flex;justify-content:space-between;align-items:center;
@@ -288,7 +294,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   </div>
 </div>
 <div id="ring-badge" style="display:none"></div>
-<button id="fog-btn" onclick="fogToggle()" title="fog">◐</button>
+<button id="bag-btn" onclick="openBag()" style="display:none" title="bag">✦</button>
 <div id="siege-box" style="display:none"></div>
 <div id="shell-warn" style="display:none"></div>
 <div id="link"><span id="link-pre">on device</span> · <span id="link-txt">starting</span></div>
@@ -377,12 +383,12 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "Close enough. Pick a target below: the bunker straight away, or knock the cannons out first — they soak up damage while they live.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "Live cannons soak up {n}% — knock them out first", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device", "cl_title": "Clan", "cl_name": "Name", "cl_members": "Members", "cl_list": "Who is in", "cl_you": "you", "cl_chat": "Clan chat", "cl_leave": "Leave clan", "cl_leave_ask": "Leave the clan? You can join another only after a day.", "cl_none": "You are on your own. A clan is who you do NOT fight and who shares the loot.", "cl_create": "Create a clan", "cl_near": "Clans around you", "cl_nonear": "No clans nearby yet — be the first", "cl_join": "Join", "cl_ask_name": "Clan name (3 to 24 characters)", "cl_created": "Clan {n} created. You are the leader.", "cl_joined": "You joined {n}.", "cl_left": "You left the clan.", "cl_badname": "Name must be 3 to 24 characters.", "cl_taken": "That name is taken.", "cl_already": "You are already in a clan.", "cl_needbunker": "Plant a bunker first.", "cl_full": "This clan is full.", "cl_closed": "This clan does not take newcomers.", "cl_cooldown": "You left a clan recently — {n} min left.", "cl_say": "Message to the clan", "cl_send": "Send", "cl_empty": "No messages yet. Say something.", "cl_toofast": "Not so fast — wait {n} s.", "it_reinforce": "Bunker upgrade", "itd_reinforce": "Toughness 70 → 130. Half the price stays inside — whoever takes it down gets it.", "it_steel": "Steel upgrade", "itd_steel": "Toughness up to 180. Inside stays $0.50.", "it_fort": "Fortress", "itd_fort": "Toughness up to 220 — the limit. Inside stays $1.00.", "it_heavy": "Heavy cannon", "itd_heavy": "Toughness 50 → 80. Fires 200 m, same as a plain one.", "it_rocket": "Rocket cannon", "itd_rocket": "Toughness up to 100 — the toughest cannon.", "it_charge": "Assault charge", "itd_charge": "60 damage at once. One use — saves 5 minutes of siege.", "it_hcharge": "Heavy charge", "itd_hcharge": "120 damage at once — takes a free bunker down whole.", "it_longrocket": "Long rocket", "itd_longrocket": "60 damage from 2 km. Hits cannons only, 3 a day, flies 60 s.", "it_radar": "Bunker radar", "itd_radar": "Warns from 500 m instead of 250. Adds no toughness.", "it_drone": "Scout drone", "itd_drone": "Shows enemy points within 2 km for 10 minutes, without walking there.", "it_skin": "Bunker paint", "itd_skin": "Looks only. Changes nothing in a fight.", "sh_title": "Shop", "sh_balance": "Your money", "sh_topup": "Top up", "sh_buy": "Buy", "sh_need": "Top up", "sh_bought": "{n} is yours.", "sh_half": "Half of every price stays inside the bunker and goes to whoever takes it down. Charges never pay for themselves — they only save you time.", "sh_notenough": "Not enough — you need {n}", "sh_howmuch": "How much", "sh_min": "Less than {n} will not go through — the network fee would eat it.", "sh_nowallet": "No wallet in this browser. Open the game inside your wallet app.", "sh_openwallet": "Open in wallet", "sh_wrongchain": "Switch your wallet to BNB Chain.", "sh_step1": "Step 1 of 2: allow the payment", "sh_step2": "Step 2 of 2: confirm the transfer", "sh_waiting": "Sent. Waiting for the network — about a minute.", "sh_credited": "{n} added to your money.", "sh_cancelled": "Payment cancelled.", "sh_txfail": "The network rejected the payment.", "sh_slow": "The network is slow. The money will arrive by itself — check back later.", "sh_which": "Which wallet?", "sh_whichp": "The payment opens inside your wallet — that is the only place it can be signed. The game stays on your screen.", "sh_copylink": "Copy the payment link", "ith_reinforce": "Walk up to YOUR OWN bunker, within 100 m, and use it. An earth bunker becomes concrete: toughness from 70 to 130 — it takes longer to bring down.\n\nCannons already standing around it stay where they are; they count separately.\n\n$0.25 goes inside the bunker. Whoever takes it down gets that money. You cannot upgrade while under siege.", "ith_steel": "Same as the upgrade but tougher: up to 180. $0.50 goes inside.\n\nUpgrades only go up: earth to concrete, concrete to steel. Never back down.", "ith_fort": "The top upgrade: toughness 220. $1.00 goes inside.\n\nIt goes onto YOUR OWN bunker while you stand next to it — like the other upgrades. You cannot place a fortress on empty ground: it is an upgrade, not a building.\n\nCannons around stay and count on top: a 220 bunker plus seven cannons is 570 altogether.", "ith_heavy": "Placed like a plain cannon: inside your own bunker ring, at least 50 m from another cannon.\n\nToughness 80 instead of 50 — it takes longer to knock out. Same 200 m range.\n\nA cannon cannot be moved. Once placed, it stays until it is destroyed.", "ith_rocket": "The toughest cannon: 100. Placed the same way — inside your bunker ring, 50 m from another.\n\nSeven cannons per bunker is the limit, of any kind.", "ith_charge": "Usable ONLY during a siege. Start a siege on someone else’s point and a gear button appears at the bottom. Press it and the charge goes off on the target you are hitting right now.\n\n60 damage at once — five minutes of work you skipped.\n\nOutside a siege there is nothing to blow up.", "ith_hcharge": "Same as the assault charge but twice as strong: 120 at once — enough to take a whole earth bunker down.\n\nOnly during a siege, on your current target.", "ith_longrocket": "Fires FROM AFAR, up to 2 km, without walking to the point. Pick an enemy cannon on the map and launch. The rocket flies for a minute and is visible on the map — to you and to the owner.\n\n60 damage, cannons only. A bunker cannot be taken with a rocket; for that you must come on foot.\n\nThree rockets a day.", "ith_radar": "Goes onto YOUR OWN bunker: walk within 100 m and use it. No error will happen — if the bunker is not yours or you are too far, the game says so before anything is spent.\n\nWhat it does: you learn about strangers 500 m away instead of 250. It adds NO toughness and does not count against the seven cannons.\n\nOne radar per bunker.", "ith_drone": "Launched from where you stand. The drone sweeps 2 km around and for 10 minutes reveals everything there: enemy bunkers, how many cannons they have, what upgrades.\n\nWhy: to see whether it is worth going, instead of walking blind into seven cannons.\n\nThree flights a day. While fog of war is off everything is visible anyway — the drone matters once we turn it on.", "ith_skin": "Changes how your bunker looks on the map. Nothing else.\n\nNo effect on toughness, damage or money. Pure decoration — buy it if you want your point to stand out.", "sh_price": "Price", "sh_minlow": "Minimum is {n}", "sh_or": "or", "sg_line2": "{a} attacking · {d} defending · {p} per minute", "tg_bunker": "Bunker", "tg_gun": "Cannon", "fog_on": "Fog on — you see only what is near", "fog_off": "Fog off — everything is visible", "sg_join": "Join the siege", "sg_joined": "You joined the siege. Hit together.", "sg_short": "{a} vs {d} · {p}/min"} };
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "Close enough. Pick a target below: the bunker straight away, or knock the cannons out first — they soak up damage while they live.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "Live cannons soak up {n}% — knock them out first", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device", "cl_title": "Clan", "cl_name": "Name", "cl_members": "Members", "cl_list": "Who is in", "cl_you": "you", "cl_chat": "Clan chat", "cl_leave": "Leave clan", "cl_leave_ask": "Leave the clan? You can join another only after a day.", "cl_none": "You are on your own. A clan is who you do NOT fight and who shares the loot.", "cl_create": "Create a clan", "cl_near": "Clans around you", "cl_nonear": "No clans nearby yet — be the first", "cl_join": "Join", "cl_ask_name": "Clan name (3 to 24 characters)", "cl_created": "Clan {n} created. You are the leader.", "cl_joined": "You joined {n}.", "cl_left": "You left the clan.", "cl_badname": "Name must be 3 to 24 characters.", "cl_taken": "That name is taken.", "cl_already": "You are already in a clan.", "cl_needbunker": "Plant a bunker first.", "cl_full": "This clan is full.", "cl_closed": "This clan does not take newcomers.", "cl_cooldown": "You left a clan recently — {n} min left.", "cl_say": "Message to the clan", "cl_send": "Send", "cl_empty": "No messages yet. Say something.", "cl_toofast": "Not so fast — wait {n} s.", "it_reinforce": "Bunker upgrade", "itd_reinforce": "Toughness 70 → 130. Half the price stays inside — whoever takes it down gets it.", "it_steel": "Steel upgrade", "itd_steel": "Toughness up to 180. Inside stays $0.50.", "it_fort": "Fortress", "itd_fort": "Toughness up to 220 — the limit. Inside stays $1.00.", "it_heavy": "Heavy cannon", "itd_heavy": "Toughness 50 → 80. Fires 200 m, same as a plain one.", "it_rocket": "Rocket cannon", "itd_rocket": "Toughness up to 100 — the toughest cannon.", "it_charge": "Assault charge", "itd_charge": "60 damage at once. One use — saves 5 minutes of siege.", "it_hcharge": "Heavy charge", "itd_hcharge": "120 damage at once — takes a free bunker down whole.", "it_longrocket": "Long rocket", "itd_longrocket": "60 damage from 2 km. Hits cannons only, 3 a day, flies 60 s.", "it_radar": "Bunker radar", "itd_radar": "Warns from 500 m instead of 250. Adds no toughness.", "it_drone": "Bomber drone", "itd_drone": "A bomb from the air: 25% damage. Two strikes, then buy a new one.", "it_skin": "Bunker paint", "itd_skin": "Looks only. Changes nothing in a fight.", "sh_title": "Shop", "sh_balance": "Your money", "sh_topup": "Top up", "sh_buy": "Buy", "sh_need": "Top up", "sh_bought": "{n} is yours.", "sh_half": "Half of every price stays inside the bunker and goes to whoever takes it down. Charges never pay for themselves — they only save you time.", "sh_notenough": "Not enough — you need {n}", "sh_howmuch": "How much", "sh_min": "Less than {n} will not go through — the network fee would eat it.", "sh_nowallet": "No wallet in this browser. Open the game inside your wallet app.", "sh_openwallet": "Open in wallet", "sh_wrongchain": "Switch your wallet to BNB Chain.", "sh_step1": "Step 1 of 2: allow the payment", "sh_step2": "Step 2 of 2: confirm the transfer", "sh_waiting": "Sent. Waiting for the network — about a minute.", "sh_credited": "{n} added to your money.", "sh_cancelled": "Payment cancelled.", "sh_txfail": "The network rejected the payment.", "sh_slow": "The network is slow. The money will arrive by itself — check back later.", "sh_which": "Which wallet?", "sh_whichp": "The payment opens inside your wallet — that is the only place it can be signed. The game stays on your screen.", "sh_copylink": "Copy the payment link", "ith_reinforce": "Walk up to YOUR OWN bunker, within 100 m, and use it. An earth bunker becomes concrete: toughness from 70 to 130 — it takes longer to bring down.\n\nCannons already standing around it stay where they are; they count separately.\n\n$0.25 goes inside the bunker. Whoever takes it down gets that money. You cannot upgrade while under siege.", "ith_steel": "Same as the upgrade but tougher: up to 180. $0.50 goes inside.\n\nUpgrades only go up: earth to concrete, concrete to steel. Never back down.", "ith_fort": "The top upgrade: toughness 220. $1.00 goes inside.\n\nIt goes onto YOUR OWN bunker while you stand next to it — like the other upgrades. You cannot place a fortress on empty ground: it is an upgrade, not a building.\n\nCannons around stay and count on top: a 220 bunker plus seven cannons is 570 altogether.", "ith_heavy": "Placed like a plain cannon: inside your own bunker ring, at least 50 m from another cannon.\n\nToughness 80 instead of 50 — it takes longer to knock out. Same 200 m range.\n\nA cannon cannot be moved. Once placed, it stays until it is destroyed.", "ith_rocket": "The toughest cannon: 100. Placed the same way — inside your bunker ring, 50 m from another.\n\nSeven cannons per bunker is the limit, of any kind.", "ith_charge": "Usable ONLY during a siege. Start a siege on someone else’s point and a gear button appears at the bottom. Press it and the charge goes off on the target you are hitting right now.\n\n60 damage at once — five minutes of work you skipped.\n\nOutside a siege there is nothing to blow up.", "ith_hcharge": "Same as the assault charge but twice as strong: 120 at once — enough to take a whole earth bunker down.\n\nOnly during a siege, on your current target.", "ith_longrocket": "Fires FROM AFAR, up to 2 km, without walking to the point. Pick an enemy cannon on the map and launch. The rocket flies for a minute and is visible on the map — to you and to the owner.\n\n60 damage, cannons only. A bunker cannot be taken with a rocket; for that you must come on foot.\n\nThree rockets a day.", "ith_radar": "Goes onto YOUR OWN bunker: walk within 100 m and use it. No error will happen — if the bunker is not yours or you are too far, the game says so before anything is spent.\n\nWhat it does: you learn about strangers 500 m away instead of 250. It adds NO toughness and does not count against the seven cannons.\n\nOne radar per bunker.", "ith_drone": "A bomb, not a spyglass. It takes 25% of the life off an enemy bunker or cannon.\n\nWhere you can send it: up to 1 km from where you stand. And if you already hold a bunker within 600 m of the target, you can strike from anywhere — you do not have to be there at all.\n\nOne drone carries TWO strikes. After that buy a new one.\n\nAn hour between strikes, six strikes a day, and the same point cannot be bombed more than once every two hours.\n\nA drone can destroy a cannon outright, but it can NEVER finish a bunker: below 30% of its life the bomb stops working. Ground is taken on foot — the drone only softens it up.", "ith_skin": "Changes how your bunker looks on the map. Nothing else.\n\nNo effect on toughness, damage or money. Pure decoration — buy it if you want your point to stand out.", "sh_price": "Price", "sh_minlow": "Minimum is {n}", "sh_or": "or", "sg_line2": "{a} attacking · {d} defending · {p} per minute", "tg_bunker": "Bunker", "tg_gun": "Cannon", "fog_on": "Fog on — you see only what is near", "fog_off": "Fog off — everything is visible", "sg_join": "Join the siege", "sg_joined": "You joined the siege. Hit together.", "sg_short": "{a} vs {d} · {p}/min", "dr_launch": "Launch drone", "dr_left": "{n} strikes left", "dr_aim": "Tap the target: an enemy bunker or cannon.", "dr_cancel": "Put the drone away", "dr_none": "No drone left. One drone in the shop carries two strikes.", "dr_far": "Out of reach. Be within {n} m of the target, or hold a bunker within {m} m of it.", "dr_cool": "The drone is still refuelling — {n} min.", "dr_day": "That is all {n} drone strikes for today.", "dr_tcool": "This point was bombed recently — {n} min before the next drone.", "dr_floor": "A drone cannot finish a bunker. Below {n}% of its life you have to come on foot.", "dr_hit": "Hit — {n} damage. {k} strikes left.", "dr_kill": "Cannon down. {k} strikes left.", "dr_own": "Your own ground. The drone will not bomb it.", "dr_flying": "Drone away…", "dr_busy": "The drone is already in the air.", "dr_nogps": "No signal — the drone needs your position.", "bg_title": "Backpack", "bg_use": "Use", "bg_empty": "The backpack is empty. Everything you buy in the shop lands here.", "bg_how": "Tap Use and the game will tell you what it needs — where to stand or what to aim at.", "bg_none": "You do not have that any more.", "bg_done": "{n} — done.", "bg_busy": "One thing at a time.", "bg_far": "Walk up to YOUR OWN bunker — within {n} m of it.", "bg_insiege": "Not while the point is under siege.", "bg_already": "This bunker already has one.", "bg_maxkind": "This bunker is already at least this strong. Upgrades only go up.", "bg_needsiege": "This works only while you are attacking a point.", "bgw_own": "Walk up to your own bunker and use it.", "bgw_place": "Placed where you stand, inside your own bunker ring.", "bgw_siege": "Works only during a siege, on your current target.", "bgw_aim": "Tap the target on the map.", "lr_aim": "Tap an enemy cannon — up to 2 km away.", "lr_gunonly": "The long rocket hits cannons only. A bunker has to be taken on foot.", "lr_far": "Too far — the rocket flies {n} m.", "lr_flying": "Rocket away — {n} s to the target."} };
 // Остальные языки лежат в отдельном файле lang.json: телефон берёт его
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 17;
+var LANG_V = 18;   // подняли: приехали слова рюкзака, дрона и дальней ракеты
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -655,6 +661,19 @@ function sprite(kind, px, foe){
 // Полоски рисуются НАД строениями на карте, как в обычных играх.
 const HP = new Map();
 function hpSet(key, now, max){ if(max > 0) HP.set(key, { hp: now, max: max, t: Date.now() }); }
+// Полоски рисуются по ВСЕМ живым осадам района, а не только по той,
+// в которой я стою. Раньше HP наполнялся исключительно из своего
+// siege_tick: стоило хозяину нажать «уйти», тики прекращались и полоса
+// пропадала — хотя точку продолжали грызть. Теперь источник данных
+// один и тот же для всех: список sieges, который и так приходит.
+function hpFromSieges(){
+  HP.clear();
+  for(const s of (sieges || [])){
+    const max = Number(s.total_hp) || 0;
+    if(max <= 0) continue;
+    hpSet('b' + s.bunker_id, Math.max(0, max - (Number(s.damage) || 0)), max);
+  }
+}
 function hpDrop(key){ HP.delete(key); }
 function drawHpBar(ctx, x, y, w, hp, max, mine, sel){
   const pct = Math.max(0, Math.min(1, hp / max));
@@ -774,7 +793,6 @@ function watchMe(){
     const ck = cellKey(nlat, nlng);
     if(ck !== _lastCell){ _lastCell = ck; sync(); }
     if(moved) _movedAt = Date.now();
-    if(scanAround()){ drawAll(); saveSeen(); }
     if(moved || accCh){ paintMe(); paintReticle(); Sprites.refresh(); }
   }, err => {
     say(err.code === 1
@@ -788,7 +806,7 @@ function stopWatch(){
 // Свернули игру — глушим спутники, опрос и сеть. Это самая большая
 // экономия батареи: свёрнутой игра бывает дольше, чем открытой.
 document.addEventListener('visibilitychange', () => {
-  if(document.hidden){ stopWatch(); stopPoll(); saveSeen(); stopSiegeLoop(); stopChat(); }
+  if(document.hidden){ stopWatch(); stopPoll(); stopSiegeLoop(); stopChat(); }
   else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); if(siege) startSiegeLoop(); }
 });
 
@@ -872,55 +890,16 @@ async function ensureId(){
 
 
 
-// ═══════════ Туман войны ═══════════
-// Выключен. Включается одним числом в базе (fog_on = 1), по городам.
-//
-// Видно только то, что попало в круг обзора вокруг тебя — 150 м.
-// Не клетку, не район, а именно круг: идёшь и находишь. Что нашёл —
-// телефон запоминает навсегда, поэтому карта не обнуляется каждый раз.
-// Дрон открывает 2 км на десять минут, не заходя ногами.
-let seenIds = new Set();      // что уже найдено
-let seenDirty = false;
-let droneUntil = 0, droneAt = null;
-
-function sightM(){ return cfg.fog_sight_m || 150; }
-function markFound(id){
-  if(seenIds.has(id)) return false;
-  seenIds.add(id); seenDirty = true;
-  return true;
-}
-async function saveSeen(){
-  if(!seenDirty) return;
-  seenDirty = false;
-  try{ await DB.put('kv', Array.from(seenIds).slice(-6000), 'seenIds'); }catch(e){}
-}
-// Обход всего, что рядом: что попало в круг — то найдено
-function scanAround(){
-  if(!Number(cfg.fog_on) || !here) return false;
-  const r = sightM();
-  let found = false;
-  for(const b of bunkers)
-    if(metersBetween(b.lat,b.lng,here[0],here[1]) <= r && markFound('b'+b.id)) found = true;
-  for(const u of units)
-    if(metersBetween(u.lat,u.lng,here[0],here[1]) <= r && markFound('u'+u.id)) found = true;
-  // дрон: тот же обход, но из своей точки и на свой радиус
-  if(droneUntil > Date.now() && droneAt){
-    const dr = cfg.drone_r_m || 2000;
-    for(const b of bunkers)
-      if(metersBetween(b.lat,b.lng,droneAt[0],droneAt[1]) <= dr && markFound('b'+b.id)) found = true;
-    for(const u of units)
-      if(metersBetween(u.lat,u.lng,droneAt[0],droneAt[1]) <= dr && markFound('u'+u.id)) found = true;
-  }
-  return found;
-}
-// Скрыто ли это от меня прямо сейчас
-function fogHides(lat, lng, owner, id){
-  if(!Number(cfg.fog_on)) return false;
-  if(addr && owner === addr) return false;
-  if(id && seenIds.has(id)) return false;
-  if(here && metersBetween(lat, lng, here[0], here[1]) <= sightM()) return false;
-  return true;
-}
+// ═══════════ Видимость ═══════════
+// Тумана войны в игре больше нет. Карта показывает всё, что пришло
+// из базы по твоему району, — и своё, и чужое. Заглушки ниже оставлены
+// нарочно: их зовут из десятка мест, и пусть лучше они честно ничего
+// не делают, чем каждый вызов оброс проверкой «а есть ли туман».
+function sightM(){ return 0; }
+function markFound(){ return false; }
+function scanAround(){ return false; }
+async function saveSeen(){}
+function fogHides(){ return false; }
 
 // ═══════════ Пушки ═══════════
 // Пушка охраняет точку: ставится внутри круга своего бункера,
@@ -1097,17 +1076,6 @@ function drawZones(){
   g.addTo(map); zoneLayer = g;
 }
 
-// Туман можно включить себе самому — посмотреть, каково это.
-// Настройка в базе задаёт, включён ли он у всех по умолчанию.
-let fogMine = false;
-function fogToggle(){
-  fogMine = !fogMine;
-  const b = document.getElementById('fog-btn');
-  if(b) b.className = fogMine ? 'on' : '';
-  cfg.fog_on = fogMine ? 1 : 0;
-  scanAround(); drawAll();
-  say(T(fogMine ? 'fog_on' : 'fog_off'));
-}
 
 function setMode(m){
   placeMode = m;
@@ -1379,9 +1347,35 @@ const FX = (function(){
     add({ kind:'tracer', lat:fromLat, lng:fromLng, toLat, toLng,
           ms: ms || 900, col: colour || '#FFC46A' });
   }
-  // Дрон вылетает, обходит круг и возвращается
-  function drone(lat, lng, r, ms){
-    add({ kind:'drone', lat, lng, r: r || 2000, ms: ms || 4200 });
+  // Боевой заход дрона: летит от пускающего к цели, сбрасывает бомбу,
+  // бомба падает с высоты и рвётся. Один эффект на весь полёт —
+  // так его видно целиком, а не рывками.
+  function drone(fromLat, fromLng, toLat, toLng, ms){
+    add({ kind:'droneRun', lat:fromLat, lng:fromLng, toLat, toLng,
+          ms: ms || 3500, trail:[] });
+    try{ if(navigator.vibrate) navigator.vibrate(20); }catch(e){}
+  }
+  // Залп: все живые пушки точки бьют по одному месту вразнобой,
+  // иначе шесть одинаковых трасс выглядят как одна толстая.
+  function volley(guns, toLat, toLng){
+    if(!Array.isArray(guns) || !guns.length) return;
+    guns.slice(0, 8).forEach((g, i) => {
+      if(g.lat == null || g.lng == null) return;
+      setTimeout(() => {
+        tracer(g.lat, g.lng, toLat, toLng, 620, '#FFC46A');
+        setTimeout(() => {
+          add({ kind:'spark', lat:toLat, lng:toLng, ms:420 });
+        }, 620);
+      }, i * 130 + Math.random() * 90);
+    });
+    try{ if(navigator.vibrate) navigator.vibrate([15, 40, 15]); }catch(e){}
+  }
+  // Подрыв заряда: то же, что удар, но крупнее и с осколками
+  function charge(lat, lng, r){
+    blast(lat, lng, r || 26, false);
+    burst(lat, lng);
+    setTimeout(() => blast(lat, lng, (r || 26) * 1.5, false), 160);
+    try{ if(navigator.vibrate) navigator.vibrate([60, 50, 120]); }catch(e){}
   }
   // Бункер укреплён: расходящееся золотое кольцо и искры
   function upgrade(lat, lng){
@@ -1536,104 +1530,83 @@ const FX = (function(){
           ctx.restore();
         }
       }
-      if(o.kind === 'drone'){
-        const rr = (o.r / mPerPx);
-        const shown = Math.min(rr, 190);               // на весь экран не растягиваем
-        // расходящаяся волна обзора
-        const wave = shown * Math.min(1, k*1.6);
-        ctx.beginPath(); ctx.arc(p.x, p.y, wave, 0, 7);
-        ctx.strokeStyle = 'rgba(127,191,106,' + (1-k)*0.8 + ')';
-        ctx.lineWidth = 2; ctx.setLineDash([7,6]); ctx.stroke(); ctx.setLineDash([]);
-        // сам дрон облетает по кругу
-        const a = k*Math.PI*4;
-        const dr = shown*0.55;
-        const dx = p.x + Math.cos(a)*dr, dy = p.y + Math.sin(a)*dr*0.6;
-        ctx.fillStyle = '#2C4327'; ctx.beginPath(); ctx.arc(dx,dy,5,0,7); ctx.fill();
-        ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 1.6; ctx.stroke();
-        for(const [ox,oy] of [[-6,-5],[6,-5],[-6,5],[6,5]]){
-          ctx.beginPath(); ctx.arc(dx+ox, dy+oy, 2.6, 0, 7);
-          ctx.strokeStyle = 'rgba(201,162,39,.85)'; ctx.lineWidth = 1.2; ctx.stroke();
+      if(o.kind === 'droneRun'){
+        const q = map.latLngToContainerPoint([o.toLat, o.toLng]);
+        // 0 → .74 полёт, .74 → .93 падение бомбы, дальше огонь
+        const fly  = Math.min(1, k / 0.74);
+        const ease = fly < 0.5 ? 2*fly*fly : 1 - Math.pow(-2*fly + 2, 2) / 2;
+        const x = p.x + (q.x - p.x) * ease;
+        const lift = Math.sin(Math.PI * ease) * 34;      // набрал высоту и снизился
+        const y = p.y + (q.y - p.y) * ease - lift;
+
+        // след из выхлопа
+        if(fly < 1){
+          o.trail.push([x, y]);
+          if(o.trail.length > 22) o.trail.shift();
         }
-        // луч под дроном
-        ctx.beginPath(); ctx.moveTo(dx,dy); ctx.lineTo(p.x,p.y);
-        ctx.strokeStyle = 'rgba(127,191,106,.35)'; ctx.lineWidth = 1; ctx.stroke();
-      }
-      if(o.kind === 'upgrade'){
-        for(const d of [0, 0.25]){
-          const kk = Math.max(0, (k-d)/(1-d));
-          if(kk <= 0 || kk >= 1) continue;
-          ctx.beginPath(); ctx.arc(p.x, p.y, 12 + kk*54, 0, 7);
-          ctx.strokeStyle = 'rgba(201,162,39,' + (1-kk) + ')';
-          ctx.lineWidth = 3*(1-kk) + 1; ctx.stroke();
+        for(let i = 0; i < o.trail.length; i++){
+          const t = i / o.trail.length;
+          ctx.beginPath(); ctx.arc(o.trail[i][0], o.trail[i][1], 1 + t*2.4, 0, 7);
+          ctx.fillStyle = 'rgba(201,162,39,' + (t*0.35) + ')'; ctx.fill();
         }
-        for(let i=0;i<10;i++){
-          const a = i*Math.PI/5 + k*2;
-          const rr = 16 + k*44;
+
+        // тень на земле — от неё читается высота
+        if(fly < 1){
           ctx.beginPath();
-          ctx.arc(p.x + Math.cos(a)*rr, p.y + Math.sin(a)*rr, 2.4*(1-k), 0, 7);
-          ctx.fillStyle = 'rgba(255,226,150,' + (1-k) + ')'; ctx.fill();
+          ctx.ellipse(x, y + lift, 7, 3, 0, 0, 7);
+          ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fill();
         }
-      }
-      if(o.kind === 'collapse'){
-        // пыль поднимается и расползается
-        for(const d of o.dust){
-          const kk = Math.max(0, (k - d.t0) / (1 - d.t0));
-          if(kk <= 0) continue;
-          const x = p.x + d.dx*kk, y = p.y + d.dy*kk - 26*kk;
-          ctx.beginPath(); ctx.arc(x, y, d.r*(0.4 + kk*1.5), 0, 7);
-          ctx.fillStyle = 'rgba(120,110,96,' + (0.4*(1-kk)) + ')'; ctx.fill();
-        }
-        // каменные обломки летят и падают
-        for(const b2 of o.bits){
-          const x = p.x + b2.dx*k, y = p.y + b2.dy*k + 130*k*k;
-          ctx.save(); ctx.translate(x, y); ctx.rotate(b2.rot + b2.spin*k*10);
-          ctx.fillStyle = 'rgba(154,150,138,' + (1-k*0.8) + ')';
-          ctx.fillRect(-b2.s/2, -b2.s/2, b2.s, b2.s*0.8);
+
+        if(fly < 1){
+          const ang = Math.atan2(q.y - p.y, q.x - p.x);
+          ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+          // корпус
+          ctx.fillStyle = '#2C4327';
+          ctx.beginPath(); ctx.ellipse(0, 0, 7, 4, 0, 0, 7); ctx.fill();
+          ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 1.4; ctx.stroke();
+          // лучи и винты: винт рисуется отрезком, который крутится,
+          // поэтому на глаз он сливается в диск
+          const spin = now / 14;
+          for(const [ox, oy] of [[-7,-6],[7,-6],[-7,6],[7,6]]){
+            ctx.strokeStyle = 'rgba(201,162,39,.9)'; ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(ox, oy); ctx.stroke();
+            ctx.save(); ctx.translate(ox, oy); ctx.rotate(spin);
+            ctx.strokeStyle = 'rgba(232,227,213,.75)'; ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(-4.5, 0); ctx.lineTo(4.5, 0); ctx.stroke();
+            ctx.globalAlpha = .35;
+            ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, 7); ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.restore();
+          }
           ctx.restore();
         }
-        // вспышка и обод в первый миг
-        if(k < 0.3){
-          const f = 1 - k/0.3;
-          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 70*f + 12);
-          gr.addColorStop(0, 'rgba(255,240,200,' + (0.9*f) + ')');
-          gr.addColorStop(0.6, 'rgba(226,122,95,' + (0.5*f) + ')');
-          gr.addColorStop(1, 'rgba(178,58,46,0)');
-          ctx.beginPath(); ctx.arc(p.x, p.y, 70*f + 12, 0, 7); ctx.fillStyle = gr; ctx.fill();
-        }
-        if(k < 0.7){
-          ctx.beginPath(); ctx.arc(p.x, p.y, 20 + k*120, 0, 7);
-          ctx.strokeStyle = 'rgba(178,58,46,' + (1-k/0.7) + ')';
-          ctx.lineWidth = 5*(1-k/0.7) + 1; ctx.stroke();
-        }
-      }
-      if(o.kind === 'claim'){
-        const rr = (o.r / mPerPx);
-        for(const d of [0, 0.3]){
-          const kk = Math.max(0, (k-d)/(1-d));
-          if(kk <= 0 || kk >= 1) continue;
-          ctx.beginPath(); ctx.arc(p.x, p.y, rr*kk, 0, 7);
-          ctx.strokeStyle = 'rgba(201,162,39,' + (1-kk)*0.9 + ')';
-          ctx.lineWidth = 4*(1-kk) + 1; ctx.stroke();
-          ctx.fillStyle = 'rgba(201,162,39,' + (0.10*(1-kk)) + ')'; ctx.fill();
+
+        // бомба: отделяется над целью и падает с ускорением
+        if(k >= 0.74 && k < 0.94){
+          const f  = (k - 0.74) / 0.20;
+          const bx = q.x;
+          const by = q.y - 34 * (1 - f*f);
+          ctx.save(); ctx.translate(bx, by);
+          ctx.fillStyle = '#E8E3D5';
+          ctx.beginPath(); ctx.ellipse(0, 0, 2.6, 5.2, 0, 0, 7); ctx.fill();
+          ctx.fillStyle = '#B23A2E';
+          ctx.beginPath(); ctx.moveTo(-2.6,-4); ctx.lineTo(2.6,-4);
+          ctx.lineTo(0,-7.5); ctx.closePath(); ctx.fill();
+          ctx.restore();
+          // круг под падающей бомбой: видно, куда именно прилетит
+          ctx.beginPath(); ctx.arc(q.x, q.y, 10 + 14*(1-f), 0, 7);
+          ctx.strokeStyle = 'rgba(178,58,46,' + (0.35 + 0.5*f) + ')';
+          ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
         }
       }
-      if(o.kind === 'smoke'){
-        for(let i=0;i<9;i++){
-          const t = (k + i*0.11) % 1;
-          const sw = Math.sin((o.seed + i + t*2)*2.1);
-          const x = p.x + sw*(8 + t*22) + (i-4)*2;
-          const y = p.y - 4 - t*66;
-          ctx.beginPath(); ctx.arc(x, y, 6 + t*20, 0, 7);
-          ctx.fillStyle = 'rgba(' + (86+i*3) + ',' + (82+i*3) + ',76,' + (0.42*(1-t)) + ')';
-          ctx.fill();
-        }
-        // язычки огня у основания
-        for(let i=0;i<3;i++){
-          const t = (k*2 + i*0.33) % 1;
-          ctx.beginPath();
-          ctx.arc(p.x + (i-1)*7, p.y - t*12, 4*(1-t) + 1, 0, 7);
-          ctx.fillStyle = 'rgba(255,' + (150 - t*60) + ',60,' + (0.8*(1-t)) + ')'; ctx.fill();
-        }
+      if(o.kind === 'spark'){
+        // попадание пули: короткая яркая искра
+        const f = 1 - k;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4 + 7*k, 0, 7);
+        ctx.strokeStyle = 'rgba(255,214,122,' + f + ')';
+        ctx.lineWidth = 2*f + 0.6; ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.2*f + 0.8, 0, 7);
+        ctx.fillStyle = 'rgba(255,248,222,' + f + ')'; ctx.fill();
       }
       if(o.kind === 'place'){
         // у каждой вещи свой знак: бункер — квадрат, пушка — луч,
@@ -1688,7 +1661,7 @@ const FX = (function(){
     if(shake > 0) ctx.restore();
   }
   function stop(){ items = []; shake = 0; }
-  return { aim, blast, burst, num, rocket, drone, upgrade, tracer,
+  return { aim, blast, burst, num, rocket, drone, upgrade, tracer, volley, charge,
            collapse, claim, smoke, place, paint, stop,
            get busy(){ return items.length > 0; } };
 })();
@@ -1704,6 +1677,273 @@ function metersPerPixel(){
 }
 
 
+
+
+// ═══════════ Рюкзак: применение купленного ═══════════
+// До этого купленное просто лежало: в игре не было ни одной кнопки
+// применения. Теперь у каждой вещи свой способ пустить её в дело,
+// а решает всё сервер — телефон только рисует и подсказывает.
+//
+//   own   — подойти к СВОЕЙ точке ближе 100 м (укрепления, радар, окраска)
+//   place — поставить на своём месте прямо сейчас (тяжёлая и ракетная пушка)
+//   siege — работает только в бою, по текущей цели (заряды)
+//   aim   — ткнуть в цель на карте (дрон, дальняя ракета)
+const ITEM_USE = {
+  reinforce:'own', steel:'own', fort:'own', radar:'own', skin:'own',
+  heavy:'place', rocket:'place',
+  charge:'siege', hcharge:'siege',
+  longrocket:'aim', drone:'aim'
+};
+
+let aimMode = null;          // код вещи, которой целимся
+let _aimTimer = null;
+let _useBusy = false;
+
+function bagCount(code){ return Number(bag[code] || 0); }
+function bagTotal(){
+  let n = 0;
+  for(const it of SHOP_LIST) n += bagCount(it.code);
+  return n;
+}
+function droneCharges(){ return bagCount('drone'); }
+
+// ── Кнопка рюкзака и его список ──────────────────────────────────
+function paintBagBtn(){
+  const b = document.getElementById('bag-btn');
+  if(!b) return;
+  const n = bagTotal();
+  b.style.display = n > 0 ? 'flex' : 'none';
+  b.innerHTML = '\u2726<i>' + n + '</i>';
+}
+function openBag(){
+  const n = bagTotal();
+  sheetMode = 'info';
+  document.getElementById('shot').style.display = 'none';
+  document.getElementById('sheet-in').style.display = 'none';
+  document.getElementById('sheet-p').textContent = '';
+  document.getElementById('sheet-ok').textContent = T('closebtn');
+  document.getElementById('sheet-t').textContent = T('bg_title');
+  const box = document.getElementById('sheet-body');
+  if(!n){
+    box.innerHTML = '<div class="mv-warn">' + esc(T('bg_empty')) + '</div>'
+      + '<button class="btn-buy" style="width:100%;margin-top:10px;padding:12px" '
+      + 'onclick="openShop()">' + esc(T('sh_title')) + '</button>';
+  } else {
+    let html = '<div class="mv-warn">' + esc(T('bg_how')) + '</div>';
+    for(const it of SHOP_LIST){
+      const have = bagCount(it.code);
+      if(have <= 0) continue;
+      const mode = ITEM_USE[it.code] || 'own';
+      html += '<div class="card">'
+        + '<img loading="lazy" src="item-' + it.code + '.webp" alt="" '
+        +      'onclick="itemHelp(\'' + it.code + '\')"/>'
+        + '<div class="card-b">'
+        +   '<div class="card-t">' + esc(T('it_' + it.code)) + ' <i>\u00d7 ' + have + '</i></div>'
+        +   '<div class="card-d">' + esc(T('bgw_' + mode)) + '</div>'
+        +   '<div class="card-r">'
+        +     '<span class="row" style="gap:6px">'
+        +       '<button class="btn-help" onclick="itemHelp(\'' + it.code + '\')">?</button>'
+        +       '<button class="btn-buy" onclick="useItem(\'' + it.code + '\')">'
+        +         esc(T('bg_use')) + '</button>'
+        +     '</span>'
+        +   '</div>'
+        + '</div></div>';
+    }
+    box.innerHTML = html;
+  }
+  document.getElementById('veil').classList.add('on');
+}
+
+// ── Один вход на всё: разводит вещь по способу применения ────────
+function useItem(code){
+  const mode = ITEM_USE[code] || 'own';
+  if(bagCount(code) <= 0){ say(T('bg_none'), 'warn'); return; }
+  if(mode === 'aim'){ aimStart(code); return; }
+  if(mode === 'siege'){
+    if(!siege || siege.side === 'defend'){ say(T('bg_needsiege'), 'warn'); return; }
+    closeSheet(); applyItem(code, {}); return;
+  }
+  if(!here){ say(T('dr_nogps'), 'warn'); return; }
+  closeSheet();
+  applyItem(code, {});
+}
+
+// ── Прицел ───────────────────────────────────────────────────────
+function aimStart(code){
+  if(!here){ say(T('dr_nogps'), 'warn'); return; }
+  closeSheet();
+  aimMode = code;
+  paintAim();
+  say(code === 'drone' ? T('dr_aim') : T('lr_aim'));
+  clearTimeout(_aimTimer);
+  // Прицел гаснет сам: иначе человек уходит из игры с включённым
+  // режимом и потом случайным тычком тратит вещь.
+  _aimTimer = setTimeout(() => { if(aimMode) aimCancel(); }, 45000);
+}
+function aimCancel(){
+  aimMode = null; clearTimeout(_aimTimer); _aimTimer = null;
+  paintAim(); say(T('dr_cancel'));
+}
+function paintAim(){
+  let el = document.getElementById('aim-bar');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'aim-bar';
+    document.body.appendChild(el);
+    el.onclick = aimCancel;
+  }
+  if(aimMode){
+    el.style.display = 'block';
+    el.textContent = (aimMode === 'drone' ? T('dr_aim') : T('lr_aim')) + ' \u00b7 ' + T('dr_cancel');
+  } else {
+    el.style.display = 'none';
+  }
+}
+// Ткнули в цель, пока висел прицел
+function aimFire(t, kind){
+  const code = aimMode;
+  if(!code) return;
+  if(t.owner === addr){ say(T('dr_own'), 'warn'); return; }
+  if(code === 'longrocket' && kind !== 'unit'){ say(T('lr_gunonly'), 'warn'); return; }
+  aimMode = null; clearTimeout(_aimTimer); paintAim();
+  applyItem(code, { kind: (kind === 'unit' ? 'unit' : 'bunker'), target_id: t.id,
+                    _lat: t.lat, _lng: t.lng });
+}
+
+// ── Собственно применение. Все проверки — на сервере ─────────────
+async function applyItem(code, extra){
+  if(_useBusy){ say(T('bg_busy'), 'warn'); return; }
+  _useBusy = true;
+  try{
+    const body = Object.assign({
+      wallet: addr, code: code,
+      lat: here ? here[0] : null, lng: here ? here[1] : null,
+      accuracy: acc, siege_id: siege ? siege.id : null,
+      target: siegeTarget || null
+    }, extra);
+    delete body._lat; delete body._lng;
+    const { data } = await sb.rpc('use_item_v1', { p: body });
+    if(!data || !data.ok){ sayUseError(data && data.error, data); return; }
+    await showItemResult(code, data, extra);
+  }catch(e){
+    say(T('gun_neednet'), 'warn');
+  }finally{
+    _useBusy = false;
+  }
+}
+
+function sayUseError(e, d){
+  d = d || {};
+  const m = {
+    no_item:        () => T('bg_none'),
+    no_bunker_near: () => T('bg_far', { n: d.need }),
+    under_siege:    () => T('bg_insiege'),
+    already:        () => T('bg_already'),
+    max_kind:       () => T('bg_maxkind'),
+    bunker_full:    () => T('gun_full', { n: d.limit }),
+    too_close:      () => T('gun_close', { d: d.got, n: d.need }),
+    weak_gps:       () => T('weaksig', { n: d.got }),
+    no_siege:       () => T('bg_needsiege'),
+    own_bunker:     () => T('dr_own'),
+    newbie:         () => T('sg_newbie', { n: d.hours }),
+    no_drone:       () => T('dr_none'),
+    too_far:        () => (d.need_bunker ? T('dr_far', { n: d.need, m: d.need_bunker })
+                                         : T('lr_far', { n: d.need })),
+    cooldown:       () => T('dr_cool',  { n: d.minutes }),
+    day_limit:      () => T('dr_day',   { n: d.limit }),
+    target_cooldown:() => T('dr_tcool', { n: d.minutes }),
+    floor_reached:  () => T('dr_floor', { n: d.floor_pct }),
+    gun_only:       () => T('lr_gunonly'),
+    no_gps:         () => T('dr_nogps')
+  };
+  say(m[e] ? m[e]() : (T('failed') + (e ? ' \u00b7 ' + e : '')), 'warn');
+}
+
+// ── Что человек видит, когда вещь сработала ──────────────────────
+async function showItemResult(code, data, extra){
+  extra = extra || {};
+  const tLat = extra._lat, tLng = extra._lng;
+  bag[code] = Math.max(0, bagCount(code) - 1);
+  if(data.charges_left != null) bag[code] = data.charges_left;
+  try{ await DB.put('kv', bag, 'bag'); }catch(e){}
+  paintBagBtn();
+
+  // ── Дрон: заход, сброс, разрыв
+  if(code === 'drone'){
+    const fx  = (data.from_lat != null) ? [data.from_lat, data.from_lng] : here;
+    const fly = 3500;
+    say(T('dr_flying'));
+    try{ FX.drone(fx[0], fx[1], tLat, tLng, fly); }catch(e){}
+    setTimeout(() => finishHit(code, data, tLat, tLng, extra), fly * 0.94);
+    return;
+  }
+  // ── Дальняя ракета: летит долго и видна всем
+  if(code === 'longrocket'){
+    const fly = (cfg.siege_warn_sec || 15) * 4 * 1000;
+    say(T('lr_flying', { n: Math.round(fly / 1000) }));
+    try{ FX.rocket(here[0], here[1], tLat, tLng, fly); }catch(e){}
+    setTimeout(() => finishHit(code, data, tLat, tLng, extra), fly);
+    return;
+  }
+  // ── Заряды в осаде: рвутся сразу по текущей цели
+  if(code === 'charge' || code === 'hcharge'){
+    const lat = data.target_lat != null ? data.target_lat : (here ? here[0] : null);
+    const lng = data.target_lng != null ? data.target_lng : (here ? here[1] : null);
+    if(lat != null){
+      try{ FX.charge(lat, lng, code === 'hcharge' ? 34 : 24); }catch(e){}
+    }
+    finishHit(code, data, lat, lng, extra);
+    return;
+  }
+  // ── Укрепления, радар, окраска, платные пушки
+  const lat = data.lat != null ? data.lat : (here ? here[0] : null);
+  const lng = data.lng != null ? data.lng : (here ? here[1] : null);
+  if(lat != null){
+    try{
+      if(code === 'radar')      FX.place('radar', lat, lng);
+      else if(code === 'skin')  FX.place('skin', lat, lng);
+      else if(code === 'heavy' || code === 'rocket'){
+        FX.place('gun', lat, lng);
+        // новая пушка сразу даёт залп — видно, что она живая
+        setTimeout(() => { try{ FX.volley([{ lat, lng }], lat, lng); }catch(e){} }, 400);
+      }
+      else { FX.upgrade(lat, lng); FX.place('bunker', lat, lng); }
+    }catch(e){}
+  }
+  // карта могла измениться: новая пушка, новый вид бункера
+  if(data.unit_id){
+    const u = { id:data.unit_id, owner:addr, bunker_id:data.bunker_id, code:code,
+                lat:lat, lng:lng, hp_left:data.hp, alive:true,
+                built_at:new Date().toISOString() };
+    haveUnitIds.add(u.id); units.push(u);
+    try{ await DB.put('units', u); }catch(e){}
+  }
+  if(data.kind && data.bunker_id){
+    const b = bunkerById(data.bunker_id);
+    if(b){ b.kind = data.kind; try{ await DB.put('bunkers', b); }catch(e){} }
+  }
+  Sprites.refresh(); drawRing(); refreshStats();
+  say(T('bg_done', { n: T('it_' + code) }), 'good');
+}
+
+// Общий хвост для всего, что наносит урон
+function finishHit(code, data, lat, lng, extra){
+  try{
+    if(lat != null){
+      FX.blast(lat, lng, cfg.siege_blast_m || 20, false);
+      if(data.damage) FX.num(lat, lng, '\u2212' + data.damage, '#FFD67A');
+    }
+    if(data.killed && extra.kind === 'unit'){
+      const u = units.find(x => x.id === extra.target_id);
+      if(u){ u.alive = false; FX.burst(u.lat, u.lng); }
+    }
+  }catch(e){}
+  say(data.killed ? T('dr_kill', { k: data.charges_left != null ? data.charges_left : bagCount(code) })
+                  : T('dr_hit', { n: data.damage,
+                                  k: data.charges_left != null ? data.charges_left : bagCount(code) }),
+      'good');
+  sync(); Sprites.refresh();
+}
 
 // ═══════════ Лавка ═══════════
 // Список товаров и цены лежат в телефоне: открыл в подвале без сети —
@@ -1744,6 +1984,7 @@ async function loadMoney(){
     if(Array.isArray(data)){
       bag = {}; data.forEach(x => bag[x.code] = x.qty);
       await DB.put('kv', bag, 'bag');
+      paintBagBtn();
     }
   }catch(e){
     try{ const b = await DB.get('kv','bag'); if(b) bag = b; }catch(_){}
@@ -1810,7 +2051,14 @@ function itemHelp(code){
     +   '<button class="btn-buy" style="flex:1;padding:11px" onclick="doBuy(\'' + code + '\')">'
     +     esc(T('sh_buy')) + '</button>'
     +   '<button class="btn-ghost" style="flex:1" onclick="openShop()">' + esc(T('back')) + '</button>'
-    + '</div>';
+    + '</div>'
+    // Купленный дрон надо чем-то запускать. До сих пор в игре не было
+    // НИ ОДНОЙ кнопки применения вещи — купленное просто лежало.
+    + ((bagCount(code) > 0)
+        ? '<button class="btn-buy" style="width:100%;margin-top:8px;padding:12px" '
+          + 'onclick="useItem(\'' + code + '\')">'
+          + esc(T('bg_use')) + ' · × ' + bagCount(code) + '</button>'
+        : '');
   document.getElementById('sheet-t').textContent = T('it_' + code);
 }
 
@@ -1837,7 +2085,7 @@ function itemFx(code, lat, lng){
     } else if(code === 'skin'){
       FX.place('skin', lat, lng);
     } else if(code === 'drone'){
-      FX.drone(lat, lng, cfg.drone_r_m || 2000, 4200);
+      FX.blast(lat, lng, cfg.siege_blast_m || 20, false);
     } else {
       FX.place('gun', lat, lng);
     }
@@ -1855,6 +2103,7 @@ async function doBuy(code){
     }
     money.balance_cents = data.balance_cents;
     bag[code] = (bag[code] || 0) + 1;
+    paintBagBtn();
     await DB.put('kv', money, 'money');
     await DB.put('kv', bag, 'bag');
     paintShop();
@@ -2268,6 +2517,12 @@ function onMapTap(e){
     const d = metersBetween(u.lat, u.lng, ll.lat, ll.lng);
     if(d < bd){ bd = d; best = u; kind = 'unit'; }
   }
+  // Прицел перехватывает тычок раньше всего остального
+  if(aimMode){
+    if(!best || bd > 80){ say(aimMode === 'drone' ? T('dr_aim') : T('lr_aim'), 'warn'); return; }
+    aimFire(best, kind);
+    return;
+  }
   if(!best || bd > 60) return;
   if(kind === 'unit'){
     // во время осады тычок по пушке выбирает её целью
@@ -2405,14 +2660,19 @@ async function siegeTick(){
     }
     siege._prevGuns = (siege.guns || []).slice();
 
-    // полоски жизни на карте
-    HP.clear();
+    // полоски жизни на карте: сперва общая картина по району, потом
+    // точные цифры по своей осаде — они свежее на полминуты.
+    hpFromSieges();
     if(siege.bunker_max) hpSet('b'+siege.bunker_id, siege.bunker_hp, siege.bunker_max);
     for(const g of (siege.guns || [])) hpSet('u'+g.id, g.hp, g.max);
     Sprites.refresh();
     if(data.hits > 0){
       say(T('sh_hit', { n: Math.round(data.lost_sec) }), 'warn');
-      if(here) FX.blast(here[0], here[1], cfg.siege_blast_m || 20, true);
+      // видно, КТО именно достал: трассы идут от каждой живой пушки
+      if(here){
+        try{ FX.volley(siege.guns || [], here[0], here[1]); }catch(e){}
+        setTimeout(() => { if(here) FX.blast(here[0], here[1], cfg.siege_blast_m || 20, true); }, 700);
+      }
     }
     if(siege.guns_left !== undefined){ Sprites.refresh(); drawRing(); }
     if(data.done){
@@ -2455,6 +2715,8 @@ function endSiege(msg, good){
   stopSiegeLoop();
   FX.stop();
   siege = null; siegeTarget = null;
+  // вышел из боя — но чужая осада никуда не делась, полосу оставляем
+  hpFromSieges(); Sprites.refresh();
   paintSiege();
   if(msg) say(msg, good ? 'good' : 'warn');
 }
@@ -2567,7 +2829,9 @@ function paintSiege(){
   if(!siege){
     el.style.display = 'none';
     if(dock) dock.style.display = '';
-    HP.clear(); Sprites.refresh();
+    // не HP.clear(): чужая осада на моей точке продолжается, и полоса
+    // жизни обязана остаться на карте
+    hpFromSieges(); Sprites.refresh();
     return;
   }
   if(dock) dock.style.display = 'none';
@@ -2784,12 +3048,18 @@ async function sync(){
 
       // Живые осады района: чтобы видеть, что где горит, и чтобы
       // хозяин узнал о нападении на свою точку.
-      const ids = bunkers.map(x => x.id).slice(0, 200);
+      // Свои точки идут первыми и не выпадают из среза. Раньше здесь
+      // стоял slice(0, 200) по общему списку: если мой бункер оказывался
+      // 201-м, я просто не узнавал, что меня осаждают.
+      const mineIds  = bunkers.filter(x => x.alive !== false && x.owner === addr).map(x => x.id);
+      const otherIds = bunkers.filter(x => x.alive !== false && x.owner !== addr).map(x => x.id);
+      const ids = mineIds.concat(otherIds).slice(0, 300);
       if(ids.length){
         const { data:sg } = await sb.from('territory_sieges')
           .select('id,bunker_id,attacker,started_at,total_hp,damage,state')
-          .eq('state','live').in('bunker_id', ids).limit(50);
+          .eq('state','live').in('bunker_id', ids).limit(300);
         sieges = sg || [];
+        hpFromSieges();
         checkMySiege();
       }
       Sprites.refresh(); paintGunBtn(); drawRing();
@@ -3321,11 +3591,10 @@ setTimeout(hideSplash, 6000);        // страховка на случай л�
     units = (await DB.all('units')) || [];
     units.forEach(u => haveUnitIds.add(u.id));
   }catch(e){ units = []; }
-  try{
-    const sc = await DB.get('kv','seenIds');
-    if(Array.isArray(sc)) seenIds = new Set(sc);
-  }catch(e){}
-  paintGunBtn(); Sprites.refresh(); drawRing();
+  // Список «найденного» из времён тумана больше не нужен: чистим,
+  // чтобы он не занимал место в телефоне у тех, кто уже играл.
+  try{ await DB.put('kv', null, 'seenIds'); }catch(e){}
+  paintGunBtn(); paintBagBtn(); Sprites.refresh(); drawRing();
   watchMe();
   startPoll();
   sync();
