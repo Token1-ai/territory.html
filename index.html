@@ -180,10 +180,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 #siege-box .sg-top{font-size:10px;}
 #siege-box .sg-row{margin-top:7px;}
 #siege-box .btn-ghost{padding:7px !important;font-size:12px;}
-#bag-btn{position:absolute;right:10px;top:96px;z-index:600;width:46px;height:46px;
+#bag-btn{position:absolute;right:10px;top:96px;z-index:700;width:46px;height:46px;
   border-radius:999px;background:rgba(18,20,15,.92);border:1px solid rgba(224,163,46,.55);
   color:#E0A32E;font-size:20px;display:none;align-items:center;justify-content:center;
   box-shadow:0 2px 10px rgba(0,0,0,.4);}
+/* в бою панель осады занимает верх экрана — уводим рюкзак вниз,
+   иначе до зарядов и дрона не добраться именно тогда, когда они нужны */
+#bag-btn.in-fight{top:auto;bottom:104px;}
 #bag-btn i{position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;
   border-radius:999px;background:#B23A2E;color:#fff;font:700 11px/18px ui-monospace,monospace;
   font-style:normal;text-align:center;}
@@ -296,7 +299,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 <div id="ring-badge" style="display:none"></div>
 <button id="bag-btn" onclick="openBag()" style="display:none" title="bag">✦</button>
 <div id="siege-box" style="display:none"></div>
-<div id="shell-warn" style="display:none"></div>
 <div id="link"><span id="link-pre">on device</span> · <span id="link-txt">starting</span></div>
 
 <div id="dock">
@@ -388,7 +390,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 21;   // настоящие тексты ошибок осады
+var LANG_V = 22;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -836,7 +838,8 @@ function stopWatch(){
 // экономия батареи: свёрнутой игра бывает дольше, чем открытой.
 document.addEventListener('visibilitychange', () => {
   if(document.hidden){ stopWatch(); stopPoll(); stopSiegeLoop(); stopChat(); stopWarSmoke(); }
-  else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); if(siege) startSiegeLoop(); }
+  else { watchMe(); startPoll(); _lastSync = Date.now(); sync(); startWarSmoke();
+         if(siege) startSiegeLoop(); }
 });
 
 function paintMe(){
@@ -1742,6 +1745,7 @@ function paintBagBtn(){
   if(!b) return;
   const n = bagTotal();
   b.style.display = n > 0 ? 'flex' : 'none';
+  b.className = siege ? 'in-fight' : '';
   b.innerHTML = '\u2726<i>' + n + '</i>';
 }
 function openBag(){
@@ -2829,9 +2833,31 @@ async function siegeTick(){
 async function siegeLeave(){
   if(!siege) return;
   const id = siege.id;
+  // Сначала говорим серверу, и только потом закрываем бой у себя:
+  // иначе человек, закрывающий игру сразу после «уйти», оставлял
+  // точку заблокированной для всех остальных.
+  const away = leaveBeacon(id);
   endSiege(T('sg_left'));
-  try{ await sb.rpc('siege_leave_v1', { p:{ wallet: addr, siege_id: id } }); }catch(e){}
+  try{ await away; }catch(e){}
 }
+
+// Уход из боя, который переживает закрытие вкладки. keepalive держит
+// запрос живым, даже если страница уже умерла.
+function leaveBeacon(id){
+  const url = SB_URL + '/rest/v1/rpc/siege_leave_v1';
+  const body = JSON.stringify({ p: { wallet: addr, siege_id: id } });
+  try{
+    return fetch(url, { method:'POST', keepalive:true,
+      headers:{ 'Content-Type':'application/json',
+                'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
+      body: body });
+  }catch(e){ return Promise.resolve(); }
+}
+
+// Закрыли игру, свернули насовсем, перезагрузили — выходим из боя сами.
+window.addEventListener('pagehide', () => {
+  if(siege && siege.side === 'attack') leaveBeacon(siege.id);
+});
 function endSiege(msg, good){
   // на прощание — вспышка по цели, если победили
   if(good && siege){
@@ -2958,8 +2984,10 @@ function paintSiege(){
     // не HP.clear(): чужая осада на моей точке продолжается, и полоса
     // жизни обязана остаться на карте
     hpFromSieges(); Sprites.refresh();
+    paintBagBtn();
     return;
   }
+  paintBagBtn();
   if(dock) dock.style.display = 'none';
   el.style.display = 'block';
   el.className = siege.side === 'defend' ? 'defend' : '';
