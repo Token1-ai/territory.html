@@ -286,7 +286,18 @@
   "sg_gone": "That siege is over — the point is no longer under attack.",
   "sg_pointshield": "This point has already been stormed {n} times today. It is off limits until tomorrow.",
   "sg_ownshield": "This player has been attacked {n} times today. Leave them alone until tomorrow.",
-  "sg_under": "under siege now"
+  "sg_under": "under siege now",
+  "sg_min": "min",
+  "gd_stopped": "Shot down by your {n}. Nothing got through.",
+  "gd_lost": "Your {n} took the hit and is gone. The bunker held.",
+  "gd_shotdown": "Something came in — your cannon shot it down.",
+  "gd_incoming": "Hit from the air — {n} damage.",
+  "st_war": "FIGHTING",
+  "st_warjump": "Nearest fight — {n} m away.",
+  "st_warnear": "A fight started {n} m from you.",
+  "st_warmine": "YOUR point is under attack — {n} m away!",
+  "st_warclan": "Your clan is under attack — {n} m away. Run!",
+  "sg_clan": "Your own clan. You do not fight your own."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -575,7 +586,18 @@
   "sg_gone": "Ця облога скінчилася — точку більше не атакують.",
   "sg_pointshield": "Цю точку сьогодні вже штурмували {n} рази. До завтра її не зачепити.",
   "sg_ownshield": "На цього гравця сьогодні нападали {n} разів. Залиш його до завтра.",
-  "sg_under": "зараз під облогою"
+  "sg_under": "зараз під облогою",
+  "sg_min": "хв",
+  "gd_stopped": "Збито твоєю {n}. Не долетіло.",
+  "gd_lost": "Твоя {n} прийняла удар на себе і загинула. Бункер устояв.",
+  "gd_shotdown": "По тобі прилетіло — гармата збила.",
+  "gd_incoming": "Удар з повітря — {n} шкоди.",
+  "st_war": "БОЇ",
+  "st_warjump": "Найближчий бій — {n} м.",
+  "st_warnear": "За {n} м від тебе почався бій.",
+  "st_warmine": "ТВОЮ точку атакують — {n} м звідси!",
+  "st_warclan": "Клан під атакою — {n} м звідси. Біжи!",
+  "sg_clan": "Це твій клан. Своїх не б'ють."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -864,7 +886,18 @@
   "sg_gone": "Эта осада закончилась — точку больше не атакуют.",
   "sg_pointshield": "Эту точку сегодня уже штурмовали {n} раза. До завтра её не тронуть.",
   "sg_ownshield": "На этого игрока сегодня нападали {n} раз. Оставь его до завтра.",
-  "sg_under": "сейчас под осадой"
+  "sg_under": "сейчас под осадой",
+  "sg_min": "мин",
+  "gd_stopped": "Сбито твоей {n}. Не долетело.",
+  "gd_lost": "Твоя {n} приняла удар на себя и погибла. Бункер устоял.",
+  "gd_shotdown": "По тебе прилетело — пушка сбила.",
+  "gd_incoming": "Удар с воздуха — {n} урона.",
+  "st_war": "БОИ",
+  "st_warjump": "Ближайший бой — {n} м.",
+  "st_warnear": "В {n} м от тебя начался бой.",
+  "st_warmine": "ТВОЮ точку атакуют — {n} м отсюда!",
+  "st_warclan": "Клан под атакой — {n} м отсюда. Беги!",
+  "sg_clan": "Это твой клан. Своих не бьют."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1153,7 +1186,18 @@
   "sg_gone": "To oblężenie się skończyło — punkt nie jest już atakowany.",
   "sg_pointshield": "Ten punkt szturmowano dziś już {n} razy. Do jutra jest nietykalny.",
   "sg_ownshield": "Na tego gracza napadano dziś {n} razy. Zostaw go do jutra.",
-  "sg_under": "teraz oblegany"
+  "sg_under": "teraz oblegany",
+  "sg_min": "min",
+  "gd_stopped": "Zestrzelone przez twoje {n}. Nie doleciało.",
+  "gd_lost": "Twoje {n} przyjęło cios na siebie i przepadło. Bunkier się utrzymał.",
+  "gd_shotdown": "Coś nadleciało — twoje działo to zestrzeliło.",
+  "gd_incoming": "Uderzenie z powietrza — {n} obrażeń.",
+  "st_war": "WALKI",
+  "st_warjump": "Najbliższa walka — {n} m.",
+  "st_warnear": "{n} m od ciebie zaczęła się walka.",
+  "st_warmine": "TWÓJ punkt jest atakowany — {n} m stąd!",
+  "st_warclan": "Twój klan jest atakowany — {n} m stąd. Biegnij!",
+  "sg_clan": "To twój klan. Swoich się nie bije."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1442,7 +1486,18 @@
   "sg_gone": "这场围攻已经结束——该点不再被攻击。",
   "sg_pointshield": "这个点今天已被强攻 {n} 次，明天之前无法再动。",
   "sg_ownshield": "这名玩家今天已被攻击 {n} 次，明天之前请放过他。",
-  "sg_under": "正在被围攻"
+  "sg_under": "正在被围攻",
+  "sg_min": "分",
+  "gd_stopped": "被你的{n}击落，什么都没打进来。",
+  "gd_lost": "你的{n}替地堡挨了这一下，已经没了。地堡守住了。",
+  "gd_shotdown": "有东西飞来——你的火炮把它打下来了。",
+  "gd_incoming": "来自空中的打击——{n} 点伤害。",
+  "st_war": "交战",
+  "st_warjump": "最近的战斗——{n} 米。",
+  "st_warnear": "距你 {n} 米处打起来了。",
+  "st_warmine": "你的点正被攻击——就在 {n} 米外！",
+  "st_warclan": "你的战团正被攻击——就在 {n} 米外，快去！",
+  "sg_clan": "这是你自己的战团，不打自己人。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1731,7 +1786,18 @@
   "sg_gone": "Ese asedio terminó: el punto ya no está bajo ataque.",
   "sg_pointshield": "Este punto ya fue asaltado {n} veces hoy. Queda intocable hasta mañana.",
   "sg_ownshield": "A este jugador lo atacaron {n} veces hoy. Déjalo en paz hasta mañana.",
-  "sg_under": "bajo asedio ahora"
+  "sg_under": "bajo asedio ahora",
+  "sg_min": "min",
+  "gd_stopped": "Derribado por tu {n}. No llegó nada.",
+  "gd_lost": "Tu {n} encajó el golpe y se perdió. El búnker aguantó.",
+  "gd_shotdown": "Llegó algo: tu cañón lo derribó.",
+  "gd_incoming": "Impacto desde el aire: {n} de daño.",
+  "st_war": "COMBATES",
+  "st_warjump": "Combate más cercano: {n} m.",
+  "st_warnear": "Empezó un combate a {n} m de ti.",
+  "st_warmine": "¡Atacan TU punto, a {n} m de aquí!",
+  "st_warclan": "Atacan a tu clan, a {n} m de aquí. ¡Corre!",
+  "sg_clan": "Es tu clan. A los tuyos no se les ataca."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2020,7 +2086,18 @@
   "sg_gone": "Diese Belagerung ist vorbei — der Punkt wird nicht mehr angegriffen.",
   "sg_pointshield": "Dieser Punkt wurde heute schon {n} Mal gestürmt. Bis morgen ist er tabu.",
   "sg_ownshield": "Dieser Spieler wurde heute {n} Mal angegriffen. Lass ihn bis morgen in Ruhe.",
-  "sg_under": "jetzt belagert"
+  "sg_under": "jetzt belagert",
+  "sg_min": "Min",
+  "gd_stopped": "Von deinem {n} abgeschossen. Nichts kam durch.",
+  "gd_lost": "Dein {n} hat den Treffer abgefangen und ist zerstört. Der Bunker hielt.",
+  "gd_shotdown": "Da kam etwas an — dein Geschütz hat es abgeschossen.",
+  "gd_incoming": "Treffer aus der Luft — {n} Schaden.",
+  "st_war": "KÄMPFE",
+  "st_warjump": "Nächster Kampf — {n} m.",
+  "st_warnear": "{n} m von dir hat ein Kampf begonnen.",
+  "st_warmine": "DEIN Punkt wird angegriffen — {n} m von hier!",
+  "st_warclan": "Dein Clan wird angegriffen — {n} m von hier. Lauf!",
+  "sg_clan": "Dein eigener Clan. Auf die Eigenen schießt man nicht."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2309,6 +2386,17 @@
   "sg_gone": "O kuşatma bitti — noktaya artık saldırılmıyor.",
   "sg_pointshield": "Bu noktaya bugün zaten {n} kez saldırıldı. Yarına kadar dokunulmaz.",
   "sg_ownshield": "Bu oyuncuya bugün {n} kez saldırıldı. Yarına kadar rahat bırak.",
-  "sg_under": "şu anda kuşatma altında"
+  "sg_under": "şu anda kuşatma altında",
+  "sg_min": "dk",
+  "gd_stopped": "{n} tarafından düşürüldü. Hiçbir şey geçemedi.",
+  "gd_lost": "{n} darbeyi üstlendi ve yok oldu. Sığınak dayandı.",
+  "gd_shotdown": "Bir şey geldi — topun onu düşürdü.",
+  "gd_incoming": "Havadan isabet — {n} hasar.",
+  "st_war": "ÇATIŞMA",
+  "st_warjump": "En yakın çatışma — {n} m.",
+  "st_warnear": "Senden {n} m ötede çatışma başladı.",
+  "st_warmine": "SENİN noktana saldırıyorlar — {n} m ötede!",
+  "st_warclan": "Klanına saldırıyorlar — {n} m ötede. Koş!",
+  "sg_clan": "Bu senin klanın. Kendi adamına vurulmaz."
  }
 }
