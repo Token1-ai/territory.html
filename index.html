@@ -30,7 +30,8 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   color:var(--sand);font-family:'Space Mono',ui-monospace,monospace;overflow-wrap:break-word;}
-#map{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--field);}
+#map{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--field);
+  transform:translateZ(0);will-change:transform;}
 /* Значки бункеров и пушек. Отдельный холст поверх карты: один рисунок
    штампуется сколько угодно раз, элементов страницы не создаётся. */
 .ogt-sprites{position:absolute;top:0;left:0;right:0;bottom:0;z-index:450;pointer-events:none;}
@@ -49,7 +50,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 #splash-bar i{display:block;height:100%;width:35%;border-radius:3px;background:#E0A32E;
   animation:sweep 1.1s ease-in-out infinite;}
 @keyframes sweep{0%{transform:translateX(-100%)}100%{transform:translateX(330%)}}
-.leaflet-tile-pane{filter:grayscale(1) brightness(.42) contrast(1.15);}
+.leaflet-tile-pane{filter:grayscale(1);}
+/* Темнота отдельным слоем, а не фильтром. Три фильтра подряд телефон
+   пересчитывает попиксельно на КАЖДОМ кадре движения карты, сразу для
+   трёх десятков картинок. Обычный полупрозрачный слой рисуется
+   видеочипом почти даром и выглядит так же. */
+#map::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  pointer-events:none;z-index:399;background:rgba(9,11,7,.58);}
 .leaflet-container{background:var(--field);}
 .leaflet-control-attribution{background:rgba(18,20,15,.82)!important;color:var(--sand-dim)!important;font-size:9px!important;}
 .leaflet-control-attribution a{color:var(--sand-dim)!important;}
@@ -402,7 +409,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 35;
+var LANG_V = 42;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -680,10 +687,18 @@ function hpSet(key, now, max){ if(max > 0) HP.set(key, { hp: now, max: max, t: D
 // только над той, где стоишь сам. Отдалил карту и сразу видно, где
 // в городе идут бои. Раньше дым рисовался лишь внутри своей осады.
 let _warSmoke = null;
+let _mapMoving = false;
 function startWarSmoke(){
   if(_warSmoke) return;
+  // Пока палец тащит карту, телефону не до дыма: он и так занят
+  // перерисовкой квадратиков. Возобновляем, когда отпустили.
+  if(map && !map._ogtMoveHooked){
+    map._ogtMoveHooked = true;
+    map.on('movestart zoomstart', () => { _mapMoving = true; });
+    map.on('moveend zoomend',     () => { _mapMoving = false; });
+  }
   _warSmoke = setInterval(() => {
-    if(document.hidden || !map) return;
+    if(document.hidden || !map || _mapMoving) return;
     if(!sieges || !sieges.length) return;
     const view = map.getBounds();
     let n = 0;
@@ -698,6 +713,15 @@ function startWarSmoke(){
       // иначе на весь город это превратится в кашу.
       try{ FX.war(b.lat, b.lng); }catch(e){}
       const zoom = map.getZoom();
+      // Бойцы этой точки — их видит ЛЮБОЙ, кто смотрит на карту,
+      // не только участник боя. Показываем с приличного приближения:
+      // на карте города фигурки слиплись бы в кашу.
+      if(zoom >= 15 && Array.isArray(sg.parts)){
+        for(const m of sg.parts.slice(0, 8)){
+          if(m.lat == null) continue;
+          try{ FX.man(m.lat, m.lng, m.side, shortName(m.w), m.boss, 2200); }catch(e){}
+        }
+      }
       if(zoom < 14) continue;
       try{ FX.smoke(b.lat, b.lng); }catch(e){}
       // Пушки этой точки отстреливаются: трассы уходят от каждой
@@ -742,61 +766,92 @@ let _hitsFrom = null;
 // Раз в минуту сверяемся с сервером: что из уже известного ещё живо.
 // Заодно забираем свежую жизнь — иначе полосы над чужими точками
 // показывали бы цифры недельной давности.
-let _pruneAt = 0;
+let _pruneAt = 0, _unitAt = 0;
+
+// Убрать с карты точки, которые сервер объявил снесёнными.
+// Одно место на всю игру: и для ответа с осадами, и для сверки.
+// Вместе с точкой уходят её пушки — без бункера они не живут.
+function killLocal(list){
+  const dead = new Set(list.map(x => (typeof x === 'object' ? x.id : x)));
+  const hit = bunkers.filter(b => dead.has(b.id));
+  if(!hit.length) return 0;
+  for(const b of hit){
+    hpDrop('b' + b.id); haveIds.delete(b.id);
+    try{ bigBoom(b.lat, b.lng); }catch(e){}
+    DB.del('bunkers', b.id).catch(() => {});
+  }
+  const ids = new Set(hit.map(b => b.id));
+  bunkers = bunkers.filter(b => !ids.has(b.id));
+  for(const u of units.filter(u => ids.has(u.bunker_id))){
+    hpDrop('u' + u.id); haveUnitIds.delete(u.id);
+    DB.del('units', u.id).catch(() => {});
+  }
+  units = units.filter(u => !ids.has(u.bunker_id));
+  hpFromSieges(); Sprites.refresh(); drawRing(); refreshStats();
+  return hit.length;
+}
+// Сверка «что уже снесли».
+//
+// Раньше телефон каждые 45 секунд перечислял серверу до четырёхсот
+// своих номеров и спрашивал «эти ещё живы?». На двух с половиной
+// тысячах игроков это больше сотни запросов в секунду — половина
+// всей нагрузки базы, и почти всегда впустую: обычно не менялось
+// ничего.
+//
+// Теперь спрашиваем РАЗНИЦУ: «что снесли с прошлого раза». Ответ в
+// спокойное время пустой и стоит копейки. Список пушек сверяем реже
+// и только по тем, что сейчас на экране.
 async function pruneDead(force){
   const now = Date.now();
-  if(!force && now - _pruneAt < 45000) return;
+  if(!force && now - _pruneAt < pace(45000)) return;
   _pruneAt = now;
   try{
-    const bIds = bunkers.filter(b => b.alive !== false).map(b => b.id).slice(0, 400);
-    if(bIds.length){
-      const { data } = await sb.from('territory_bunkers')
-        .select('id,hp_left,kind,cannons').in('id', bIds).eq('alive', true);
-      const alive = new Set((data || []).map(x => x.id));
-      const goneB = bunkers.filter(b => !alive.has(b.id));
-      for(const b of goneB){
-        hpDrop('b' + b.id);
-        try{ bigBoom(b.lat, b.lng); }catch(e){}
-        try{ await DB.del('bunkers', b.id); }catch(e){}
-        haveIds.delete(b.id);
+    // ── Бункеры. Основную работу делает ответ с осадами: там время
+    //    считает сервер. Здесь только редкая подстраховка списком —
+    //    на случай, если игрок долго стоял без движения и ответы с
+    //    осадами до него не доходили.
+    if(force || now - _unitAt > pace(180000)){
+      const bIds = bunkers.map(b => b.id).slice(0, 300);
+      if(bIds.length){
+        const { data } = await sb.from('territory_bunkers')
+          .select('id,hp_left,kind').in('id', bIds).eq('alive', true);
+        const alive = new Set((data || []).map(x => x.id));
+        killLocal(bunkers.filter(b => !alive.has(b.id)).map(b => b.id));
+        for(const r of (data || [])){
+          const b = bunkerById(r.id);
+          if(b){ b.hp_left = r.hp_left; b.kind = r.kind; }
+        }
       }
-      if(goneB.length){
-        const dead = new Set(goneB.map(b => b.id));
-        bunkers = bunkers.filter(b => !dead.has(b.id));
-        // вместе с точкой уходят и её пушки: без бункера они не живут
-        const orphan = units.filter(u => dead.has(u.bunker_id));
-        for(const u of orphan){
+    }
+
+    // ── Пушки: у них нет отметки времени смерти, поэтому сверяем
+    //    списком — но редко и только по тем, что сейчас в кадре.
+    if(force || now - _unitAt > pace(180000)){
+      _unitAt = now;
+      const view = map && map.getBounds ? map.getBounds() : null;
+      const seen = units.filter(u => !view || view.contains([u.lat, u.lng]))
+                        .map(u => u.id).slice(0, 200);
+      if(seen.length){
+        const { data } = await sb.from('territory_units')
+          .select('id,hp_left').in('id', seen).eq('alive', true);
+        const alive = new Set((data || []).map(x => x.id));
+        const goneU = units.filter(u => seen.includes(u.id) && !alive.has(u.id));
+        for(const u of goneU){
           hpDrop('u' + u.id); haveUnitIds.delete(u.id);
+          try{ FX.burst(u.lat, u.lng); FX.smoke(u.lat, u.lng); }catch(e){}
           try{ await DB.del('units', u.id); }catch(e){}
         }
-        units = units.filter(u => !dead.has(u.bunker_id));
-      }
-      for(const r of (data || [])){
-        const b = bunkerById(r.id);
-        if(b){ b.hp_left = r.hp_left; b.kind = r.kind; }
-      }
-    }
-    const uIds = units.filter(u => u.alive !== false).map(u => u.id).slice(0, 400);
-    if(uIds.length){
-      const { data } = await sb.from('territory_units')
-        .select('id,hp_left').in('id', uIds).eq('alive', true);
-      const alive = new Set((data || []).map(x => x.id));
-      const goneU = units.filter(u => !alive.has(u.id));
-      for(const u of goneU){
-        hpDrop('u' + u.id);
-        try{ FX.burst(u.lat, u.lng); FX.smoke(u.lat, u.lng); }catch(e){}
-        try{ await DB.del('units', u.id); }catch(e){}
-        haveUnitIds.delete(u.id);
-      }
-      if(goneU.length){
-        const dead = new Set(goneU.map(u => u.id));
-        units = units.filter(u => !dead.has(u.id));
-      }
-      for(const r of (data || [])){
-        const u = units.find(x => x.id === r.id);
-        if(u) u.hp_left = r.hp_left;
+        if(goneU.length){
+          const d = new Set(goneU.map(u => u.id));
+          units = units.filter(u => !d.has(u.id));
+        }
+        for(const r of (data || [])){
+          const u = units.find(x => x.id === r.id);
+          if(u) u.hp_left = r.hp_left;
+        }
       }
     }
+
     hpFromSieges(); Sprites.refresh(); refreshStats();
   }catch(e){}
 }
@@ -1002,8 +1057,12 @@ const Sprites = (function(){
 function initMap(){
   map = L.map('map', { zoomControl:false, preferCanvas:true,
     renderer: L.canvas({ padding:0.3 }) }).setView([50.4501, 30.5234], 16);
+  // minZoom: дальше 11 отдалять смысла нет — на карте страны точки
+  // всё равно не различить, а квадратиков телефон тянет вчетверо
+  // больше на каждый шаг отдаления.
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    { maxZoom:19, attribution:'© OpenStreetMap' }).addTo(map);
+    { maxZoom:19, minZoom:11, updateWhenZooming:false, updateWhenIdle:true,
+      keepBuffer:1, attribution:'© OpenStreetMap' }).addTo(map);
   map.on('moveend', drawLabels);
   map.on('click', onMapTap);
   Sprites.attach();
@@ -1664,6 +1723,10 @@ const FX = (function(){
   // Знак боя. Рисуется в ЭКРАННЫХ точках, а не в метрах, поэтому не
   // сжимается вместе с картой: отдалил город — война всё равно видна.
   function war(lat, lng, ms){ add({ kind:'war', lat, lng, ms: ms || 2200, seed:Math.random()*6 }); }
+  // Боец на карте. Живёт ровно до следующего обновления состава.
+  function man(lat, lng, side, name, boss, ms){
+    add({ kind:'man', lat, lng, side, name, boss, ms: ms || 2600, seed:Math.random()*6 });
+  }
 
   // Каждая вещь при установке даёт свой знак
   function place(kind, lat, lng){
@@ -1671,12 +1734,20 @@ const FX = (function(){
     try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}
   }
 
+  // Тридцать кадров в секунду вместо шестидесяти. На глаз разницы нет
+  // — дым и трассы медленные, — а работы телефону вдвое меньше. Это
+  // важно: знаки войны живут постоянно, и без ограничения цикл не
+  // останавливался бы вовсе, пока рядом идёт хоть один бой.
+  let _last = 0;
   function run(){
     if(raf) return;
-    const step = () => {
+    const step = (t) => {
       raf = null;
-      if(shake > 0) shake = Math.max(0, shake - 0.6);
-      Sprites.refresh();
+      if(t - _last >= 32){
+        _last = t;
+        if(shake > 0) shake = Math.max(0, shake - 1.2);
+        Sprites.refresh();
+      }
       if(items.length || shake > 0) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
@@ -1854,6 +1925,37 @@ const FX = (function(){
           ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
         }
       }
+      if(o.kind === 'man'){
+        // Живой человек в бою. Красный — нападает, зелёный — держит.
+        const att = o.side === 'a';
+        const col = att ? '#E27A5F' : '#7FBF6A';
+        const bob = Math.sin(now / 300 + o.seed) * 1.5;
+        ctx.save(); ctx.translate(p.x, p.y + bob);
+        // тень
+        ctx.beginPath(); ctx.ellipse(0, 7, 5, 2, 0, 0, 7);
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fill();
+        // фигурка: голова и плечи
+        ctx.beginPath(); ctx.arc(0, -5, 3, 0, 7);
+        ctx.fillStyle = col; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-4, 6); ctx.lineTo(0, -2); ctx.lineTo(4, 6);
+        ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+        ctx.strokeStyle = 'rgba(9,11,7,.85)'; ctx.lineWidth = 1; ctx.stroke();
+        // кольцо у того, кто начал бой
+        if(o.boss){
+          ctx.beginPath(); ctx.arc(0, 0, 10, 0, 7);
+          ctx.strokeStyle = 'rgba(224,163,46,.85)'; ctx.lineWidth = 1.4; ctx.stroke();
+        }
+        // короткое имя
+        if(o.name){
+          ctx.font = '600 9px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(9,11,7,.7)';
+          const w = ctx.measureText(o.name).width + 6;
+          ctx.fillRect(-w/2, 9, w, 11);
+          ctx.fillStyle = col; ctx.fillText(o.name, 0, 18);
+        }
+        ctx.restore();
+      }
       if(o.kind === 'war'){
         const t = (now / 900 + o.seed) % 1;
         // столб дыма вверх — читается издалека даже на сером фоне
@@ -1935,7 +2037,7 @@ const FX = (function(){
   }
   function stop(){ items = []; shake = 0; }
   return { aim, blast, burst, num, rocket, drone, upgrade, tracer, volley, charge,
-           collapse, claim, smoke, war, place, paint, stop,
+           collapse, claim, smoke, war, man, place, paint, stop,
            get busy(){ return items.length > 0; } };
 })();
 
@@ -3052,24 +3154,48 @@ function targetPoint(){
   const b = bunkerById(siege.bunker_id);
   return b ? [b.lat, b.lng] : null;
 }
+// Короткая подпись бойца на карте: «ты» или четыре знака кошелька.
+function shortName(w){
+  if(!w) return '';
+  return (String(w).toLowerCase() === String(addr || '').toLowerCase())
+    ? T('cl_you') : String(w).slice(2, 6);
+}
+// Кто сейчас в бою и где стоит. Приходит с сервера каждый тик.
+function fighters(){
+  return ((siege && siege.parts) || []).filter(p => p.lat != null && p.lng != null);
+}
+
 function startFire(){
   if(_fireTimer) return;
   _fireTimer = setInterval(() => {
-    if(!siege || siege.side === 'defend' || !here || document.hidden) return;
+    if(!siege || document.hidden || _mapMoving) return;
     const t = targetPoint();
     if(!t) return;
-    if(metersBetween(here[0], here[1], t[0], t[1]) > (cfg.siege_leash_m || 100) * 1.5) return;
-    // короткая очередь: две-три пули подряд, как в настоящей стрельбе
-    const n = 2 + (Math.random() < 0.5 ? 1 : 0);
-    for(let i = 0; i < n; i++){
-      setTimeout(() => {
-        try{
-          FX.tracer(here[0], here[1], t[0], t[1], 420, '#FFE9A8');
-          setTimeout(() => { try{ FX.blast(t[0], t[1], 7, false); }catch(e){} }, 430);
-        }catch(e){}
-      }, i * 140);
+    const men = fighters();
+    // Каждый боец стоит на карте своей фигуркой, и от КАЖДОГО
+    // нападающего идёт свой огонь по цели. Раньше стрелял только ты,
+    // и штурм впятером выглядел ровно как штурм в одиночку.
+    for(const m of men){
+      try{ FX.man(m.lat, m.lng, m.side, shortName(m.w), m.boss); }catch(e){}
+      if(m.side !== 'a') continue;
+      if(metersBetween(m.lat, m.lng, t[0], t[1]) > (cfg.siege_leash_m || 100) * 1.6) continue;
+      const n = 2 + (Math.random() < 0.5 ? 1 : 0);
+      for(let i = 0; i < n; i++){
+        setTimeout(() => {
+          try{
+            FX.tracer(m.lat, m.lng, t[0], t[1], 420, '#FFE9A8');
+            setTimeout(() => { try{ FX.blast(t[0], t[1], 7, false); }catch(e){} }, 430);
+          }catch(e){}
+        }, i * 140 + Math.random() * 260);
+      }
     }
-    // над целью, по которой бьют, всегда стоит дымок
+    // состав ещё не пришёл — стреляем хотя бы от себя
+    if(!men.length && here && siege.side !== 'defend'){
+      try{
+        FX.tracer(here[0], here[1], t[0], t[1], 420, '#FFE9A8');
+        setTimeout(() => { try{ FX.blast(t[0], t[1], 7, false); }catch(e){} }, 430);
+      }catch(e){}
+    }
     if(Math.random() < 0.5){ try{ FX.smoke(t[0], t[1]); }catch(e){} }
   }, 1100);
 }
@@ -3091,7 +3217,8 @@ function startSiegeLoop(){
   startFire();
   paintSiege();
   siegeTick();
-  _siegeTimer = setInterval(siegeTick, 30000);
+  // В бою замедляемся мягче остальных: задержку тут видно сразу.
+  _siegeTimer = setInterval(siegeTick, Math.round(30000 * Math.min(2, _slow)));
   startShells();
 }
 function stopSiegeLoop(){
@@ -3145,6 +3272,9 @@ async function siegeTick(){
     siege.bunker_hp  = data.bunker_hp;
     siege.bunker_max = data.bunker_max || siege.bunker_max;
     siege.guns       = Array.isArray(data.guns) ? data.guns : (siege.guns || []);
+    // Состав боя: кто, с какой стороны и где стоит. По нему на карте
+    // рисуются живые люди и от каждого нападающего идёт свой огонь.
+    siege.parts      = Array.isArray(data.parts) ? data.parts : (siege.parts || []);
     siege.guns_left  = data.guns_left;
     siege.attackers  = data.attackers;
     siege.defenders  = data.defenders;
@@ -3416,8 +3546,10 @@ function paintSiege(){
   el.innerHTML =
       '<div class="sg-line">'
     +   '<span class="sg-top">' + (siege.side === 'defend' ? T('sg_hold') : T('sg_title')) + '</span>'
-    +   '<span class="sg-mid">' + esc(tgt) + ' · ' + pow.toFixed(0) + '/'
-    +     esc(T('sg_min')) + '</span>'
+    +   '<span class="sg-mid">' + esc(tgt) + ' · '
+    +     '<b style="color:#E27A5F">' + (siege.attackers || 1) + '</b>⚔'
+    +     '<b style="color:#7FBF6A">' + (siege.defenders || 0) + '</b> · '
+    +     pow.toFixed(0) + '/' + esc(T('sg_min')) + '</span>'
     +   '<span class="sg-time">' + mm + ':' + String(ss).padStart(2,'0') + '</span>'
     +   '<button class="sg-x" onclick="siegeLeave()">\u2715</button>'
     + '</div>'
@@ -3519,6 +3651,31 @@ async function checkMoveLink(){
   return true;
 }
 
+// ═══════════ Мера нагрузки ═══════════
+// Игра сама замедляется, когда серверу тяжело, и ускоряется, когда
+// легко. Без этого при наплыве все телефоны продолжают долбить базу
+// с прежней частотой, база отвечает медленнее, очередь растёт сама
+// себя — и падает всё разом. Отступать должен клиент, а не хозяин
+// покупать тариф побольше.
+let _slow = 1;                 // множитель пауз: 1 — норма, до 4 — плохо
+let _slowShown = 0;
+function markSpeed(ms, failed){
+  // Здоровый ответ — меньше полусекунды. Полторы и выше — сервер
+  // задыхается. Возвращаемся плавно, чтобы не качало туда-сюда.
+  if(failed || ms > 1500)      _slow = Math.min(4, _slow * 1.5);
+  else if(ms < 600)            _slow = Math.max(1, _slow - 0.15);
+  if(_slow >= 2 && Date.now() - _slowShown > 120000){
+    _slowShown = Date.now();
+    try{ linkState(T('st_busy'), 'off'); }catch(e){}
+  }
+}
+// Сколько ждать до следующего раза: с поправкой на нагрузку и на то,
+// происходит ли вокруг вообще хоть что-нибудь.
+function pace(base){
+  const calm = ((sieges && sieges.length) || siege) ? 1 : 1.6;
+  return Math.round(base * _slow * calm);
+}
+
 // ═══════════ Синхронизация: только то, чего нет в телефоне ═══════════
 async function loadLocal(){
   bunkers = await DB.all('bunkers');
@@ -3555,6 +3712,7 @@ async function staleFor(key, ms){
 
 async function sync(){
   if(!navigator.onLine){ linkState(T('st_offline'), 'off'); return; }
+  const _t0 = Date.now();
   try{
     let added = 0;
     if(here){
@@ -3607,17 +3765,40 @@ async function sync(){
       const mineIds  = bunkers.filter(x => x.alive !== false && x.owner === addr).map(x => x.id);
       const otherIds = bunkers.filter(x => x.alive !== false && x.owner !== addr).map(x => x.id);
       const ids = mineIds.concat(otherIds).slice(0, 300);
-      if(ids.length){
-        const { data:sg } = await sb.from('territory_sieges')
-          .select('id,bunker_id,attacker,started_at,total_hp,damage,state')
-          .eq('state','live').in('bunker_id', ids).limit(300);
-        sieges = sg || [];
-        checkMySiege();
+      // Осады района приходят СРАЗУ С СОСТАВОМ: кто дерётся и где
+      // стоит. Отдельного запроса за людьми нет — на ста тысячах
+      // игроков он стоил бы 556 обращений в секунду, а так ноль.
+      try{
+        const { data:sg2 } = await sb.rpc('sieges_near_v1', { p:{
+          lat_min: box.latMin, lat_max: box.latMax,
+          lng_min: box.lngMin, lng_max: box.lngMax, dead_min: 20 } });
+        if(sg2 && Array.isArray(sg2.sieges)){
+          sieges = sg2.sieges;
+          // Снесённые точки приходят тем же ответом, и время считает
+          // СЕРВЕР. Часы телефона тут ни при чём — а раньше именно на
+          // них держался весь отсчёт, и стоило им уйти на минуту,
+          // снос не попадал в выборку и точка висела вечно.
+          if(Array.isArray(sg2.dead) && sg2.dead.length) killLocal(sg2.dead);
+          checkMySiege();
+        } else if(Array.isArray(sg2)){
+          sieges = sg2; checkMySiege();       // прошлая, простая форма
+        }
+      }catch(e){
+        // старый способ, если новая функция ещё не поставлена
+        if(ids.length){
+          const { data:sg } = await sb.from('territory_sieges')
+            .select('id,bunker_id,attacker,started_at,total_hp,damage,state')
+            .eq('state','live').in('bunker_id', ids).limit(300);
+          sieges = sg || [];
+          checkMySiege();
+        }
       }
       await showIncoming(ids);
       noticeWars();
       paintGunBtn(); drawRing();
     }
+
+    markSpeed(Date.now() - _t0, false);
 
     // Сверка живого идёт ВСЕГДА, даже без сигнала спутников: чтобы
     // проверить, снесли ли известные точки, положение не нужно.
@@ -4114,7 +4295,11 @@ function esc(s){ return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;
 let _poll = null, _lastSync = 0, _lastPing = 0, _lastPingAt = null, _movedAt = 0;
 // Идёшь — спрашиваем раз в 3 минуты. Стоишь — раз в 10.
 // Человек на диване не должен стоить столько же, сколько идущий по городу.
-function pollEvery(){ return (Date.now() - _movedAt < 5*60000) ? 180000 : 600000; }
+function pollEvery(){
+  // Стоишь на месте пять минут — спрашиваем вчетверо реже. Сверху
+  // общая поправка на нагрузку.
+  return pace((Date.now() - _movedAt < 5*60000) ? 180000 : 600000);
+}
 function tick(){
   if(document.hidden || !navigator.onLine) return;
   const now = Date.now();
