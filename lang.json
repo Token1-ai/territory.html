@@ -299,7 +299,12 @@
   "st_warclan": "Your clan is under attack — {n} m away. Run!",
   "sg_clan": "Your own clan. You do not fight your own.",
   "sh_nowd": "This money lives inside the game. Spend it in the shop — it cannot be withdrawn.",
-  "st_busy": "server is busy — slowing down"
+  "st_busy": "server is busy — slowing down",
+  "inst_btn": "Install on your phone",
+  "inst_done": "Installed. Open it from your home screen now.",
+  "inst_later": "Fine — you can install it later from the browser menu.",
+  "upd_btn": "A new version is ready — tap to update",
+  "upd_going": "Updating…"
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -601,7 +606,12 @@
   "st_warclan": "Клан під атакою — {n} м звідси. Біжи!",
   "sg_clan": "Це твій клан. Своїх не б'ють.",
   "sh_nowd": "Ці гроші живуть усередині гри. Їх можна витрачати в крамниці, вивести не можна.",
-  "st_busy": "сервер зайнятий — пригальмовуємо"
+  "st_busy": "сервер зайнятий — пригальмовуємо",
+  "inst_btn": "Встановити на телефон",
+  "inst_done": "Готово. Тепер запускай з робочого столу.",
+  "inst_later": "Гаразд — встановити можна пізніше, з меню браузера.",
+  "upd_btn": "Вийшло оновлення — натисни, щоб поставити",
+  "upd_going": "Оновлюю…"
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -903,7 +913,12 @@
   "st_warclan": "Клан под атакой — {n} м отсюда. Беги!",
   "sg_clan": "Это твой клан. Своих не бьют.",
   "sh_nowd": "Эти деньги живут внутри игры. Их можно тратить в лавке, вывести нельзя.",
-  "st_busy": "сервер занят — притормаживаем"
+  "st_busy": "сервер занят — притормаживаем",
+  "inst_btn": "Установить на телефон",
+  "inst_done": "Готово. Теперь запускай с рабочего стола.",
+  "inst_later": "Ладно — поставить можно позже, из меню браузера.",
+  "upd_btn": "Вышло обновление — нажми, чтобы поставить",
+  "upd_going": "Обновляю…"
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1205,7 +1220,12 @@
   "st_warclan": "Twój klan jest atakowany — {n} m stąd. Biegnij!",
   "sg_clan": "To twój klan. Swoich się nie bije.",
   "sh_nowd": "Te pieniądze żyją wewnątrz gry. Można je wydać w sklepie, wypłacić nie można.",
-  "st_busy": "serwer zajęty — zwalniamy"
+  "st_busy": "serwer zajęty — zwalniamy",
+  "inst_btn": "Zainstaluj na telefonie",
+  "inst_done": "Gotowe. Uruchamiaj teraz z ekranu głównego.",
+  "inst_later": "W porządku — możesz zainstalować później, z menu przeglądarki.",
+  "upd_btn": "Jest nowa wersja — dotknij, aby zaktualizować",
+  "upd_going": "Aktualizuję…"
  },
  "zh": {
   "plant": "建造地堡",
@@ -1507,7 +1527,12 @@
   "st_warclan": "你的战团正被攻击——就在 {n} 米外，快去！",
   "sg_clan": "这是你自己的战团，不打自己人。",
   "sh_nowd": "这些钱只存在于游戏内。可以在商店里花掉，但无法提现。",
-  "st_busy": "服务器繁忙——正在放慢"
+  "st_busy": "服务器繁忙——正在放慢",
+  "inst_btn": "安装到手机",
+  "inst_done": "已安装。现在可以从主屏幕打开。",
+  "inst_later": "好的，稍后可以从浏览器菜单安装。",
+  "upd_btn": "有新版本——点一下更新",
+  "upd_going": "正在更新…"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1809,7 +1834,12 @@
   "st_warclan": "Atacan a tu clan, a {n} m de aquí. ¡Corre!",
   "sg_clan": "Es tu clan. A los tuyos no se les ataca.",
   "sh_nowd": "Este dinero vive dentro del juego. Puedes gastarlo en la tienda, pero no retirarlo.",
-  "st_busy": "servidor ocupado: bajamos el ritmo"
+  "st_busy": "servidor ocupado: bajamos el ritmo",
+  "inst_btn": "Instalar en tu teléfono",
+  "inst_done": "Listo. Ábrelo desde la pantalla de inicio.",
+  "inst_later": "Vale, puedes instalarlo luego desde el menú del navegador.",
+  "upd_btn": "Hay una versión nueva: toca para actualizar",
+  "upd_going": "Actualizando…"
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2111,7 +2141,12 @@
   "st_warclan": "Dein Clan wird angegriffen — {n} m von hier. Lauf!",
   "sg_clan": "Dein eigener Clan. Auf die Eigenen schießt man nicht.",
   "sh_nowd": "Dieses Geld lebt im Spiel. Du kannst es im Laden ausgeben, auszahlen lässt es sich nicht.",
-  "st_busy": "Server ausgelastet — wir bremsen"
+  "st_busy": "Server ausgelastet — wir bremsen",
+  "inst_btn": "Auf dem Handy installieren",
+  "inst_done": "Fertig. Starte es jetzt vom Startbildschirm.",
+  "inst_later": "Gut — du kannst es später über das Browsermenü installieren.",
+  "upd_btn": "Neue Version da — zum Aktualisieren tippen",
+  "upd_going": "Aktualisiere…"
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2413,6 +2448,11 @@
   "st_warclan": "Klanına saldırıyorlar — {n} m ötede. Koş!",
   "sg_clan": "Bu senin klanın. Kendi adamına vurulmaz.",
   "sh_nowd": "Bu para oyunun içinde yaşar. Dükkânda harcayabilirsin, çekemezsin.",
-  "st_busy": "sunucu meşgul — yavaşlıyoruz"
+  "st_busy": "sunucu meşgul — yavaşlıyoruz",
+  "inst_btn": "Telefonuna kur",
+  "inst_done": "Hazır. Artık ana ekrandan aç.",
+  "inst_later": "Tamam — sonra tarayıcı menüsünden kurabilirsin.",
+  "upd_btn": "Yeni sürüm hazır — güncellemek için dokun",
+  "upd_going": "Güncelleniyor…"
  }
 }
