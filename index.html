@@ -402,7 +402,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 31;
+var LANG_V = 35;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -559,6 +559,7 @@ function nearestUnit(lat, lng, list){
 function nearestBunker(lat, lng){
   let best = null, bestD = Infinity;
   for(const b of bunkers){
+    if(b.alive === false) continue;          // снесённая точка землю не держит
     if(Math.abs(b.lat-lat) > 0.01 || Math.abs(b.lng-lng) > 0.01) continue;
     const d = metersBetween(lat, lng, b.lat, b.lng);
     if(d < bestD){ bestD = d; best = b; }
@@ -692,6 +693,12 @@ function startWarSmoke(){
       if(!b || b.alive === false) continue;
       if(!view.contains([b.lat, b.lng])) continue;
       n++;
+      // Знак войны — всегда: он в экранных точках и виден с любого
+      // отдаления. Дым и трассы — только когда карта приближена,
+      // иначе на весь город это превратится в кашу.
+      try{ FX.war(b.lat, b.lng); }catch(e){}
+      const zoom = map.getZoom();
+      if(zoom < 14) continue;
       try{ FX.smoke(b.lat, b.lng); }catch(e){}
       // Пушки этой точки отстреливаются: трассы уходят от каждой
       // наружу, к невидимому нападающему. Со стороны сразу читается,
@@ -746,13 +753,23 @@ async function pruneDead(force){
       const { data } = await sb.from('territory_bunkers')
         .select('id,hp_left,kind,cannons').in('id', bIds).eq('alive', true);
       const alive = new Set((data || []).map(x => x.id));
-      for(const b of bunkers){
-        if(b.alive === false) continue;
-        if(!alive.has(b.id)){
-          b.alive = false; hpDrop('b' + b.id);
-          try{ FX.collapse(b.lat, b.lng); }catch(e){}
-          try{ await DB.del('bunkers', b.id); }catch(e){}
+      const goneB = bunkers.filter(b => !alive.has(b.id));
+      for(const b of goneB){
+        hpDrop('b' + b.id);
+        try{ bigBoom(b.lat, b.lng); }catch(e){}
+        try{ await DB.del('bunkers', b.id); }catch(e){}
+        haveIds.delete(b.id);
+      }
+      if(goneB.length){
+        const dead = new Set(goneB.map(b => b.id));
+        bunkers = bunkers.filter(b => !dead.has(b.id));
+        // вместе с точкой уходят и её пушки: без бункера они не живут
+        const orphan = units.filter(u => dead.has(u.bunker_id));
+        for(const u of orphan){
+          hpDrop('u' + u.id); haveUnitIds.delete(u.id);
+          try{ await DB.del('units', u.id); }catch(e){}
         }
+        units = units.filter(u => !dead.has(u.bunker_id));
       }
       for(const r of (data || [])){
         const b = bunkerById(r.id);
@@ -764,13 +781,16 @@ async function pruneDead(force){
       const { data } = await sb.from('territory_units')
         .select('id,hp_left').in('id', uIds).eq('alive', true);
       const alive = new Set((data || []).map(x => x.id));
-      for(const u of units){
-        if(u.alive === false) continue;
-        if(!alive.has(u.id)){
-          u.alive = false; hpDrop('u' + u.id);
-          try{ FX.burst(u.lat, u.lng); FX.smoke(u.lat, u.lng); }catch(e){}
-          try{ await DB.del('units', u.id); }catch(e){}
-        }
+      const goneU = units.filter(u => !alive.has(u.id));
+      for(const u of goneU){
+        hpDrop('u' + u.id);
+        try{ FX.burst(u.lat, u.lng); FX.smoke(u.lat, u.lng); }catch(e){}
+        try{ await DB.del('units', u.id); }catch(e){}
+        haveUnitIds.delete(u.id);
+      }
+      if(goneU.length){
+        const dead = new Set(goneU.map(u => u.id));
+        units = units.filter(u => !dead.has(u.id));
       }
       for(const r of (data || [])){
         const u = units.find(x => x.id === r.id);
@@ -1072,6 +1092,13 @@ function paintReticle(){
     } else {
       el.style.display = 'block'; el.className = 'okz';
       el.textContent = T(placeMode === 'gun' ? 'why_ok_gun' : 'why_ok');
+      // Место освободилось — убираем старое красное сообщение о том,
+      // что тут занято. Иначе оно висит поверх и противоречит зелёной
+      // строке: человек видит «нельзя» и «можно» разом.
+      const sayEl = document.getElementById('msg');
+      if(sayEl && (sayEl.className || '').indexOf('warn') >= 0){
+        sayEl.textContent = ''; sayEl.className = '';
+      }
     }
   }
   if(btn){
@@ -1634,6 +1661,9 @@ const FX = (function(){
 
   // Дым над повреждённой точкой: тихо тлеет, пока идёт осада
   function smoke(lat, lng){ add({ kind:'smoke', lat, lng, ms:2600, seed:Math.random()*10 }); }
+  // Знак боя. Рисуется в ЭКРАННЫХ точках, а не в метрах, поэтому не
+  // сжимается вместе с картой: отдалил город — война всё равно видна.
+  function war(lat, lng, ms){ add({ kind:'war', lat, lng, ms: ms || 2200, seed:Math.random()*6 }); }
 
   // Каждая вещь при установке даёт свой знак
   function place(kind, lat, lng){
@@ -1824,6 +1854,31 @@ const FX = (function(){
           ctx.lineWidth = 2; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
         }
       }
+      if(o.kind === 'war'){
+        const t = (now / 900 + o.seed) % 1;
+        // столб дыма вверх — читается издалека даже на сером фоне
+        for(let i = 0; i < 5; i++){
+          const f = (t + i / 5) % 1;
+          const y = p.y - 6 - f * 26;
+          const rr = 3 + f * 9;
+          ctx.beginPath(); ctx.arc(p.x + Math.sin((f + o.seed) * 4) * 5, y, rr, 0, 7);
+          ctx.fillStyle = 'rgba(58,54,48,' + (0.42 * (1 - f)) + ')'; ctx.fill();
+        }
+        // пульсирующее кольцо очага
+        const pl = 0.5 + 0.5 * Math.sin(now / 260 + o.seed);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 9 + pl * 7, 0, 7);
+        ctx.strokeStyle = 'rgba(226,122,95,' + (0.55 + 0.35 * pl) + ')';
+        ctx.lineWidth = 2.4; ctx.stroke();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, 7);
+        ctx.fillStyle = 'rgba(255,140,60,' + (0.65 + 0.3 * pl) + ')'; ctx.fill();
+        // язычки огня
+        for(let i = 0; i < 3; i++){
+          const a = (now / 420 + i * 2.1 + o.seed) % 6.283;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(a) * 8, p.y + Math.sin(a) * 8, 1.8 + pl, 0, 7);
+          ctx.fillStyle = 'rgba(255,200,110,.85)'; ctx.fill();
+        }
+      }
       if(o.kind === 'spark'){
         // попадание пули: короткая яркая искра
         const f = 1 - k;
@@ -1880,7 +1935,7 @@ const FX = (function(){
   }
   function stop(){ items = []; shake = 0; }
   return { aim, blast, burst, num, rocket, drone, upgrade, tracer, volley, charge,
-           collapse, claim, smoke, place, paint, stop,
+           collapse, claim, smoke, war, place, paint, stop,
            get busy(){ return items.length > 0; } };
 })();
 
@@ -2964,6 +3019,29 @@ async function doJoin(b){
 // того, что уже происходит. Раньше экран молчал, и казалось, что надо
 // тыкать по цели пальцем, чтобы вообще стрелять.
 let _fireTimer = null;
+// Точка пала — это событие, его должно быть видно и слышно.
+// Волна, обвал, осколки, три вспышки вразнобой и столб дыма.
+function bigBoom(lat, lng){
+  try{
+    FX.blast(lat, lng, (cfg.siege_blast_m || 20) * 2.2, true);
+    FX.collapse(lat, lng);
+    FX.burst(lat, lng);
+    for(let i = 0; i < 3; i++){
+      setTimeout(() => {
+        try{
+          FX.blast(lat, lng, (cfg.siege_blast_m || 20) * (1.4 - i * 0.3), false);
+          FX.burst(lat, lng);
+        }catch(e){}
+      }, 220 + i * 260);
+    }
+    for(let i = 0; i < 6; i++){
+      setTimeout(() => { try{ FX.smoke(lat, lng); }catch(e){} }, i * 400);
+    }
+    FX.war(lat, lng, 4000);
+    if(navigator.vibrate) navigator.vibrate([90, 60, 140, 60, 200]);
+  }catch(e){}
+}
+
 function targetPoint(){
   if(!siege) return null;
   const t = siegeTarget || siege.target;
@@ -3046,7 +3124,24 @@ async function siegeTick(){
     }
     _tickFails = 0;
     if(data.left){ endSiege(T('sg_left')); return; }
-    if(data.done){ pruneDead(true); }
+    if(data.done){
+      // точка пала: убираем её и её пушки немедленно, чтобы земля
+      // освободилась сразу, а не через сверку
+      const b = bunkerById(siege.bunker_id);
+      if(b){
+        try{ bigBoom(b.lat, b.lng); }catch(e){}
+        haveIds.delete(b.id); hpDrop('b' + b.id);
+        DB.del('bunkers', b.id).catch(() => {});
+        bunkers = bunkers.filter(x => x.id !== b.id);
+        for(const u of units.filter(x => x.bunker_id === b.id)){
+          haveUnitIds.delete(u.id); hpDrop('u' + u.id);
+          DB.del('units', u.id).catch(() => {});
+        }
+        units = units.filter(x => x.bunker_id !== b.id);
+        Sprites.refresh(); drawRing(); refreshStats();
+      }
+      pruneDead(true);
+    }
     siege.bunker_hp  = data.bunker_hp;
     siege.bunker_max = data.bunker_max || siege.bunker_max;
     siege.guns       = Array.isArray(data.guns) ? data.guns : (siege.guns || []);
@@ -3520,14 +3615,16 @@ async function sync(){
         checkMySiege();
       }
       await showIncoming(ids);
-      await pruneDead();
       noticeWars();
-      // Полосы жизни считаем ВСЕГДА, даже если осад в округе нет:
-      // побитая пушка обязана показывать свою жизнь и в мирное время.
-      hpFromSieges();
-      startWarSmoke();
-      Sprites.refresh(); paintGunBtn(); drawRing();
+      paintGunBtn(); drawRing();
     }
+
+    // Сверка живого идёт ВСЕГДА, даже без сигнала спутников: чтобы
+    // проверить, снесли ли известные точки, положение не нужно.
+    await pruneDead();
+    hpFromSieges();
+    startWarSmoke();
+    Sprites.refresh();
 
     // Правила, отметки заведений и реклама меняются раз в недели, а не
     // раз в три минуты. Спрашиваем их РЕДКО и держим в телефоне.
@@ -4026,7 +4123,11 @@ function tick(){
   const far = here && _lastPingAt
       ? metersBetween(_lastPingAt[0], _lastPingAt[1], here[0], here[1]) : 1e9;
   if(here && (far > 100 || now - _lastPing >= 600000)){
-    _lastPing = now; _lastPingAt = here.slice(); pingNearby();
+    _lastPing = now; _lastPingAt = here.slice();
+    DB.put('kv', here.slice(), 'lastAt').catch(() => {});
+    pingNearby();
+  } else if(!here && now - _lastPing >= 600000){
+    _lastPing = now; pingNearby();          // без сигнала — по памяти
   }
 }
 function startPoll(){
@@ -4038,13 +4139,25 @@ function stopPoll(){ if(_poll){ clearInterval(_poll); _poll = null; } }
 // Кто рядом. Наружу уходит КЛЕТКА карты, а не точка, и обратно —
 // только число. Ни имён, ни чужих координат. Раз в две минуты.
 async function pingNearby(){
-  if(!addr || !here || !navigator.onLine || document.hidden) return;
+  if(!addr || !navigator.onLine || document.hidden) return;
+  // Своей точки может не быть прямо сейчас — телефон в кармане, дом,
+  // подвал. Берём последнюю известную: для клетки карты этого хватает,
+  // а иначе счётчик игроков молчит и вечно показывает ноль.
+  let at = here;
+  if(!at){
+    const mine = addr ? bunkers.filter(b => b.owner === addr) : [];
+    if(mine.length) at = [mine[0].lat, mine[0].lng];
+    else { try{ at = await DB.get('kv','lastAt'); }catch(e){} }
+  }
+  if(!at) return;
   try{
-    const { data } = await sb.rpc('territory_ping', { p:{ wallet:addr, lat:here[0], lng:here[1] } });
-    if(data && data.ok) document.getElementById('s-players').textContent = data.nearby;
+    const { data } = await sb.rpc('territory_ping', { p:{ wallet:addr, lat:at[0], lng:at[1] } });
+    const el = document.getElementById('s-players');
+    if(data && data.ok && el) el.textContent = data.nearby;
   }catch(e){}
 }
 setTimeout(tick, 8000);
+setTimeout(pingNearby, 4000);   // счётчик игроков — сразу, не через 10 минут
 
 // Ссылку переноса могли открыть, когда игра уже запущена — тогда
 // страница не перезагружается, меняется только хвост адреса.
