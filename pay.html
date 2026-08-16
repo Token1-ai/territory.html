@@ -113,27 +113,63 @@ function revertReason(err){
     var len = parseInt(body.slice(64, 128), 16);
     if(len > 0 && len < 400) return hexToStr(body.slice(128, 128 + len*2)).trim();
   }
+  var ce = customError(d);
+  if(ce) return ce;
   var m = err && (err.message || '');
   if(/insufficient funds/i.test(m)) return 'insufficient funds';
   return '';
 }
-// Прогоняем варианты вхолостую и берём первый, который проходит.
-// Ничего не отправляется и не стоит ни копейки: eth_call только
-// спрашивает у ноды «а что было бы, если».
-async function pickCall(from, to, value, variants){
-  for(var i = 0; i < variants.length; i++){
-    var body = { from: from, to: to };
-    if(value) body.value = value;
-    if(variants[i]) body.data = variants[i];
-    var why = await dryRun(body);
-    if(!why){
-      if(i > 0) console.log('pay: подошёл вариант вызова №' + (i + 1));
-      return body;
-    }
-    // если контракт объяснил причину словами — она важнее подбора
-    if(why && why !== 'revert' && why !== 'insufficient funds'){
-      msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
-      return null;
+// ── Собственные ошибки договора ──────────────────────────────────
+// Контракт отвечает не текстом, а короткими кодами. Без разбора всё
+// это выглядело просто как «revert» — то есть ни о чём.
+var ERRS = {
+  '9e87fac8': 'приём денег временно закрыт',
+  '5f4b0a0b': 'номер игрока пустой',
+  '81063e51': 'перевод хозяину не прошёл',
+  '30cd7471': 'нужны права хозяина',
+  'd92e233d': 'пустой адрес',
+  '7dc6505a': 'нет предложения о передаче'
+};
+function customError(d){
+  d = String(d || '').replace(/^0x/, '');
+  if(d.length < 8) return '';
+  var sel = d.slice(0, 8);
+  // TooSmall(sent, need) — единственная, что несёт числа
+  if(sel === 'e94fe3af'){
+    var sent = BigInt('0x' + d.slice(8, 72));
+    var need = BigInt('0x' + d.slice(72, 136));
+    LAST_MIN = need;
+    return 'слишком мало: прислано ' + fmtBnb(sent) + ', нужно от ' + fmtBnb(need) + ' BNB';
+  }
+  return ERRS[sel] || '';
+}
+function fmtBnb(w){
+  var s = w.toString().padStart(19, '0');
+  return (s.slice(0, s.length - 18) + '.' + s.slice(s.length - 18)).replace(/0+$/, '').replace(/\.$/, '.0');
+}
+
+// ── Что договор говорит о себе сам ───────────────────────────────
+var SEL_MINWEI = '0xaddd7020';
+var SEL_PAUSED = '0x5c975abb';
+var LAST_MIN = null;
+async function readWord(to, sel){
+  try{
+    var r = await ethereum.request({ method:'eth_call', params:[{ to: to, data: sel }, 'latest'] });
+    return BigInt(r);
+  }catch(e){ return null; }
+}
+// Проверяем ДО подписи: не закрыт ли приём и хватает ли суммы.
+// Раньше человек узнавал об этом от кошелька, и то неправдой.
+async function beforeSend(to, wei){
+  var pz = await readWord(to, SEL_PAUSED);
+  if(pz !== null && pz !== 0n) return (T.reject || 'Refused') + ': ' + ERRS['9e87fac8'];
+  var mn = await readWord(to, SEL_MINWEI);
+  if(mn !== null){
+    LAST_MIN = mn;
+    if(BigInt('0x' + wei) < mn){
+      var needUsd = Number(mn) / 1e18 * RATE;
+      return (T.reject || 'Refused') + ': минимум ' + fmtBnb(mn) + ' BNB (около $'
+           + needUsd.toFixed(2) + '), а ты вводишь $' + USD.toFixed(2);
     }
   }
   return null;
@@ -221,6 +257,19 @@ if(!okLink){
   paintSum();
   // и тут же уточняем курс у биржи, цифра на экране обновится сама
   liveRate().then(paintSum);
+  // и спрашиваем у самого договора, какой у него минимум
+  if(KIND !== 'usd'){
+    readWord(GATE_BNB, SEL_MINWEI).then(function(mn){
+      if(mn === null || mn === 0n) return;
+      LAST_MIN = mn;
+      var needUsd = Number(mn) / 1e18 * RATE;
+      if(BigInt('0x' + units((USD / RATE * 1.01).toFixed(6), 18)) < mn){
+        msg('Минимум пополнения — около $' + needUsd.toFixed(2)
+            + ' (' + fmtBnb(mn) + ' BNB). Введена меньшая сумма.', 'bad');
+        $('go').disabled = true;
+      }
+    });
+  }
 }
 
 async function chain(){
@@ -256,13 +305,12 @@ $('go').onclick = async function(){
         from: acc[0], to: USDT_BNB,
         data: SEL_APPROVE + pad(GATE_USD.toLowerCase()) + pad(amt) }] });
       msg(T.step2);
-      var body2 = await pickCall(acc[0], GATE_USD, null, [
-        SEL_TOPUSD + pad(PLAYER) + pad(amt),
-        SEL_TOPUSD + pad(PLAYER, true) + pad(amt),
-        SEL_TOPUSD + pad(amt)
-      ]);
-      if(!body2){
-        msg((T.reject || 'The contract refused') + ': revert', 'bad');
+      // topUpUSD(bytes20 player, uint256 amount)
+      var body2 = { from: acc[0], to: GATE_USD,
+                    data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) };
+      var why2 = await dryRun(body2);
+      if(why2){
+        msg((T.reject || 'The contract refused') + ': ' + why2, 'bad');
         $('go').disabled = false;
         return;
       }
@@ -280,14 +328,15 @@ $('go').onclick = async function(){
       // дописывался нулями СПРАВА, а по правилам ABI адрес стоит в
       // младших байтах слова, то есть нули идут СЛЕВА. Контракт
       // получал мусор вместо кошелька и молча отбивал перевод.
-      var body = await pickCall(acc[0], GATE_BNB, '0x' + wei, [
-        SEL_TOPUP + pad(PLAYER),            // адрес по правилам
-        SEL_TOPUP + pad(PLAYER, true),      // как было раньше
-        SEL_TOPUP,                          // без доводов
-        ''                                  // просто перевод
-      ]);
-      if(!body){
-        msg((T.reject || 'The contract refused') + ': revert', 'bad');
+      // topUp(bytes20 player). У bytes20 нули по правилам ABI идут
+      // СПРАВА — значит pad(..., true) здесь верно. Это не адрес.
+      var body = { from: acc[0], to: GATE_BNB, value: '0x' + wei,
+                   data: SEL_TOPUP + pad(PLAYER, true) };
+      var stop = await beforeSend(GATE_BNB, wei);
+      if(stop){ msg(stop, 'bad'); $('go').disabled = false; return; }
+      var why = await dryRun(body);
+      if(why){
+        msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
         $('go').disabled = false;
         return;
       }
