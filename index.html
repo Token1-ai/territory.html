@@ -402,7 +402,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 28;
+var LANG_V = 29;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -732,6 +732,55 @@ function fullHp(code){
 // игроков этот запрос съест базу.
 let _seenHits = new Set();
 let _hitsFrom = null;
+// Раз в минуту сверяемся с сервером: что из уже известного ещё живо.
+// Заодно забираем свежую жизнь — иначе полосы над чужими точками
+// показывали бы цифры недельной давности.
+let _pruneAt = 0;
+async function pruneDead(force){
+  const now = Date.now();
+  if(!force && now - _pruneAt < 45000) return;
+  _pruneAt = now;
+  try{
+    const bIds = bunkers.filter(b => b.alive !== false).map(b => b.id).slice(0, 400);
+    if(bIds.length){
+      const { data } = await sb.from('territory_bunkers')
+        .select('id,hp_left,kind,cannons').in('id', bIds).eq('alive', true);
+      const alive = new Set((data || []).map(x => x.id));
+      for(const b of bunkers){
+        if(b.alive === false) continue;
+        if(!alive.has(b.id)){
+          b.alive = false; hpDrop('b' + b.id);
+          try{ FX.collapse(b.lat, b.lng); }catch(e){}
+          try{ await DB.del('bunkers', b.id); }catch(e){}
+        }
+      }
+      for(const r of (data || [])){
+        const b = bunkerById(r.id);
+        if(b){ b.hp_left = r.hp_left; b.kind = r.kind; }
+      }
+    }
+    const uIds = units.filter(u => u.alive !== false).map(u => u.id).slice(0, 400);
+    if(uIds.length){
+      const { data } = await sb.from('territory_units')
+        .select('id,hp_left').in('id', uIds).eq('alive', true);
+      const alive = new Set((data || []).map(x => x.id));
+      for(const u of units){
+        if(u.alive === false) continue;
+        if(!alive.has(u.id)){
+          u.alive = false; hpDrop('u' + u.id);
+          try{ FX.burst(u.lat, u.lng); FX.smoke(u.lat, u.lng); }catch(e){}
+          try{ await DB.del('units', u.id); }catch(e){}
+        }
+      }
+      for(const r of (data || [])){
+        const u = units.find(x => x.id === r.id);
+        if(u) u.hp_left = r.hp_left;
+      }
+    }
+    hpFromSieges(); Sprites.refresh(); refreshStats();
+  }catch(e){}
+}
+
 async function showIncoming(ids){
   if(!ids || !ids.length) return;
   const since = _hitsFrom || new Date(Date.now() - 90000).toISOString();
@@ -2897,6 +2946,44 @@ async function doJoin(b){
   }catch(e){ say(T('gun_neednet'),'warn'); }
 }
 
+// Пока идёт осада, от тебя к цели ЛЕТЯТ ПУЛИ — сами, без нажатий.
+// Урон и так капает на сервере каждые полминуты; это честная картинка
+// того, что уже происходит. Раньше экран молчал, и казалось, что надо
+// тыкать по цели пальцем, чтобы вообще стрелять.
+let _fireTimer = null;
+function targetPoint(){
+  if(!siege) return null;
+  const t = siegeTarget || siege.target;
+  if(t && String(t) !== 'bunker'){
+    const u = units.find(x => x.id === Number(t) && x.alive !== false);
+    if(u) return [u.lat, u.lng];
+  }
+  const b = bunkerById(siege.bunker_id);
+  return b ? [b.lat, b.lng] : null;
+}
+function startFire(){
+  if(_fireTimer) return;
+  _fireTimer = setInterval(() => {
+    if(!siege || siege.side === 'defend' || !here || document.hidden) return;
+    const t = targetPoint();
+    if(!t) return;
+    if(metersBetween(here[0], here[1], t[0], t[1]) > (cfg.siege_leash_m || 100) * 1.5) return;
+    // короткая очередь: две-три пули подряд, как в настоящей стрельбе
+    const n = 2 + (Math.random() < 0.5 ? 1 : 0);
+    for(let i = 0; i < n; i++){
+      setTimeout(() => {
+        try{
+          FX.tracer(here[0], here[1], t[0], t[1], 420, '#FFE9A8');
+          setTimeout(() => { try{ FX.blast(t[0], t[1], 7, false); }catch(e){} }, 430);
+        }catch(e){}
+      }, i * 140);
+    }
+    // над целью, по которой бьют, всегда стоит дымок
+    if(Math.random() < 0.5){ try{ FX.smoke(t[0], t[1]); }catch(e){} }
+  }, 1100);
+}
+function stopFire(){ if(_fireTimer){ clearInterval(_fireTimer); _fireTimer = null; } }
+
 function startSiegeLoop(){
   stopSiegeLoop();
   track = []; pushTrack();
@@ -2905,13 +2992,19 @@ function startSiegeLoop(){
     if(document.hidden || !siege) return;
     const b = bunkerById(siege.bunker_id);
     if(b) FX.smoke(b.lat, b.lng);
+    // дымят и живые пушки точки — иначе бой видно только в одном месте
+    for(const u of gunsOf(siege.bunker_id)){
+      if(Math.random() < 0.4) FX.smoke(u.lat, u.lng);
+    }
   }, 1400);
+  startFire();
   paintSiege();
   siegeTick();
   _siegeTimer = setInterval(siegeTick, 30000);
   startShells();
 }
 function stopSiegeLoop(){
+  stopFire();
   if(_siegeTimer){ clearInterval(_siegeTimer); _siegeTimer = null; }
   if(_smokeTimer){ clearInterval(_smokeTimer); _smokeTimer = null; }
   stopShells();
@@ -2940,6 +3033,7 @@ async function siegeTick(){
     }
     _tickFails = 0;
     if(data.left){ endSiege(T('sg_left')); return; }
+    if(data.done){ pruneDead(true); }
     siege.bunker_hp  = data.bunker_hp;
     siege.bunker_max = data.bunker_max || siege.bunker_max;
     siege.guns       = Array.isArray(data.guns) ? data.guns : (siege.guns || []);
@@ -3413,6 +3507,7 @@ async function sync(){
         checkMySiege();
       }
       await showIncoming(ids);
+      await pruneDead();
       noticeWars();
       // Полосы жизни считаем ВСЕГДА, даже если осад в округе нет:
       // побитая пушка обязана показывать свою жизнь и в мирное время.
