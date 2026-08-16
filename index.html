@@ -402,7 +402,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 29;
+var LANG_V = 30;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -1482,10 +1482,18 @@ async function pushOn(){
       });
     }
     const j = sub.toJSON();
+    // Тихие часы на сервере считаются по UTC, а человек живёт по
+    // своему времени. Раньше сюда клали 0 и 7 как есть — и в Польше
+    // это выходило с 2:00 до 9:00 утра по местному: всё утро игра
+    // молчала, и казалось, что уведомления просто не работают.
+    // Переводим НОЧЬ ПО МЕСТНОМУ в часы UTC прямо здесь.
+    const offH = -new Date().getTimezoneOffset() / 60;      // +2 для Польши
+    const toUtc = h => ((Math.round(h - offH) % 24) + 24) % 24;
     await sb.rpc('push_save_v1', { p:{
       wallet: addr, endpoint: sub.endpoint,
       p256dh: j.keys.p256dh, auth: j.keys.auth, lang: lang,
-      quiet_from: 0, quiet_to: 7
+      quiet_from: toUtc(cfg.quiet_from != null ? cfg.quiet_from : 0),
+      quiet_to:   toUtc(cfg.quiet_to   != null ? cfg.quiet_to   : 7)
     }});
     await DB.put('kv', true, 'push');
     say(T('nt_ok'),'good');
@@ -2942,6 +2950,10 @@ async function doJoin(b){
               power:18, side:'attack', started:Date.now() };
     siegeTarget = 'auto';
     startSiegeLoop();
+    // Хозяина зовём и когда к осаде присоединяются: раньше стук шёл
+    // только от того, кто начал первым. Второй и третий нападающие
+    // приходили тихо.
+    pushAlarm(data.siege_id);
     say(T('sg_joined'),'good');
   }catch(e){ say(T('gun_neednet'),'warn'); }
 }
