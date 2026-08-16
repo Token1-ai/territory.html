@@ -205,6 +205,19 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 /* пустой рюкзак приглушён, но виден: иначе человек не догадается,
    что купленное вообще где-то лежит */
 #bag-btn.empty{opacity:.45;}
+/* Лавка прямо в шапке: раньше до неё надо было лезть через профиль */
+#btn-shop{font-size:15px;padding:5px 10px;line-height:1;}
+/* Полоса обновления. Поверх всего, чтобы её нельзя было не заметить. */
+#upd-bar{position:fixed;left:12px;right:12px;top:12px;z-index:1200;display:none;
+  padding:12px 16px;border:0;border-radius:14px;font:700 13.5px/1.3 inherit;
+  letter-spacing:.03em;background:#4FAE6A;color:#0B1409;
+  box-shadow:0 4px 18px rgba(0,0,0,.5);}
+/* Кнопка установки на рабочий стол. Видна только если браузер готов
+   поставить и игра ещё не установлена. */
+#inst-btn{position:fixed;left:12px;right:12px;bottom:12px;z-index:960;display:none;
+  padding:13px 16px;border:0;border-radius:14px;font:700 14px/1.2 inherit;
+  letter-spacing:.04em;background:#E0A32E;color:#141610;
+  box-shadow:0 4px 16px rgba(0,0,0,.45);}
 #bag-btn i{position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;
   border-radius:999px;background:#B23A2E;color:#fff;font:700 11px/18px ui-monospace,monospace;
   font-style:normal;text-align:center;}
@@ -304,6 +317,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 <div id="hud">
   <div id="hud-row">
     <div id="brand"><em>Gate</em> Territory</div>
+    <button class="chip" id="btn-shop" onclick="openShop()" title="shop">⛁</button>
     <button class="chip" id="btn-profile" onclick="openProfile()">profile</button>
     <button class="chip chip-hot" id="who" onclick="openProfile()">guest</button>
   </div>
@@ -404,12 +418,12 @@ let _lastSpeed = null, _steps = null;
 // ═══════════ ЯЗЫКИ ═══════════
 // Игра мировая: реклама может идти в Китае, США, Украине. Язык берётся
 // из телефона сам, менять можно в профиле. Неизвестный язык — английский.
-var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "Close enough. Pick a target below: the bunker straight away, or knock the cannons out first — they soak up damage while they live.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "Live cannons soak up {n}% — knock them out first", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device", "cl_title": "Clan", "cl_name": "Name", "cl_members": "Members", "cl_list": "Who is in", "cl_you": "you", "cl_chat": "Clan chat", "cl_leave": "Leave clan", "cl_leave_ask": "Leave the clan? You can join another only after a day.", "cl_none": "You are on your own. A clan is who you do NOT fight and who shares the loot.", "cl_create": "Create a clan", "cl_near": "Clans around you", "cl_nonear": "No clans nearby yet — be the first", "cl_join": "Join", "cl_ask_name": "Clan name (3 to 24 characters)", "cl_created": "Clan {n} created. You are the leader.", "cl_joined": "You joined {n}.", "cl_left": "You left the clan.", "cl_badname": "Name must be 3 to 24 characters.", "cl_taken": "That name is taken.", "cl_already": "You are already in a clan.", "cl_needbunker": "Plant a bunker first.", "cl_full": "This clan is full.", "cl_closed": "This clan does not take newcomers.", "cl_cooldown": "You left a clan recently — {n} min left.", "cl_say": "Message to the clan", "cl_send": "Send", "cl_empty": "No messages yet. Say something.", "cl_toofast": "Not so fast — wait {n} s.", "it_reinforce": "Bunker upgrade", "itd_reinforce": "Toughness 180 → 240. Half the price stays inside — whoever takes it down gets it.", "it_steel": "Steel upgrade", "itd_steel": "Toughness up to 300. Inside stays $0.50.", "it_fort": "Fortress", "itd_fort": "Toughness up to 360 — the limit. Inside stays $1.00.", "it_heavy": "Heavy cannon", "itd_heavy": "Toughness 50 → 80. Fires 200 m, same as a plain one.", "it_rocket": "Rocket cannon", "itd_rocket": "Toughness up to 100 — the toughest cannon.", "it_charge": "Assault charge", "itd_charge": "60 damage at once. One use — saves 5 minutes of siege.", "it_hcharge": "Heavy charge", "itd_hcharge": "120 damage at once — two of them bring a free bunker down.", "it_longrocket": "Long rocket", "itd_longrocket": "60 damage from 2 km. Hits cannons only, 3 a day, flies 60 s.", "it_drone": "Bomber drone", "itd_drone": "A bomb from the air: 25% damage. Two strikes, then buy a new one.", "it_skin": "Bunker paint", "itd_skin": "Looks only. Changes nothing in a fight.", "sh_title": "Shop", "sh_balance": "Your money", "sh_topup": "Top up", "sh_buy": "Buy", "sh_need": "Top up", "sh_bought": "{n} is yours.", "sh_half": "Half of every price stays inside the bunker and goes to whoever takes it down. Charges never pay for themselves — they only save you time.", "sh_notenough": "Not enough — you need {n}", "sh_howmuch": "How much", "sh_min": "Less than {n} will not go through — the network fee would eat it.", "sh_nowallet": "No wallet in this browser. Open the game inside your wallet app.", "sh_openwallet": "Open in wallet", "sh_wrongchain": "Switch your wallet to BNB Chain.", "sh_step1": "Step 1 of 2: allow the payment", "sh_step2": "Step 2 of 2: confirm the transfer", "sh_waiting": "Sent. Waiting for the network — about a minute.", "sh_credited": "{n} added to your money.", "sh_cancelled": "Payment cancelled.", "sh_txfail": "The network rejected the payment.", "sh_slow": "The network is slow. The money will arrive by itself — check back later.", "sh_which": "Which wallet?", "sh_whichp": "The payment opens inside your wallet — that is the only place it can be signed. The game stays on your screen.", "sh_copylink": "Copy the payment link", "ith_reinforce": "Walk up to YOUR OWN bunker, within 100 m, and use it. An earth bunker becomes concrete: toughness from 180 to 240 — it takes longer to bring down.\n\nCannons already standing around it stay where they are; they count separately.\n\n$0.25 goes inside the bunker. Whoever takes it down gets that money. You cannot upgrade while under siege.", "ith_steel": "Same as the upgrade but tougher: up to 300. $0.50 goes inside.\n\nUpgrades only go up: earth to concrete, concrete to steel. Never back down.", "ith_fort": "The top upgrade: toughness 360. $1.00 goes inside.\n\nIt goes onto YOUR OWN bunker while you stand next to it — like the other upgrades. You cannot place a fortress on empty ground: it is an upgrade, not a building.\n\nCannons around stay and count on top: a 360 bunker plus seven cannons is 1060 altogether.", "ith_heavy": "Placed like a plain cannon: inside your own bunker ring, at least 50 m from another cannon.\n\nToughness 80 instead of 50 — it takes longer to knock out. Same 200 m range.\n\nA cannon cannot be moved. Once placed, it stays until it is destroyed.", "ith_rocket": "The toughest cannon: 100. Placed the same way — inside your bunker ring, 50 m from another.\n\nSeven cannons per bunker is the limit, of any kind.", "ith_charge": "Usable ONLY during a siege. Start a siege on someone else’s point and a gear button appears at the bottom. Press it and the charge goes off on the target you are hitting right now.\n\n60 damage at once — five minutes of work you skipped.\n\nOutside a siege there is nothing to blow up.", "ith_hcharge": "Same as the assault charge but twice as strong: 120 at once.\n\nA free earth bunker holds 180, so two heavy charges bring it down. Only during a siege, on your current target.", "ith_longrocket": "Fires FROM AFAR, up to 2 km, without walking to the point. Pick an enemy cannon on the map and launch. The rocket flies for a minute and is visible on the map — to you and to the owner.\n\n60 damage, cannons only. A bunker cannot be taken with a rocket; for that you must come on foot.\n\nThree rockets a day.", "ith_drone": "A bomb, not a spyglass. It takes 25% of the life off an enemy bunker or cannon.\n\nWhere you can send it: up to 1 km from where you stand. And if you already hold a bunker within 600 m of the target, you can strike from anywhere — you do not have to be there at all.\n\nOne drone carries TWO strikes. After that buy a new one.\n\nAn hour between strikes, six strikes a day, and the same point cannot be bombed more than once every two hours.\n\nA drone can destroy a cannon outright, but it can NEVER finish a bunker: below 30% of its life the bomb stops working. Ground is taken on foot — the drone only softens it up.", "ith_skin": "Changes how your bunker looks on the map. Nothing else.\n\nNo effect on toughness, damage or money. Pure decoration — buy it if you want your point to stand out.", "sh_price": "Price", "sh_minlow": "Minimum is {n}", "sh_or": "or", "sg_line2": "{a} attacking · {d} defending · {p} per minute", "tg_bunker": "Bunker", "tg_gun": "Cannon", "fog_on": "Fog on — you see only what is near", "fog_off": "Fog off — everything is visible", "sg_join": "Join the siege", "sg_joined": "You joined the siege. Hit together.", "sg_short": "{a} vs {d} · {p}/min", "dr_launch": "Launch drone", "dr_left": "{n} strikes left", "dr_aim": "Tap the target: an enemy bunker or cannon.", "dr_cancel": "Put the drone away", "dr_none": "No drone left. One drone in the shop carries two strikes.", "dr_far": "Out of reach. Be within {n} m of the target, or hold a bunker within {m} m of it.", "dr_cool": "The drone is still refuelling — {n} min.", "dr_day": "That is all {n} drone strikes for today.", "dr_tcool": "This point was bombed recently — {n} min before the next drone.", "dr_floor": "A drone cannot finish a bunker. Below {n}% of its life you have to come on foot.", "dr_hit": "Hit — {n} damage. {k} strikes left.", "dr_kill": "Cannon down. {k} strikes left.", "dr_own": "Your own ground. The drone will not bomb it.", "dr_flying": "Drone away…", "dr_busy": "The drone is already in the air.", "dr_nogps": "No signal — the drone needs your position.", "bg_title": "Backpack", "bg_use": "Use", "bg_empty": "The backpack is empty. Everything you buy in the shop lands here.", "bg_how": "Tap Use and the game will tell you what it needs — where to stand or what to aim at.", "bg_none": "You do not have that any more.", "bg_done": "{n} — done.", "bg_busy": "One thing at a time.", "bg_far": "Walk up to YOUR OWN bunker — within {n} m of it.", "bg_insiege": "Not while the point is under siege.", "bg_already": "This bunker already has one.", "bg_maxkind": "This bunker is already at least this strong. Upgrades only go up.", "bg_needsiege": "This works only while you are attacking a point.", "bgw_own": "Walk up to your own bunker and use it.", "bgw_place": "Placed where you stand, inside your own bunker ring.", "bgw_siege": "Works only during a siege, on your current target.", "bgw_aim": "Tap the target on the map.", "lr_aim": "Tap an enemy cannon — up to 2 km away.", "lr_gunonly": "The long rocket hits cannons only. A bunker has to be taken on foot.", "lr_far": "Too far — the rocket flies {n} m.", "lr_flying": "Rocket away — {n} s to the target.", "err_code": "Did not go through · {e}", "sg_gone": "That siege is over — the point is no longer under attack.", "sg_pointshield": "This point has already been stormed {n} times today. It is off limits until tomorrow.", "sg_ownshield": "This player has been attacked {n} times today. Leave them alone until tomorrow.", "sg_under": "under siege now", "sg_min": "min", "gd_stopped": "Shot down by your {n}. Nothing got through.", "gd_lost": "Your {n} took the hit and is gone. The bunker held.", "gd_shotdown": "Something came in \u2014 your cannon shot it down.", "gd_incoming": "Hit from the air \u2014 {n} damage.", "st_war": "FIGHTING", "st_warjump": "Nearest fight \u2014 {n} m away.", "st_warnear": "A fight started {n} m from you.", "st_warmine": "YOUR point is under attack \u2014 {n} m away!", "st_warclan": "Your clan is under attack \u2014 {n} m away. Run!", "sg_clan": "Your own clan. You do not fight your own.", "sh_nowd": "This money lives inside the game. Spend it in the shop \u2014 it cannot be withdrawn."} };
+var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Name land", "profile": "profile", "stand": "Stand where you want your bunker. The ring locks when the signal is good enough.", "yours": "YOURS", "near": "NEARBY", "today": "TODAY", "players": "NEAR YOU", "locked": "locked", "need": "need", "sat": "looking for satellites", "planted": "Planted. This ground is yours.", "weak": "Signal is too weak right now.", "daily": "You have used your free bunker for today.", "close": "Another bunker is {d} m away. You need {n} m of clear ground.", "maxb": "You hold the maximum of {n} [[bunker|bunkers]].", "saved": "Saved on your phone. It will reach the map when you get signal.", "nearby": "Someone just planted nearby.", "fake": "This device reports a faked location.", "st_offline": "offline", "st_noserver": "no server", "st_back": "back online", "st_nolocal": "no phone storage", "st_device": "from device", "st_first": "first run", "st_ok": "up to date", "st_sending": "sending", "st_wait": "waiting", "st_new": "{n} new", "nogeo": "This phone has no location service.", "blocked": "Location is blocked. Allow it in settings, then reopen.", "nosignal": "No signal yet. Step outside — walls block satellites.", "planthere": "Plant here?", "planting": "Planting…", "noconn": "No connection. Saved on your phone and will be sent later.", "taken": "Someone got there first — a bunker is {d} m away.", "weaksig": "Signal was too weak: ± {n} m.", "failed": "Could not plant here.", "noground": "Not enough ground", "noground2": "Name your land once you hold three bunkers. You have {n}.", "nameland": "Name your land", "namebad": "That name was not accepted.", "named": "Named.", "namelater": "No connection — try naming again later.", "gotit": "Got it", "backmap": "Back to map", "back": "Back", "closebtn": "Close", "pf_title": "Profile", "pf_held": "Bunkers held", "pf_area": "Ground covered", "pf_left": "Free left today", "pf_onmap": "Bunkers on your map", "pf_land": "Your land", "pf_name": "Name", "pf_noname": "not named yet", "pf_first": "First planted", "pf_player": "Player", "pf_wallet": "Wallet", "pf_walno": "not needed yet — only for buying", "pf_phone": "On this phone", "pf_stored": "Stored locally", "pf_bunk": "{n} [[bunker|bunkers]]", "pf_queue": "Waiting to send", "pf_space": "Storage used", "pf_mb": "{n} MB on this phone", "pf_sync": "Last sync", "pf_never": "never", "pf_off": "Map works offline", "pf_offyes": "yes, for places you have visited", "pf_rules": "Rules right now", "pf_free": "Free bunkers a day", "pf_at": "Bunkers at once", "pf_dist": "Distance between bunkers", "pf_ring": "Ring around a bunker", "pf_sig": "Signal needed", "pf_better": "better than ± {n} m", "pf_lang": "Language", "pf_og": "Open OpenGate", "pf_sync2": "Sync now", "mv_btn": "Play on another phone", "mv_title": "Same player, two phones", "mv_head": "Move player to another phone", "mv_warn": "Send this link to yourself and open it on the other phone. Anyone who gets this link becomes you — never post it publicly.", "mv_copy": "Copy link", "mv_send": "Send", "mv_copied": "Link copied.", "mv_manual": "Hold the link and copy it by hand.", "mv_bad": "Link is broken", "mv_bad2": "That transfer link could not be read.", "mv_ask": "Become player {p} on this phone?\n\nThe player now on this phone will be replaced. Its bunkers stay on the map but stop being yours here.", "planthere2": "This spot becomes yours with a {r} m ring around it. Earth bunkers are free — one a day.", "nameland2": "Everyone on the map will see it. Up to 24 characters.", "plantit": "Plant it", "savename": "Save name", "gun_btn": "Cannon", "gun_place": "Place cannon?", "gun_place2": "It guards the point and fires {r} m around. Free — {n} left today.", "gun_ok": "Cannon placed.", "gun_left": "{n} left today", "gun_daily": "No free cannons left today.", "gun_nobunker": "Stand inside your own bunker ring — within {n} m of it.", "gun_full": "This bunker already has {n} [[cannon|cannons]] — the most that fit.", "gun_close": "Another cannon is {d} m away. You need {n} m of clear ground.", "gun_neednet": "Cannons need a connection — the 200 m rule is checked on the server.", "ring_ok": "Closed ground · {n} ha · {k} points", "ring_broken": "Ring is broken — {n} min to rebuild the link", "sg_title": "Siege · enemy point", "sg_hold": "Your point is under siege", "sg_line": "{g} cannons left · {a} attacking · {d} defending · {p}/min", "sg_leave": "Leave", "sg_attack": "Attack", "sg_mine": "Your bunker", "sg_foreign": "Enemy bunker", "sg_mine_p": "Your own ground. You cannot attack it.", "sg_guns": "Cannons", "sg_dist": "Distance", "sg_state": "State", "sg_live": "under siege", "sg_can": "Close enough. Pick a target below: the bunker straight away, or knock the cannons out first — they soak up damage while they live.", "sg_come": "Come closer — within {n} m of the point.", "sg_started": "Siege started. Stay close.", "sg_busy": "This point is already under siege.", "sg_wait": "You attacked this point recently. Wait {n} min.", "sg_shield": "Live cannons soak up {n}% — knock them out first", "sg_newbie": "A newcomer — untouchable for {n} hours.", "sg_gun_down": "Cannon down. {n} left.", "sg_won": "The point has fallen. It is yours.", "sg_lost": "The point has fallen.", "sg_left": "You left the siege.", "sg_alarm": "Your point is under attack!", "sg_target": "Target set.", "sg_locked": "Finish this cannon first — you cannot switch mid-fight.", "sg_totarget": "{n} m to the target", "sh_out": "GET OUT OF THE CIRCLE — {n} s", "sh_ok": "Shell incoming — {n} s, you are clear", "sh_sub": "blast {r} m · a calm walk is enough", "sh_hit": "Hit — you stood in the circle. {n} s lost.", "nt_btn_on": "Turn on alerts", "nt_btn_off": "Turn off alerts", "nt_ok": "Alerts on. You will know when your point is attacked.", "nt_off": "Alerts off.", "nt_denied": "The phone blocked alerts. Allow them in browser settings.", "nt_no": "On iPhone, put the icon on your home screen first — otherwise alerts are not allowed.", "nt_fail": "Could not turn on alerts. Try again later.", "why_ok": "Free spot — you can plant here", "why_ok_gun": "Free spot — you can place a cannon", "why_mine": "Your own point is {d} m away · need {n} · walk {m} m further", "why_foreign": "Someone else is {d} m away · need {n} · walk {m} m further", "why_far": "Your bunker is {d} m away · must be within {n} · come {m} m closer", "mode_b": "Placing a bunker", "mode_g": "Placing a cannon", "on_device": "on device", "cl_title": "Clan", "cl_name": "Name", "cl_members": "Members", "cl_list": "Who is in", "cl_you": "you", "cl_chat": "Clan chat", "cl_leave": "Leave clan", "cl_leave_ask": "Leave the clan? You can join another only after a day.", "cl_none": "You are on your own. A clan is who you do NOT fight and who shares the loot.", "cl_create": "Create a clan", "cl_near": "Clans around you", "cl_nonear": "No clans nearby yet — be the first", "cl_join": "Join", "cl_ask_name": "Clan name (3 to 24 characters)", "cl_created": "Clan {n} created. You are the leader.", "cl_joined": "You joined {n}.", "cl_left": "You left the clan.", "cl_badname": "Name must be 3 to 24 characters.", "cl_taken": "That name is taken.", "cl_already": "You are already in a clan.", "cl_needbunker": "Plant a bunker first.", "cl_full": "This clan is full.", "cl_closed": "This clan does not take newcomers.", "cl_cooldown": "You left a clan recently — {n} min left.", "cl_say": "Message to the clan", "cl_send": "Send", "cl_empty": "No messages yet. Say something.", "cl_toofast": "Not so fast — wait {n} s.", "it_reinforce": "Bunker upgrade", "itd_reinforce": "Toughness 180 → 240. Half the price stays inside — whoever takes it down gets it.", "it_steel": "Steel upgrade", "itd_steel": "Toughness up to 300. Inside stays $0.50.", "it_fort": "Fortress", "itd_fort": "Toughness up to 360 — the limit. Inside stays $1.00.", "it_heavy": "Heavy cannon", "itd_heavy": "Toughness 50 → 80. Fires 200 m, same as a plain one.", "it_rocket": "Rocket cannon", "itd_rocket": "Toughness up to 100 — the toughest cannon.", "it_charge": "Assault charge", "itd_charge": "60 damage at once. One use — saves 5 minutes of siege.", "it_hcharge": "Heavy charge", "itd_hcharge": "120 damage at once — two of them bring a free bunker down.", "it_longrocket": "Long rocket", "itd_longrocket": "60 damage from 2 km. Hits cannons only, 3 a day, flies 60 s.", "it_drone": "Bomber drone", "itd_drone": "A bomb from the air: 25% damage. Two strikes, then buy a new one.", "it_skin": "Bunker paint", "itd_skin": "Looks only. Changes nothing in a fight.", "sh_title": "Shop", "sh_balance": "Your money", "sh_topup": "Top up", "sh_buy": "Buy", "sh_need": "Top up", "sh_bought": "{n} is yours.", "sh_half": "Half of every price stays inside the bunker and goes to whoever takes it down. Charges never pay for themselves — they only save you time.", "sh_notenough": "Not enough — you need {n}", "sh_howmuch": "How much", "sh_min": "Less than {n} will not go through — the network fee would eat it.", "sh_nowallet": "No wallet in this browser. Open the game inside your wallet app.", "sh_openwallet": "Open in wallet", "sh_wrongchain": "Switch your wallet to BNB Chain.", "sh_step1": "Step 1 of 2: allow the payment", "sh_step2": "Step 2 of 2: confirm the transfer", "sh_waiting": "Sent. Waiting for the network — about a minute.", "sh_credited": "{n} added to your money.", "sh_cancelled": "Payment cancelled.", "sh_txfail": "The network rejected the payment.", "sh_slow": "The network is slow. The money will arrive by itself — check back later.", "sh_which": "Which wallet?", "sh_whichp": "The payment opens inside your wallet — that is the only place it can be signed. The game stays on your screen.", "sh_copylink": "Copy the payment link", "ith_reinforce": "Walk up to YOUR OWN bunker, within 100 m, and use it. An earth bunker becomes concrete: toughness from 180 to 240 — it takes longer to bring down.\n\nCannons already standing around it stay where they are; they count separately.\n\n$0.25 goes inside the bunker. Whoever takes it down gets that money. You cannot upgrade while under siege.", "ith_steel": "Same as the upgrade but tougher: up to 300. $0.50 goes inside.\n\nUpgrades only go up: earth to concrete, concrete to steel. Never back down.", "ith_fort": "The top upgrade: toughness 360. $1.00 goes inside.\n\nIt goes onto YOUR OWN bunker while you stand next to it — like the other upgrades. You cannot place a fortress on empty ground: it is an upgrade, not a building.\n\nCannons around stay and count on top: a 360 bunker plus seven cannons is 1060 altogether.", "ith_heavy": "Placed like a plain cannon: inside your own bunker ring, at least 50 m from another cannon.\n\nToughness 80 instead of 50 — it takes longer to knock out. Same 200 m range.\n\nA cannon cannot be moved. Once placed, it stays until it is destroyed.", "ith_rocket": "The toughest cannon: 100. Placed the same way — inside your bunker ring, 50 m from another.\n\nSeven cannons per bunker is the limit, of any kind.", "ith_charge": "Usable ONLY during a siege. Start a siege on someone else’s point and a gear button appears at the bottom. Press it and the charge goes off on the target you are hitting right now.\n\n60 damage at once — five minutes of work you skipped.\n\nOutside a siege there is nothing to blow up.", "ith_hcharge": "Same as the assault charge but twice as strong: 120 at once.\n\nA free earth bunker holds 180, so two heavy charges bring it down. Only during a siege, on your current target.", "ith_longrocket": "Fires FROM AFAR, up to 2 km, without walking to the point. Pick an enemy cannon on the map and launch. The rocket flies for a minute and is visible on the map — to you and to the owner.\n\n60 damage, cannons only. A bunker cannot be taken with a rocket; for that you must come on foot.\n\nThree rockets a day.", "ith_drone": "A bomb, not a spyglass. It takes 25% of the life off an enemy bunker or cannon.\n\nWhere you can send it: up to 1 km from where you stand. And if you already hold a bunker within 600 m of the target, you can strike from anywhere — you do not have to be there at all.\n\nOne drone carries TWO strikes. After that buy a new one.\n\nAn hour between strikes, six strikes a day, and the same point cannot be bombed more than once every two hours.\n\nA drone can destroy a cannon outright, but it can NEVER finish a bunker: below 30% of its life the bomb stops working. Ground is taken on foot — the drone only softens it up.", "ith_skin": "Changes how your bunker looks on the map. Nothing else.\n\nNo effect on toughness, damage or money. Pure decoration — buy it if you want your point to stand out.", "sh_price": "Price", "sh_minlow": "Minimum is {n}", "sh_or": "or", "sg_line2": "{a} attacking · {d} defending · {p} per minute", "tg_bunker": "Bunker", "tg_gun": "Cannon", "fog_on": "Fog on — you see only what is near", "fog_off": "Fog off — everything is visible", "sg_join": "Join the siege", "sg_joined": "You joined the siege. Hit together.", "sg_short": "{a} vs {d} · {p}/min", "dr_launch": "Launch drone", "dr_left": "{n} strikes left", "dr_aim": "Tap the target: an enemy bunker or cannon.", "dr_cancel": "Put the drone away", "dr_none": "No drone left. One drone in the shop carries two strikes.", "dr_far": "Out of reach. Be within {n} m of the target, or hold a bunker within {m} m of it.", "dr_cool": "The drone is still refuelling — {n} min.", "dr_day": "That is all {n} drone strikes for today.", "dr_tcool": "This point was bombed recently — {n} min before the next drone.", "dr_floor": "A drone cannot finish a bunker. Below {n}% of its life you have to come on foot.", "dr_hit": "Hit — {n} damage. {k} strikes left.", "dr_kill": "Cannon down. {k} strikes left.", "dr_own": "Your own ground. The drone will not bomb it.", "dr_flying": "Drone away…", "dr_busy": "The drone is already in the air.", "dr_nogps": "No signal — the drone needs your position.", "bg_title": "Backpack", "bg_use": "Use", "bg_empty": "The backpack is empty. Everything you buy in the shop lands here.", "bg_how": "Tap Use and the game will tell you what it needs — where to stand or what to aim at.", "bg_none": "You do not have that any more.", "bg_done": "{n} — done.", "bg_busy": "One thing at a time.", "bg_far": "Walk up to YOUR OWN bunker — within {n} m of it.", "bg_insiege": "Not while the point is under siege.", "bg_already": "This bunker already has one.", "bg_maxkind": "This bunker is already at least this strong. Upgrades only go up.", "bg_needsiege": "This works only while you are attacking a point.", "bgw_own": "Walk up to your own bunker and use it.", "bgw_place": "Placed where you stand, inside your own bunker ring.", "bgw_siege": "Works only during a siege, on your current target.", "bgw_aim": "Tap the target on the map.", "lr_aim": "Tap an enemy cannon — up to 2 km away.", "lr_gunonly": "The long rocket hits cannons only. A bunker has to be taken on foot.", "lr_far": "Too far — the rocket flies {n} m.", "lr_flying": "Rocket away — {n} s to the target.", "err_code": "Did not go through · {e}", "sg_gone": "That siege is over — the point is no longer under attack.", "sg_pointshield": "This point has already been stormed {n} times today. It is off limits until tomorrow.", "sg_ownshield": "This player has been attacked {n} times today. Leave them alone until tomorrow.", "sg_under": "under siege now", "sg_min": "min", "gd_stopped": "Shot down by your {n}. Nothing got through.", "gd_lost": "Your {n} took the hit and is gone. The bunker held.", "gd_shotdown": "Something came in \u2014 your cannon shot it down.", "gd_incoming": "Hit from the air \u2014 {n} damage.", "st_war": "FIGHTING", "st_warjump": "Nearest fight \u2014 {n} m away.", "st_warnear": "A fight started {n} m from you.", "st_warmine": "YOUR point is under attack \u2014 {n} m away!", "st_warclan": "Your clan is under attack \u2014 {n} m away. Run!", "sg_clan": "Your own clan. You do not fight your own.", "sh_nowd": "This money lives inside the game. Spend it in the shop \u2014 it cannot be withdrawn.", "st_busy": "server is busy \u2014 slowing down", "inst_btn": "Install on your phone", "inst_done": "Installed. Open it from your home screen now.", "inst_later": "Fine \u2014 you can install it later from the browser menu.", "upd_btn": "A new version is ready \u2014 tap to update", "upd_going": "Updating\u2026"} };
 // Остальные языки лежат в отдельном файле lang.json: телефон берёт его
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 42;
+var LANG_V = 46;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -694,8 +708,17 @@ function startWarSmoke(){
   // перерисовкой квадратиков. Возобновляем, когда отпустили.
   if(map && !map._ogtMoveHooked){
     map._ogtMoveHooked = true;
-    map.on('movestart zoomstart', () => { _mapMoving = true; });
-    map.on('moveend zoomend',     () => { _mapMoving = false; });
+    let _moveGuard = null;
+    map.on('movestart zoomstart', () => {
+      _mapMoving = true;
+      clearTimeout(_moveGuard);
+      // Страховка: даже если событие конца не придёт, через полторы
+      // секунды считаем, что карта успокоилась.
+      _moveGuard = setTimeout(() => { _mapMoving = false; }, 1500);
+    });
+    map.on('moveend zoomend', () => {
+      clearTimeout(_moveGuard); _mapMoving = false;
+    });
   }
   _warSmoke = setInterval(() => {
     if(document.hidden || !map || _mapMoving) return;
@@ -1211,10 +1234,22 @@ function fogHides(){ return false; }
 let units = [];
 const haveUnitIds = new Set();
 
+// Сколько бесплатных пушек осталось на сегодня.
+//
+// Считал телефон, и считал НЕ ТАК, как сервер: он включал в счёт
+// купленные пушки, которые дневной лимит не тратят вовсе. Отсюда
+// «лимит исчерпан» после первой же поставленной.
+//
+// Теперь главное число приходит с сервера при каждой удачной
+// постановке, а свой подсчёт остался только как прикидка до первого
+// ответа — и в нём купленные исключены, как и на сервере.
+let _gunsLeft = null;
 function gunsLeftToday(){
+  if(_gunsLeft != null) return Math.max(0, _gunsLeft);
   const day = 24*3600*1000, now = Date.now();
-  const mine = units.filter(u => u.owner === addr &&
-                                 (now - new Date(u.built_at).getTime()) < day);
+  const mine = units.filter(u => u.owner === addr
+                             && !(u.meta && u.meta.paid)
+                             && (now - new Date(u.built_at).getTime()) < day);
   return Math.max(0, (cfg.unit_gun_per_day || 10) - mine.length);
 }
 function myBunkerNear(lat, lng){
@@ -1296,6 +1331,8 @@ async function doGun(){
     units.push(u);
     await DB.put('units', u);
     Sprites.refresh(); refreshStats(); paintGunBtn(); drawRing();
+    // Число с сервера — единственное верное. Запоминаем его.
+    if(data.left_today != null) _gunsLeft = data.left_today;
     say(T('gun_ok') + ' · ' + T('gun_left', { n: data.left_today }), 'good');
   }catch(e){
     const m = (e && (e.message || e.hint || e.details)) ? String(e.message || e.hint || e.details) : '';
@@ -3231,11 +3268,21 @@ function stopSiegeLoop(){
 
 let _tickFails = 0;
 async function siegeTick(){
-  if(!siege || !here || document.hidden) return;
+  if(!siege || document.hidden) return;
+  // Своей точки может не быть — телефон в кармане, дом, подвал.
+  // Защитнику она и не нужна: берём место его же бункера. Иначе тик
+  // не уходит вовсе, сервер молчит, и панель боя висит вечно — даже
+  // когда осада давно кончилась.
+  let at = here;
+  if(!at && siege.side === 'defend'){
+    const mb = bunkerById(siege.bunker_id);
+    if(mb) at = [mb.lat, mb.lng];
+  }
+  if(!at) return;
   try{
     pushTrack();
     const { data } = await sb.rpc('siege_tick_v1', { p:{
-      wallet: addr, siege_id: siege.id, lat: here[0], lng: here[1],
+      wallet: addr, siege_id: siege.id, lat: at[0], lng: at[1],
       target: siegeTarget || 'auto', track: track.slice(-40) }});
     // Раньше здесь стояло просто return — и если сервер отвечал
     // отказом, игра молчала. Человек час смотрел на неподвижную
@@ -3887,8 +3934,8 @@ function drawOne(b){
     color: col, weight: mine ? 2.5 : 2,
     opacity: mine ? 0.95 : 0.85,
     fillColor: col,
-    fillOpacity: mine ? 0.16 : 0.20,
-    dashArray: mine ? null : '9 6'
+    fillOpacity: mine ? 0.16 : 0.22,
+    dashArray: mine ? null : ownerDash(b.owner)
   }).addTo(g);
   // внутренний обод — чтобы чужая земля читалась даже поверх карты
   L.circle([b.lat, b.lng], {
@@ -3901,13 +3948,33 @@ function drawOne(b){
 }
 
 // Свой цвет каждому чужому игроку: из его же номера, всегда один и тот же
-const OWNER_COLORS = ['#B4462F','#B5539B','#4E7FD4','#3F9E8C','#C2762B',
-                      '#8E5BC6','#C0453F','#2F8F4E','#B08A2E','#5468C4'];
-function ownerColor(w){
-  if(!w) return '#B4462F';
+// Цвета чужих владений. В прошлой палитре два оттенка отличались
+// всего на 7 градусов тона — глаз уверенно различает от 30, поэтому
+// соседние земли сливались и путались.
+//
+// Здесь тона раскиданы ровно по кругу с шагом 30°, насыщенность
+// высокая, а свет чередуется 46 и 62 процента — значит соседние
+// отличаются сразу по двум признакам. Золотую зону обходим: она
+// занята твоими собственными точками.
+const OWNER_COLORS = ['#a5d515','#76ee4f','#15d545','#4feec6','#15a5d5',
+                      '#4f76ee','#4515d5','#c64fee','#d515a5','#ee4f76','#d54515'];
+// Рисунок обводки — второй признак поверх цвета. Даже если два цвета
+// покажутся похожими, штрих у них будет разный. Всего сочетаний 44.
+const OWNER_DASH = ['9 6', '2 5', '14 5 3 5', '20 6'];
+
+function ownerHash(w){
   let h = 0;
-  for(let i = 0; i < w.length; i++) h = (h * 31 + w.charCodeAt(i)) & 0xffffff;
-  return OWNER_COLORS[Math.abs(h) % OWNER_COLORS.length];
+  for(let i = 0; i < String(w).length; i++) h = (h * 31 + String(w).charCodeAt(i)) & 0xffffff;
+  return Math.abs(h);
+}
+function ownerColor(w){
+  if(!w) return OWNER_COLORS[0];
+  return OWNER_COLORS[ownerHash(w) % OWNER_COLORS.length];
+}
+function ownerDash(w){
+  if(!w) return OWNER_DASH[0];
+  // делим на длину палитры, чтобы штрих не шёл в ногу с цветом
+  return OWNER_DASH[Math.floor(ownerHash(w) / OWNER_COLORS.length) % OWNER_DASH.length];
 }
 
 function drawLabels(){
@@ -4364,8 +4431,128 @@ setTimeout(hideSplash, 6000);        // страховка на случай л�
 (async function start(){
   // Регистрируем первым делом и отдельно: если споткнётся что-то ниже,
   // приложение не должно остаться без работы вне сети.
+// ═══════════ Установка на телефон ═══════════
+// Браузер предлагает установку сам, но редко и незаметно. Ловим его
+// предложение, придерживаем и показываем СВОЮ кнопку — тогда игра
+// ставится на рабочий стол как обычное приложение: открывается на
+// весь экран, без адресной строки, запускается с ярлыка.
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _installPrompt = e;
+  paintInstall();
+});
+window.addEventListener('appinstalled', () => {
+  _installPrompt = null; paintInstall();
+  try{ say(T('inst_done'), 'good'); }catch(err){}
+});
+function installed(){
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+function paintInstall(){
+  let b = document.getElementById('inst-btn');
+  if(!b){
+    b = document.createElement('button');
+    b.id = 'inst-btn';
+    b.onclick = doInstall;
+    document.body.appendChild(b);
+  }
+  b.style.display = (_installPrompt && !installed()) ? 'block' : 'none';
+  b.textContent = T('inst_btn');
+}
+async function doInstall(){
+  if(!_installPrompt) return;
+  const e = _installPrompt;
+  _installPrompt = null;
+  paintInstall();
+  try{
+    e.prompt();
+    const r = await e.userChoice;
+    if(r && r.outcome !== 'accepted') say(T('inst_later'));
+  }catch(err){}
+}
+setTimeout(paintInstall, 3000);
+
+// ── Полоса «есть обновление» ──────────────────────────────────────
+let _updReg = null;
+function showUpdate(reg){
+  _updReg = reg;
+  let b = document.getElementById('upd-bar');
+  if(!b){
+    b = document.createElement('button');
+    b.id = 'upd-bar';
+    b.onclick = takeUpdate;
+    document.body.appendChild(b);
+  }
+  b.textContent = T('upd_btn');
+  b.style.display = 'block';
+  try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}
+}
+function takeUpdate(){
+  const b = document.getElementById('upd-bar');
+  if(b) b.textContent = T('upd_going');
+  try{
+    if(_updReg && _updReg.waiting) _updReg.waiting.postMessage('SKIP_WAITING');
+    else location.reload();
+  }catch(e){ location.reload(); }
+  // Если работник почему-то не отозвался — перезагружаем сами.
+  setTimeout(() => location.reload(), 2500);
+}
+
+// Запасной способ, если работник не поддерживается или сорвался:
+// просто спрашиваем у сервера метку версии и сравниваем со своей.
+const APP_V = 45;
+async function checkVersion(){
+  if(!navigator.onLine || document.hidden) return;
+  try{
+    const r = await fetch('version.json?t=' + Date.now(), { cache:'no-store' });
+    if(!r.ok) return;
+    const j = await r.json();
+    if(j && Number(j.v) > APP_V && !document.getElementById('upd-bar')) showUpdate(null);
+  }catch(e){}
+}
+setTimeout(checkVersion, 20000);
+setInterval(checkVersion, 15*60000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) checkVersion(); });
+
+  // ═══════════ Обновление игры на телефоне ═══════════
+  // Раньше новая версия доезжала только когда человек сам закрывал
+  // вкладку насовсем. Один телефон обновлялся, второй нет — и игра
+  // на них вела себя по-разному, что и выглядело как «тупит и висит».
+  //
+  // Теперь: заметили новую — показали полосу «обновить». Нажал —
+  // страница перезагружается на свежую, разом и целиком.
   if('serviceWorker' in navigator){
-    try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
+    try{
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        if(!reg) return;
+        // уже ждёт с прошлого раза
+        if(reg.waiting && navigator.serviceWorker.controller) showUpdate(reg);
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if(!nw) return;
+          nw.addEventListener('statechange', () => {
+            // controller есть — значит это не первая установка, а замена
+            if(nw.state === 'installed' && navigator.serviceWorker.controller) showUpdate(reg);
+          });
+        });
+        // Спрашиваем сервер о новой версии: при запуске, при возврате
+        // в игру и раз в четверть часа.
+        const look = () => { try{ reg.update(); }catch(e){} };
+        setTimeout(look, 15000);
+        setInterval(look, 15*60000);
+        document.addEventListener('visibilitychange', () => { if(!document.hidden) look(); });
+      }).catch(()=>{});
+      // Работник вступил в силу — страница обязана перезагрузиться,
+      // иначе останется смесь старого и нового кода.
+      let _reloading = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if(_reloading) return;
+        _reloading = true;
+        location.reload();
+      });
+    }catch(e){}
   }
   initMap();
   try{ await DB.open(); }catch(e){}
