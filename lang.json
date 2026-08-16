@@ -297,7 +297,8 @@
   "st_warnear": "A fight started {n} m from you.",
   "st_warmine": "YOUR point is under attack — {n} m away!",
   "st_warclan": "Your clan is under attack — {n} m away. Run!",
-  "sg_clan": "Your own clan. You do not fight your own."
+  "sg_clan": "Your own clan. You do not fight your own.",
+  "sh_nowd": "This money lives inside the game. Spend it in the shop — it cannot be withdrawn."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -597,7 +598,8 @@
   "st_warnear": "За {n} м від тебе почався бій.",
   "st_warmine": "ТВОЮ точку атакують — {n} м звідси!",
   "st_warclan": "Клан під атакою — {n} м звідси. Біжи!",
-  "sg_clan": "Це твій клан. Своїх не б'ють."
+  "sg_clan": "Це твій клан. Своїх не б'ють.",
+  "sh_nowd": "Ці гроші живуть усередині гри. Їх можна витрачати в крамниці, вивести не можна."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -897,7 +899,8 @@
   "st_warnear": "В {n} м от тебя начался бой.",
   "st_warmine": "ТВОЮ точку атакуют — {n} м отсюда!",
   "st_warclan": "Клан под атакой — {n} м отсюда. Беги!",
-  "sg_clan": "Это твой клан. Своих не бьют."
+  "sg_clan": "Это твой клан. Своих не бьют.",
+  "sh_nowd": "Эти деньги живут внутри игры. Их можно тратить в лавке, вывести нельзя."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1197,7 +1200,8 @@
   "st_warnear": "{n} m od ciebie zaczęła się walka.",
   "st_warmine": "TWÓJ punkt jest atakowany — {n} m stąd!",
   "st_warclan": "Twój klan jest atakowany — {n} m stąd. Biegnij!",
-  "sg_clan": "To twój klan. Swoich się nie bije."
+  "sg_clan": "To twój klan. Swoich się nie bije.",
+  "sh_nowd": "Te pieniądze żyją wewnątrz gry. Można je wydać w sklepie, wypłacić nie można."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1497,7 +1501,8 @@
   "st_warnear": "距你 {n} 米处打起来了。",
   "st_warmine": "你的点正被攻击——就在 {n} 米外！",
   "st_warclan": "你的战团正被攻击——就在 {n} 米外，快去！",
-  "sg_clan": "这是你自己的战团，不打自己人。"
+  "sg_clan": "这是你自己的战团，不打自己人。",
+  "sh_nowd": "这些钱只存在于游戏内。可以在商店里花掉，但无法提现。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1797,7 +1802,8 @@
   "st_warnear": "Empezó un combate a {n} m de ti.",
   "st_warmine": "¡Atacan TU punto, a {n} m de aquí!",
   "st_warclan": "Atacan a tu clan, a {n} m de aquí. ¡Corre!",
-  "sg_clan": "Es tu clan. A los tuyos no se les ataca."
+  "sg_clan": "Es tu clan. A los tuyos no se les ataca.",
+  "sh_nowd": "Este dinero vive dentro del juego. Puedes gastarlo en la tienda, pero no retirarlo."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2097,7 +2103,8 @@
   "st_warnear": "{n} m von dir hat ein Kampf begonnen.",
   "st_warmine": "DEIN Punkt wird angegriffen — {n} m von hier!",
   "st_warclan": "Dein Clan wird angegriffen — {n} m von hier. Lauf!",
-  "sg_clan": "Dein eigener Clan. Auf die Eigenen schießt man nicht."
+  "sg_clan": "Dein eigener Clan. Auf die Eigenen schießt man nicht.",
+  "sh_nowd": "Dieses Geld lebt im Spiel. Du kannst es im Laden ausgeben, auszahlen lässt es sich nicht."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2397,6 +2404,7 @@
   "st_warnear": "Senden {n} m ötede çatışma başladı.",
   "st_warmine": "SENİN noktana saldırıyorlar — {n} m ötede!",
   "st_warclan": "Klanına saldırıyorlar — {n} m ötede. Koş!",
-  "sg_clan": "Bu senin klanın. Kendi adamına vurulmaz."
+  "sg_clan": "Bu senin klanın. Kendi adamına vurulmaz.",
+  "sh_nowd": "Bu para oyunun içinde yaşar. Dükkânda harcayabilirsin, çekemezsin."
  }
 }
