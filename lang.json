@@ -304,7 +304,19 @@
   "inst_done": "Installed. Open it from your home screen now.",
   "inst_later": "Fine — you can install it later from the browser menu.",
   "upd_btn": "A new version is ready — tap to update",
-  "upd_going": "Updating…"
+  "upd_going": "Updating…",
+  "t_bunker": "Bunker",
+  "t_gun": "Cannon",
+  "t_me": "Me",
+  "t_name": "Name",
+  "inst_row": "App on your phone",
+  "inst_yes": "installed",
+  "inst_how": "How to install",
+  "inst_chrome": "Open the browser menu (three dots, top right) and pick «Install app» or «Add to Home screen».\n\nIf you do not see it, play for a minute and look again — the browser offers it only after you have actually used the page.",
+  "inst_ios": "Tap Share at the bottom of Safari, then «Add to Home Screen».\n\nOn iPhone only Safari can do this — other browsers cannot install apps.",
+  "inst_ff": "Open the menu (three lines) and pick «Install» or «Add to Home screen».",
+  "inst_sam": "Open the menu (three lines, bottom right), pick «Add page to», then «Home screen».",
+  "inst_opera": "Open the menu, pick «Add to», then «Home screen»."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -611,7 +623,19 @@
   "inst_done": "Готово. Тепер запускай з робочого столу.",
   "inst_later": "Гаразд — встановити можна пізніше, з меню браузера.",
   "upd_btn": "Вийшло оновлення — натисни, щоб поставити",
-  "upd_going": "Оновлюю…"
+  "upd_going": "Оновлюю…",
+  "t_bunker": "Бункер",
+  "t_gun": "Гармата",
+  "t_me": "Я",
+  "t_name": "Назва",
+  "inst_row": "Застосунок на телефоні",
+  "inst_yes": "встановлено",
+  "inst_how": "Як встановити",
+  "inst_chrome": "Відкрий меню браузера (три крапки праворуч угорі) і вибери «Встановити застосунок» або «Додати на головний екран».\n\nЯкщо такого пункту немає — пограй хвилину і зазирни ще раз: браузер пропонує встановлення лише після того, як ти справді скористався сторінкою.",
+  "inst_ios": "Натисни «Поділитися» внизу Safari, потім «На екран „Домівка“».\n\nНа айфоні це вміє лише Safari — інші браузери застосунки не ставлять.",
+  "inst_ff": "Відкрий меню (три смужки) і вибери «Встановити» або «Додати на головний екран».",
+  "inst_sam": "Відкрий меню (три смужки праворуч унизу), вибери «Додати сторінку», потім «На головний екран».",
+  "inst_opera": "Відкрий меню, вибери «Додати до», потім «На головний екран»."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -918,7 +942,19 @@
   "inst_done": "Готово. Теперь запускай с рабочего стола.",
   "inst_later": "Ладно — поставить можно позже, из меню браузера.",
   "upd_btn": "Вышло обновление — нажми, чтобы поставить",
-  "upd_going": "Обновляю…"
+  "upd_going": "Обновляю…",
+  "t_bunker": "Бункер",
+  "t_gun": "Пушка",
+  "t_me": "Я",
+  "t_name": "Имя",
+  "inst_row": "Приложение на телефоне",
+  "inst_yes": "установлено",
+  "inst_how": "Как установить",
+  "inst_chrome": "Открой меню браузера (три точки справа сверху) и выбери «Установить приложение» или «Добавить на главный экран».\n\nЕсли такого пункта нет — поиграй минуту и загляни ещё раз: браузер предлагает установку только после того, как ты действительно попользовался страницей.",
+  "inst_ios": "Нажми «Поделиться» внизу Safari, потом «На экран „Домой“».\n\nНа айфоне это умеет только Safari — другие браузеры приложения не ставят.",
+  "inst_ff": "Открой меню (три полоски) и выбери «Установить» или «Добавить на главный экран».",
+  "inst_sam": "Открой меню (три полоски справа внизу), выбери «Добавить страницу», потом «На главный экран».",
+  "inst_opera": "Открой меню, выбери «Добавить в», потом «На главный экран»."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1225,7 +1261,19 @@
   "inst_done": "Gotowe. Uruchamiaj teraz z ekranu głównego.",
   "inst_later": "W porządku — możesz zainstalować później, z menu przeglądarki.",
   "upd_btn": "Jest nowa wersja — dotknij, aby zaktualizować",
-  "upd_going": "Aktualizuję…"
+  "upd_going": "Aktualizuję…",
+  "t_bunker": "Bunkier",
+  "t_gun": "Działo",
+  "t_me": "Ja",
+  "t_name": "Nazwa",
+  "inst_row": "Aplikacja na telefonie",
+  "inst_yes": "zainstalowana",
+  "inst_how": "Jak zainstalować",
+  "inst_chrome": "Otwórz menu przeglądarki (trzy kropki w prawym górnym rogu) i wybierz „Zainstaluj aplikację” lub „Dodaj do ekranu głównego”.\n\nJeśli tego nie widzisz — pograj minutę i sprawdź ponownie: przeglądarka proponuje instalację dopiero gdy naprawdę korzystałeś ze strony.",
+  "inst_ios": "Naciśnij „Udostępnij” na dole Safari, potem „Do ekranu początkowego”.\n\nNa iPhonie potrafi to tylko Safari — inne przeglądarki nie instalują aplikacji.",
+  "inst_ff": "Otwórz menu (trzy kreski) i wybierz „Zainstaluj” lub „Dodaj do ekranu głównego”.",
+  "inst_sam": "Otwórz menu (trzy kreski, prawy dolny róg), wybierz „Dodaj stronę”, potem „Ekran główny”.",
+  "inst_opera": "Otwórz menu, wybierz „Dodaj do”, potem „Ekran główny”."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1532,7 +1580,19 @@
   "inst_done": "已安装。现在可以从主屏幕打开。",
   "inst_later": "好的，稍后可以从浏览器菜单安装。",
   "upd_btn": "有新版本——点一下更新",
-  "upd_going": "正在更新…"
+  "upd_going": "正在更新…",
+  "t_bunker": "地堡",
+  "t_gun": "火炮",
+  "t_me": "我",
+  "t_name": "命名",
+  "inst_row": "手机上的应用",
+  "inst_yes": "已安装",
+  "inst_how": "如何安装",
+  "inst_chrome": "打开浏览器菜单（右上角三个点），选择「安装应用」或「添加到主屏幕」。\n\n如果看不到这一项，先玩一分钟再看：浏览器只有在你真正使用过页面之后才会提供安装。",
+  "inst_ios": "点 Safari 底部的「分享」，然后「添加到主屏幕」。\n\n在 iPhone 上只有 Safari 能做到，其他浏览器无法安装应用。",
+  "inst_ff": "打开菜单（三条横线），选择「安装」或「添加到主屏幕」。",
+  "inst_sam": "打开菜单（右下角三条横线），选择「添加页面到」，再选「主屏幕」。",
+  "inst_opera": "打开菜单，选择「添加到」，再选「主屏幕」。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1839,7 +1899,19 @@
   "inst_done": "Listo. Ábrelo desde la pantalla de inicio.",
   "inst_later": "Vale, puedes instalarlo luego desde el menú del navegador.",
   "upd_btn": "Hay una versión nueva: toca para actualizar",
-  "upd_going": "Actualizando…"
+  "upd_going": "Actualizando…",
+  "t_bunker": "Búnker",
+  "t_gun": "Cañón",
+  "t_me": "Yo",
+  "t_name": "Nombre",
+  "inst_row": "App en tu teléfono",
+  "inst_yes": "instalada",
+  "inst_how": "Cómo instalarla",
+  "inst_chrome": "Abre el menú del navegador (tres puntos arriba a la derecha) y elige «Instalar aplicación» o «Añadir a pantalla de inicio».\n\nSi no lo ves, juega un minuto y vuelve a mirar: el navegador solo lo ofrece cuando de verdad has usado la página.",
+  "inst_ios": "Toca «Compartir» abajo en Safari y luego «Añadir a pantalla de inicio».\n\nEn iPhone solo Safari puede hacerlo; los demás navegadores no instalan apps.",
+  "inst_ff": "Abre el menú (tres líneas) y elige «Instalar» o «Añadir a pantalla de inicio».",
+  "inst_sam": "Abre el menú (tres líneas abajo a la derecha), elige «Añadir página a» y luego «Pantalla de inicio».",
+  "inst_opera": "Abre el menú, elige «Añadir a» y luego «Pantalla de inicio»."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2146,7 +2218,19 @@
   "inst_done": "Fertig. Starte es jetzt vom Startbildschirm.",
   "inst_later": "Gut — du kannst es später über das Browsermenü installieren.",
   "upd_btn": "Neue Version da — zum Aktualisieren tippen",
-  "upd_going": "Aktualisiere…"
+  "upd_going": "Aktualisiere…",
+  "t_bunker": "Bunker",
+  "t_gun": "Geschütz",
+  "t_me": "Ich",
+  "t_name": "Name",
+  "inst_row": "App auf dem Handy",
+  "inst_yes": "installiert",
+  "inst_how": "So installierst du",
+  "inst_chrome": "Öffne das Browsermenü (drei Punkte oben rechts) und wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“.\n\nWenn du das nicht siehst: spiel eine Minute und schau nochmal — der Browser bietet es erst an, wenn du die Seite wirklich genutzt hast.",
+  "inst_ios": "Tippe unten in Safari auf „Teilen“, dann „Zum Home-Bildschirm“.\n\nAuf dem iPhone kann das nur Safari — andere Browser installieren keine Apps.",
+  "inst_ff": "Öffne das Menü (drei Striche) und wähle „Installieren“ oder „Zum Startbildschirm hinzufügen“.",
+  "inst_sam": "Öffne das Menü (drei Striche unten rechts), wähle „Seite hinzufügen zu“, dann „Startbildschirm“.",
+  "inst_opera": "Öffne das Menü, wähle „Hinzufügen zu“, dann „Startbildschirm“."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2453,6 +2537,18 @@
   "inst_done": "Hazır. Artık ana ekrandan aç.",
   "inst_later": "Tamam — sonra tarayıcı menüsünden kurabilirsin.",
   "upd_btn": "Yeni sürüm hazır — güncellemek için dokun",
-  "upd_going": "Güncelleniyor…"
+  "upd_going": "Güncelleniyor…",
+  "t_bunker": "Sığınak",
+  "t_gun": "Top",
+  "t_me": "Ben",
+  "t_name": "Ad",
+  "inst_row": "Telefonda uygulama",
+  "inst_yes": "kurulu",
+  "inst_how": "Nasıl kurulur",
+  "inst_chrome": "Tarayıcı menüsünü aç (sağ üstte üç nokta) ve «Uygulamayı yükle» ya da «Ana ekrana ekle» seç.\n\nGörmüyorsan bir dakika oyna ve tekrar bak: tarayıcı bunu ancak sayfayı gerçekten kullandıktan sonra öneriyor.",
+  "inst_ios": "Safari'nin altındaki «Paylaş»a dokun, sonra «Ana Ekrana Ekle».\n\niPhone'da bunu yalnızca Safari yapabilir — diğer tarayıcılar uygulama kurmaz.",
+  "inst_ff": "Menüyü aç (üç çizgi) ve «Yükle» ya da «Ana ekrana ekle» seç.",
+  "inst_sam": "Menüyü aç (sağ altta üç çizgi), «Sayfayı şuraya ekle» ve sonra «Ana ekran» seç.",
+  "inst_opera": "Menüyü aç, «Şuraya ekle» ve sonra «Ana ekran» seç."
  }
 }
