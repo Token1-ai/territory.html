@@ -452,7 +452,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 49;
+var LANG_V = 50;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -4385,6 +4385,17 @@ async function openProfile(){
     + '<div class="row" style="margin:8px 0 0;">'
     + '<button class="btn-ghost" onclick="pushToggle()">'
     +   esc(T(pushIsOn ? 'nt_btn_off' : 'nt_btn_on')) + '</button>'
+    + '</div>'
+    // Скачать приложение — внизу профиля, широкой кнопкой. Наверху
+    // была мелкая строчка, её просто не замечали. Кнопка стоит
+    // ВСЕГДА: если уже установлено, она об этом и говорит, а не
+    // исчезает — иначе непонятно, установлено или потерялось.
+    + '<div class="row" style="margin:12px 0 0;">'
+    + (installed()
+        ? '<button class="btn-ghost" disabled style="flex:1;padding:12px;opacity:.6">'
+          + esc(T('inst_yes')) + '</button>'
+        : '<button class="btn-buy" style="flex:1;padding:13px" onclick="howInstall()">'
+          + esc(T('inst_btn')) + '</button>')
     + '</div>';
   document.getElementById('sheet-t').textContent = T('pf_title');
   document.getElementById('veil').classList.add('on');
@@ -4608,7 +4619,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 48;
+const APP_V = 49;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
