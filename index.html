@@ -211,11 +211,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
    Раньше пять широких надписей съедали треть экрана — карты почти
    не оставалось. Теперь панель втрое ниже. */
 #tools{display:flex;gap:6px;justify-content:space-between;margin-top:8px;}
+/* Над светлой картой белые надписи почти не читались. Даём панели
+   плотную тёмную подложку — тогда текст виден на любой местности. */
+#dock{background:linear-gradient(180deg,rgba(9,11,7,0) 0%,rgba(9,11,7,.88) 28%,rgba(9,11,7,.97) 100%);
+  padding-top:16px;}
+#msg{color:#EDE7D6;text-shadow:0 1px 3px rgba(0,0,0,.9);}
 #tools .tool{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  background:rgba(18,20,15,.82);border:1px solid rgba(224,163,46,.28);
+  background:rgba(11,13,9,.94);border:1px solid rgba(224,163,46,.32);
   border-radius:13px;padding:7px 2px 5px;color:#C7C2B2;cursor:pointer;}
 #tools .tool i{font-style:normal;font-size:17px;line-height:1;color:#E0A32E;}
-#tools .tool span{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;
+#tools .tool span{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:#DDD6C4;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 #tools .tool.on{background:rgba(224,163,46,.18);border-color:rgba(224,163,46,.75);}
 #tools .tool.on i, #tools .tool.on span{color:#E0A32E;}
@@ -447,7 +452,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 47;
+var LANG_V = 49;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -762,7 +767,11 @@ function startWarSmoke(){
       // Знак войны — всегда: он в экранных точках и виден с любого
       // отдаления. Дым и трассы — только когда карта приближена,
       // иначе на весь город это превратится в кашу.
-      try{ FX.war(b.lat, b.lng); }catch(e){}
+      // Доля снятой жизни: от неё зависит, сколько дыма. С первого
+      // удара уже видно, а к концу боя точка дымит вовсю.
+      const hurt = (sg.total_hp > 0)
+        ? Math.min(1, (Number(sg.damage) || 0) / Number(sg.total_hp)) : 0;
+      try{ FX.war(b.lat, b.lng, 2200, 0.3 + hurt * 0.7); }catch(e){}
       const zoom = map.getZoom();
       // Бойцы этой точки — их видит ЛЮБОЙ, кто смотрит на карту,
       // не только участник боя. Показываем с приличного приближения:
@@ -1379,12 +1388,8 @@ function paintGunBtn(){
     n.textContent = left;
     t.style.opacity = left <= 0 ? '.45' : '';
   }
-  const b = document.getElementById('btn-gun');
-  if(b){
-    const left = gunsLeftToday();
-    b.textContent = T('gun_btn') + ' \u00b7 ' + left;
-    b.disabled = left <= 0;
-  }
+  // Старой широкой кнопки пушки в разметке больше нет — её заменил
+  // значок с цифрой. Обращение к ней осталось бы висеть впустую.
 }
 
 
@@ -1800,7 +1805,8 @@ const FX = (function(){
   function smoke(lat, lng){ add({ kind:'smoke', lat, lng, ms:2600, seed:Math.random()*10 }); }
   // Знак боя. Рисуется в ЭКРАННЫХ точках, а не в метрах, поэтому не
   // сжимается вместе с картой: отдалил город — война всё равно видна.
-  function war(lat, lng, ms){ add({ kind:'war', lat, lng, ms: ms || 2200, seed:Math.random()*6 }); }
+  function war(lat, lng, ms, dmg){ add({ kind:'war', lat, lng, ms: ms || 2200,
+    seed:Math.random()*6, dmg: dmg || 0 }); }
   // Боец на карте. Живёт ровно до следующего обновления состава.
   function man(lat, lng, side, name, boss, ms){
     add({ kind:'man', lat, lng, side, name, boss, ms: ms || 2600, seed:Math.random()*6 });
@@ -2035,15 +2041,25 @@ const FX = (function(){
         ctx.restore();
       }
       if(o.kind === 'war'){
+        // Насколько крупно рисовать. Отдалил карту — остаётся только
+        // столб дыма над местом боя: кольца в экранных точках
+        // занимали бы пол-города и закрывали всё вокруг.
+        const z = map.getZoom();
+        const near = z >= 14;
+        const hard = Math.max(0.35, Math.min(1, o.dmg || 0.35));
         const t = (now / 900 + o.seed) % 1;
-        // столб дыма вверх — читается издалека даже на сером фоне
-        for(let i = 0; i < 5; i++){
-          const f = (t + i / 5) % 1;
-          const y = p.y - 6 - f * 26;
-          const rr = 3 + f * 9;
+        // Столб дыма. Чем сильнее избита точка, тем гуще и выше —
+        // видно с первого удара и всё заметнее к концу.
+        const puffs = Math.round(4 + hard * 6);
+        const up = 22 + hard * 22;
+        for(let i = 0; i < puffs; i++){
+          const f = (t + i / puffs) % 1;
+          const y = p.y - 6 - f * up;
+          const rr = (2.5 + f * (7 + hard * 6)) * (near ? 1 : 1.25);
           ctx.beginPath(); ctx.arc(p.x + Math.sin((f + o.seed) * 4) * 5, y, rr, 0, 7);
-          ctx.fillStyle = 'rgba(58,54,48,' + (0.42 * (1 - f)) + ')'; ctx.fill();
+          ctx.fillStyle = 'rgba(52,48,42,' + ((0.30 + hard * 0.28) * (1 - f)) + ')'; ctx.fill();
         }
+        if(!near) return;      // издалека — только дым, без колец и огня
         // пульсирующее кольцо очага
         const pl = 0.5 + 0.5 * Math.sin(now / 260 + o.seed);
         ctx.beginPath(); ctx.arc(p.x, p.y, 9 + pl * 7, 0, 7);
@@ -2691,17 +2707,12 @@ async function openTopUp(needCents){
   document.getElementById('sheet-p').textContent = '';
   document.getElementById('sheet-ok').textContent = T('back');
   document.getElementById('sheet-t').textContent = T('sh_topup');
-  const rate = await bnbRate();
+  const rate = _rate.v || money.bnb_usd || 600;   // мгновенно, без ожидания
   const minUsd = (money.min_cents || 180) / 100;
   const start = Math.max(minUsd, needCents ? Math.ceil(needCents)/100 : 1);
   let html = '';
   if(needCents) html += '<div class="mv-warn">' + esc(T('sh_notenough', { n: money$(needCents) })) + '</div>';
-  html += '<div class="pf-row"><span>' + T('inst_row') + '</span><b>'
-       +   (installed() ? T('inst_yes')
-            : '<button class="btn-buy" style="padding:6px 12px" onclick="howInstall()">'
-              + esc(T('inst_how')) + '</button>')
-       + '</b></div>'
-       + '<div class="pf-row"><span>' + T('sh_balance') + '</span><b>' + money$(money.balance_cents) + '</b></div>'
+  html += '<div class="pf-row"><span>' + T('sh_balance') + '</span><b>' + money$(money.balance_cents) + '</b></div>'
        + '<div class="mv-warn" style="margin:6px 0 10px">' + esc(T('sh_nowd')) + '</div>'
         + '<div class="pf-sec">' + T('sh_howmuch') + '</div>'
         + '<div class="sum-box">'
@@ -4324,7 +4335,13 @@ async function openProfile(){
   document.getElementById('sheet-ok').textContent = T('backmap');
 
   document.getElementById('sheet-body').innerHTML =
-    '<div class="pf-grid">'
+    // Установка на телефон — здесь ей и место, а не в окне пополнения
+    '<div class="pf-row"><span>' + T('inst_row') + '</span><b>'
+    +   (installed() ? T('inst_yes')
+         : '<button class="btn-buy" style="padding:6px 12px" onclick="howInstall()">'
+           + esc(T('inst_how')) + '</button>')
+    + '</b></div>'
+    + '<div class="pf-grid">'
     + cell(mine.length, T('pf_held'))
     + cell(area >= 1000000 ? (area/1000000).toFixed(2)+' km²' : Math.round(area).toLocaleString()+' m²', T('pf_area'))
     + cell(Math.max(0, cfg.earth_per_day - today.length - queue.length), T('pf_left'))
@@ -4591,7 +4608,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 46;
+const APP_V = 48;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
