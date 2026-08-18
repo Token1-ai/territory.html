@@ -203,22 +203,22 @@ var SEL_APPROVE = '0x095ea7b3';
 var BSC = '0x38';
 
 var L = {
-  en:{reject:'The contract refused the payment',who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
+  en:{credited:'Money is in the game',slow:'Taking longer than usual. The game will finish it itself.',reject:'The contract refused the payment',who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
       nowal:'No wallet here. Open this page inside your wallet app.',
       wrong:'Switch your wallet to BNB Chain.',sent:'Sent. Go back to the game — the money will arrive in about a minute.',
       cancel:'Payment cancelled.',step1:'Step 1 of 2 — allow the payment',step2:'Step 2 of 2 — confirm the transfer',
       bad:'Broken link. Open the shop in the game again.'},
-  ru:{reject:'Контракт отказался принять платёж',who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
+  ru:{credited:'Деньги в игре',slow:'Дольше обычного. Игра доведёт до конца сама.',reject:'Контракт отказался принять платёж',who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
       nowal:'Здесь нет кошелька. Открой эту страницу внутри приложения кошелька.',
       wrong:'Переключи кошелёк на BNB Chain.',sent:'Отправлено. Возвращайся в игру — деньги придут примерно через минуту.',
       cancel:'Оплата отменена.',step1:'Шаг 1 из 2 — разреши списание',step2:'Шаг 2 из 2 — подтверди перевод',
       bad:'Ссылка испорчена. Открой лавку в игре заново.'},
-  uk:{reject:'Контракт відмовився прийняти платіж',who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
+  uk:{credited:'Гроші у грі',slow:'Довше ніж зазвичай. Гра доведе до кінця сама.',reject:'Контракт відмовився прийняти платіж',who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
       nowal:'Тут немає гаманця. Відкрий цю сторінку в застосунку гаманця.',
       wrong:'Перемкни гаманець на BNB Chain.',sent:'Надіслано. Повертайся у гру — гроші прийдуть за хвилину.',
       cancel:'Оплату скасовано.',step1:'Крок 1 з 2 — дозволь списання',step2:'Крок 2 з 2 — підтверди переказ',
       bad:'Посилання пошкоджено. Відкрий крамницю заново.'},
-  pl:{reject:'Kontrakt odrzucił płatność',who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
+  pl:{credited:'Pieniądze są w grze',slow:'Dłużej niż zwykle. Gra dokończy sama.',reject:'Kontrakt odrzucił płatność',who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
       nowal:'Tu nie ma portfela. Otwórz tę stronę w aplikacji portfela.',
       wrong:'Przełącz portfel na BNB Chain.',sent:'Wysłane. Wróć do gry — pieniądze dojdą za około minutę.',
       cancel:'Płatność anulowana.',step1:'Krok 1 z 2 — zezwól na pobranie',step2:'Krok 2 z 2 — potwierdź przelew',
@@ -342,23 +342,54 @@ $('go').onclick = async function(){
       }
       tx = await ethereum.request({ method:'eth_sendTransaction', params:[body] });
     }
-    msg(T.sent, 'ok');
     $('go').style.display = 'none';
     $('back').style.display = 'block';
-    // говорим серверу номер сделки, чтобы зачислил, не дожидаясь игры
-    try{
-      fetch('/api/topup', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ tx_hash: tx }), keepalive:true }).catch(function(){});
-    }catch(e){}
-    // и кладём его рядом, чтобы игра подхватила при возвращении
     try{ localStorage.setItem('ogt_last_tx', tx); }catch(e){}
+    creditLoop(tx);
   }catch(e){
     msg(T.cancel, 'bad');
     $('go').disabled = false;
   }
 };
 
-$('back').onclick = function(){ location.href = HOME; };
+// ── Зачисление ───────────────────────────────────────────────────
+// РАНЬШЕ сервер дёргали ОДИН раз, сразу после подписи. Но сделка в
+// этот миг ещё не в блокчейне: сервер смотрит, ничего не находит и
+// бросает. Второй попытки не было. Запись в память телефона тоже не
+// спасала: платят в браузере кошелька, а игра открыта в другом — это
+// разные хранилища, игра её не видит.
+//
+// Теперь стучимся, пока не зачислится: почти три минуты, каждые пять
+// секунд. Обычно хватает двух-трёх попыток.
+async function creditLoop(tx){
+  for(var i = 0; i < 34; i++){
+    try{
+      var r = await fetch('/api/topup', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ tx_hash: tx }) });
+      var j = await r.json();
+      if(j && j.ok){
+        msg((T.credited || 'Money is in the game') + (j.cents ? ' \u00b7 $' + (j.cents/100).toFixed(2) : ''), 'ok');
+        try{ localStorage.removeItem('ogt_last_tx'); }catch(e){}
+        return;
+      }
+      // сделка ещё не в цепочке — это нормально первые полминуты
+      msg(T.sent + ' (' + (i + 1) + ')', 'wait');
+    }catch(e){
+      msg(T.sent + ' (' + (i + 1) + ')', 'wait');
+    }
+    await new Promise(function(r){ setTimeout(r, 5000); });
+  }
+  // Не дождались — не страшно: номер сделки остался записан, игра
+  // повторит запрос сама. Показываем его, чтобы можно было прислать.
+  msg((T.slow || 'Taking longer than usual') + '\n' + tx, 'wait');
+}
+
+$('back').onclick = function(){
+  // Кнопка ведёт в игру ЗДЕСЬ ЖЕ. Перепрыгнуть из браузера кошелька
+  // обратно в Chrome нельзя — так устроены телефоны, это не поломка.
+  location.href = HOME;
+};
 </script>
 </body>
 </html>
