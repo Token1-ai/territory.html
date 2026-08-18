@@ -452,7 +452,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 50;
+var LANG_V = 52;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -2532,9 +2532,16 @@ const SHOP_LIST = [
   { code:'skin',       fam:'skin'   },
 ];
 function priceOf(code){
+  // Настоящие цены живут в таблице territory_prices на сервере и
+  // приходят в money.prices. Число из настроек берём только если
+  // сервер молчит, а вшитое — в самую последнюю очередь.
+  const srv = money.prices && money.prices[code];
+  if(srv > 0) return Number(srv);
+  const c = Number(cfg['price_' + code]);
+  if(c > 0) return c;
   const map = { reinforce:50, steel:100, fort:200, heavy:20, rocket:40,
                 charge:15, hcharge:30, longrocket:40, drone:5, skin:30 };
-  return Number(cfg['price_' + code] || map[code] || 0);
+  return Number(map[code] || 0);
 }
 function money$(c){ return '$' + (Number(c)/100).toFixed(2); }
 
@@ -4320,7 +4327,11 @@ async function openProfile(){
   const mine = addr ? bunkers.filter(b=>b.owner===addr) : [];
   const area = myAreaM2();
   const first = mine.length ? new Date(Math.min(...mine.map(b=>+new Date(b.built_at)))) : null;
-  const syncedAt = await DB.get('kv','syncedAt');
+  // Хранилище телефона может отказать: приватный режим, нет места,
+  // сброшенные разрешения. Раньше отказ здесь ронял ВЕСЬ профиль —
+  // человек жал кнопку, и экран просто не открывался.
+  let syncedAt = null;
+  try{ syncedAt = await DB.get('kv','syncedAt'); }catch(e){}
   let quota = '—';
   if(navigator.storage && navigator.storage.estimate){
     try{ const q = await navigator.storage.estimate();
@@ -4531,9 +4542,6 @@ function hideSplash(){
 }
 setTimeout(hideSplash, 6000);        // страховка на случай любой поломки
 
-(async function start(){
-  // Регистрируем первым делом и отдельно: если споткнётся что-то ниже,
-  // приложение не должно остаться без работы вне сети.
 // ═══════════ Установка на телефон ═══════════
 // Браузер предлагает установку сам, но редко и незаметно. Ловим его
 // предложение, придерживаем и показываем СВОЮ кнопку — тогда игра
@@ -4550,8 +4558,14 @@ window.addEventListener('appinstalled', () => {
   try{ say(T('inst_done'), 'good'); }catch(err){}
 });
 function installed(){
-  return window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone === true;
+  // Обёртка обязательна. matchMedia есть не везде и не всегда, а эта
+  // проверка зовётся из ПРОФИЛЯ — без защиты отказ ронял весь экран,
+  // и профиль просто не открывался.
+  try{
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+  }catch(e){}
+  try{ if(window.navigator && window.navigator.standalone === true) return true; }catch(e){}
+  return false;
 }
 function paintInstall(){
   let b = document.getElementById('inst-btn');
@@ -4619,7 +4633,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 49;
+const APP_V = 51;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
@@ -4632,6 +4646,10 @@ async function checkVersion(){
 setTimeout(checkVersion, 20000);
 setInterval(checkVersion, 15*60000);
 document.addEventListener('visibilitychange', () => { if(!document.hidden) checkVersion(); });
+
+(async function start(){
+  // Регистрируем первым делом и отдельно: если споткнётся что-то ниже,
+  // приложение не должно остаться без работы вне сети.
 
   // ═══════════ Обновление игры на телефоне ═══════════
   // Раньше новая версия доезжала только когда человек сам закрывал
