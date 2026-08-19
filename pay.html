@@ -122,6 +122,8 @@ function revertReason(err){
 // ── Собственные ошибки договора ──────────────────────────────────
 // Контракт отвечает не текстом, а короткими кодами. Без разбора всё
 // это выглядело просто как «revert» — то есть ни о чём.
+// Внятные отказы договора: только на них и останавливаемся.
+var HARD = ['приём денег временно закрыт', 'номер игрока пустой'];
 var ERRS = {
   '9e87fac8': 'приём денег временно закрыт',
   '5f4b0a0b': 'номер игрока пустой',
@@ -203,22 +205,22 @@ var SEL_APPROVE = '0x095ea7b3';
 var BSC = '0x38';
 
 var L = {
-  en:{credited:'Money is in the game',slow:'Taking longer than usual. The game will finish it itself.',reject:'The contract refused the payment',who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
+  en:{warn:'Note',tryany:'the wallet will ask you anyway',credited:'Money is in the game',slow:'Taking longer than usual. The game will finish it itself.',reject:'The contract refused the payment',who:'Player',net:'Network',pay:'You pay',go:'Confirm payment',back:'Back to the game',
       nowal:'No wallet here. Open this page inside your wallet app.',
       wrong:'Switch your wallet to BNB Chain.',sent:'Sent. Go back to the game — the money will arrive in about a minute.',
       cancel:'Payment cancelled.',step1:'Step 1 of 2 — allow the payment',step2:'Step 2 of 2 — confirm the transfer',
       bad:'Broken link. Open the shop in the game again.'},
-  ru:{credited:'Деньги в игре',slow:'Дольше обычного. Игра доведёт до конца сама.',reject:'Контракт отказался принять платёж',who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
+  ru:{warn:'Замечание',tryany:'кошелёк всё равно спросит подтверждение',credited:'Деньги в игре',slow:'Дольше обычного. Игра доведёт до конца сама.',reject:'Контракт отказался принять платёж',who:'Игрок',net:'Сеть',pay:'Ты платишь',go:'Подтвердить оплату',back:'Вернуться в игру',
       nowal:'Здесь нет кошелька. Открой эту страницу внутри приложения кошелька.',
       wrong:'Переключи кошелёк на BNB Chain.',sent:'Отправлено. Возвращайся в игру — деньги придут примерно через минуту.',
       cancel:'Оплата отменена.',step1:'Шаг 1 из 2 — разреши списание',step2:'Шаг 2 из 2 — подтверди перевод',
       bad:'Ссылка испорчена. Открой лавку в игре заново.'},
-  uk:{credited:'Гроші у грі',slow:'Довше ніж зазвичай. Гра доведе до кінця сама.',reject:'Контракт відмовився прийняти платіж',who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
+  uk:{warn:'Зауваження',tryany:'гаманець усе одно запитає підтвердження',credited:'Гроші у грі',slow:'Довше ніж зазвичай. Гра доведе до кінця сама.',reject:'Контракт відмовився прийняти платіж',who:'Гравець',net:'Мережа',pay:'Ти платиш',go:'Підтвердити оплату',back:'Повернутись у гру',
       nowal:'Тут немає гаманця. Відкрий цю сторінку в застосунку гаманця.',
       wrong:'Перемкни гаманець на BNB Chain.',sent:'Надіслано. Повертайся у гру — гроші прийдуть за хвилину.',
       cancel:'Оплату скасовано.',step1:'Крок 1 з 2 — дозволь списання',step2:'Крок 2 з 2 — підтверди переказ',
       bad:'Посилання пошкоджено. Відкрий крамницю заново.'},
-  pl:{credited:'Pieniądze są w grze',slow:'Dłużej niż zwykle. Gra dokończy sama.',reject:'Kontrakt odrzucił płatność',who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
+  pl:{warn:'Uwaga',tryany:'portfel i tak poprosi o potwierdzenie',credited:'Pieniądze są w grze',slow:'Dłużej niż zwykle. Gra dokończy sama.',reject:'Kontrakt odrzucił płatność',who:'Gracz',net:'Sieć',pay:'Płacisz',go:'Potwierdź płatność',back:'Wróć do gry',
       nowal:'Tu nie ma portfela. Otwórz tę stronę w aplikacji portfela.',
       wrong:'Przełącz portfel na BNB Chain.',sent:'Wysłane. Wróć do gry — pieniądze dojdą za około minutę.',
       cancel:'Płatność anulowana.',step1:'Krok 1 z 2 — zezwól na pobranie',step2:'Krok 2 z 2 — potwierdź przelew',
@@ -309,7 +311,9 @@ $('go').onclick = async function(){
       var body2 = { from: acc[0], to: GATE_USD,
                     data: SEL_TOPUSD + pad(PLAYER, true) + pad(amt) };
       var why2 = await dryRun(body2);
-      if(why2){
+      if(why2 && HARD.indexOf(why2) < 0){
+        msg((T.warn || 'Note') + ': ' + why2, 'wait');
+      } else if(why2){
         msg((T.reject || 'The contract refused') + ': ' + why2, 'bad');
         $('go').disabled = false;
         return;
@@ -332,10 +336,23 @@ $('go').onclick = async function(){
       // СПРАВА — значит pad(..., true) здесь верно. Это не адрес.
       var body = { from: acc[0], to: GATE_BNB, value: '0x' + wei,
                    data: SEL_TOPUP + pad(PLAYER, true) };
+      // Холостой прогон только ПРЕДУПРЕЖДАЕТ, а не запрещает.
+      //
+      // Раньше он запрещал — и платить стало нельзя ВООБЩЕ НИ ИЗ
+      // КАКОГО кошелька, кроме одного. У разных кошельков свои узлы
+      // сети, и холостой прогон у них отвечает по-разному: то голый
+      // «revert», то «не хватает средств», даже когда настоящая
+      // сделка прошла бы. Мой предохранитель оказался хуже болезни.
+      //
+      // Останавливаемся только там, где договор ответил ВНЯТНО:
+      // мало прислал, приём закрыт, пустой номер игрока. Всё
+      // остальное — предупреждение, а решает человек.
       var stop = await beforeSend(GATE_BNB, wei);
       if(stop){ msg(stop, 'bad'); $('go').disabled = false; return; }
       var why = await dryRun(body);
-      if(why){
+      if(why && HARD.indexOf(why) < 0 && why.indexOf('слишком мало') < 0){
+        msg((T.warn || 'Note') + ': ' + why + ' \u2014 ' + (T.tryany || 'try anyway'), 'wait');
+      } else if(why){
         msg((T.reject || 'The contract refused') + ': ' + why, 'bad');
         $('go').disabled = false;
         return;
