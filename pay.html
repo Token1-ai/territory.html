@@ -378,7 +378,17 @@ $('go').onclick = async function(){
 //
 // Теперь стучимся, пока не зачислится: почти три минуты, каждые пять
 // секунд. Обычно хватает двух-трёх попыток.
+// Что означает ответ сервера, человеческими словами.
+var WHY = {
+  not_mined_yet : 'сделка ещё не в блокчейне',
+  wait          : 'ждём подтверждений сети',
+  tx_failed     : 'сделка не прошла в сети',
+  bad_tx        : 'неверный номер сделки',
+  not_our_topup : 'в сделке нет нашего платежа',
+  not_configured: 'НА СЕРВЕРЕ НЕ ЗАДАН КЛЮЧ БАЗЫ'
+};
 async function creditLoop(tx){
+  var last = '';
   for(var i = 0; i < 34; i++){
     try{
       var r = await fetch('/api/topup', {
@@ -386,20 +396,31 @@ async function creditLoop(tx){
         body: JSON.stringify({ tx_hash: tx }) });
       var j = await r.json();
       if(j && j.ok){
-        msg((T.credited || 'Money is in the game') + (j.cents ? ' \u00b7 $' + (j.cents/100).toFixed(2) : ''), 'ok');
+        msg((T.credited || 'Money is in the game') +
+            (j.cents ? ' \u00b7 $' + (j.cents/100).toFixed(2) : ''), 'ok');
         try{ localStorage.removeItem('ogt_last_tx'); }catch(e){}
         return;
       }
-      // сделка ещё не в цепочке — это нормально первые полминуты
-      msg(T.sent + ' (' + (i + 1) + ')', 'wait');
+      // ВАЖНО: показываем НАСТОЯЩИЙ ответ сервера, а не общий счётчик.
+      // Раньше здесь была одна и та же надпись на любую беду, и
+      // понять, где именно рвётся, было невозможно ни мне, ни тебе.
+      last = (j && (j.error || j.message)) || ('http ' + r.status);
+      var human = WHY[last] || last;
+      var soft = (last === 'not_mined_yet' || last === 'wait');
+      msg(T.sent + ' (' + (i + 1) + ') \u00b7 ' + human, soft ? 'wait' : 'bad');
+      if(!soft && i > 2){
+        // Не «ждём» — значит дело не во времени. Дальше стучаться
+        // бессмысленно: показываем причину и номер сделки.
+        msg('Не зачислено: ' + human + '\n\n' + tx, 'bad');
+        return;
+      }
     }catch(e){
-      msg(T.sent + ' (' + (i + 1) + ')', 'wait');
+      last = String(e.message || e);
+      msg(T.sent + ' (' + (i + 1) + ') \u00b7 ' + last, 'wait');
     }
     await new Promise(function(r){ setTimeout(r, 5000); });
   }
-  // Не дождались — не страшно: номер сделки остался записан, игра
-  // повторит запрос сама. Показываем его, чтобы можно было прислать.
-  msg((T.slow || 'Taking longer than usual') + '\n' + tx, 'wait');
+  msg((T.slow || 'Taking longer than usual') + ' \u00b7 ' + (WHY[last] || last) + '\n\n' + tx, 'bad');
 }
 
 $('back').onclick = function(){
