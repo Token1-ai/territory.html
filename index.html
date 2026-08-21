@@ -74,8 +74,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
   background:rgba(27,30,22,.92);color:var(--sand-dim);font-size:10.5px;font-family:'Space Mono',monospace;
   cursor:pointer;}
 #who{margin-left:auto;}
-#stats{display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--sand-dim);letter-spacing:.05em;}
-#stats b{color:var(--sand);font-size:13px;font-weight:700;display:block;font-family:'Oswald',sans-serif;}
+/* Верхняя полоса счётчиков. Раньше это были просто цифры на карте и
+   на светлых местах они пропадали. Теперь — отдельная плашка со своим
+   фоном и рамкой, как в игровом интерфейсе. */
+#stats{display:flex;gap:0;margin-top:8px;font-size:9px;color:var(--sand-dim);
+  letter-spacing:.09em;text-transform:uppercase;
+  background:rgba(11,13,9,.86);border:1px solid rgba(224,163,46,.22);
+  border-radius:11px;padding:6px 4px;
+  box-shadow:0 0 14px rgba(0,0,0,.45), 0 0 0 1px rgba(224,163,46,.06) inset;}
+#stats > div{flex:1;text-align:center;position:relative;}
+#stats > div + div::before{content:'';position:absolute;left:0;top:12%;bottom:12%;
+  width:1px;background:rgba(224,163,46,.16);}
+#stats b{color:var(--sand);font-size:15px;font-weight:700;display:block;
+  font-family:'Oswald',sans-serif;line-height:1.15;
+  text-shadow:0 0 8px rgba(224,163,46,.35);}
+#war-cell b{color:#E27A5F;text-shadow:0 0 9px rgba(226,122,95,.6);}
+#war-cell{cursor:pointer;}
 
 /* Полоса состояния связи — видно, что игра идёт с телефона */
 #link{position:absolute;top:calc(env(safe-area-inset-top) + 74px);left:12px;z-index:600;
@@ -471,7 +485,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 57;
+var LANG_V = 58;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -536,6 +550,8 @@ function pickLang(saved){
 }
 function applyLang(){
   var set = function(id, t){ var e = document.getElementById(id); if(e) e.textContent = t; };
+  // Подписи короткие: пять колонок в ряд, длинные слова переносятся
+  // и ломают полосу.
   set('lbl-yours', T('yours')); set('lbl-near', T('near'));
   set('lbl-today', T('today')); set('lbl-players', T('players'));
   var w = document.getElementById('btn-profile'); if(w) w.textContent = T('profile');
@@ -708,46 +724,108 @@ function sprite(kind, px, foe, colour){
     if(fill){ c.fillStyle=fill; c.fill(); }
     if(stroke){ c.strokeStyle=stroke; c.lineWidth=lw*m; c.stroke(); }
   }
-  if(kind==='concrete'){
-    poly(6, 13*m, Math.PI/6, STONE, line, 2.2);
-    c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(C-9*m, C-1.2*m, 18*m, 2.4*m);
-    c.fillStyle=DOOR; c.fillRect(C-3.2*m, C-4*m, 6.4*m, 8*m);
-    c.strokeStyle=GOLD; c.lineWidth=1.1*m; c.strokeRect(C-3.2*m, C-4*m, 6.4*m, 8*m);
-  } else if(kind==='steel'){
-    poly(8, 13.5*m, Math.PI/8, STEEL, line, 2.4);
-    c.fillStyle='rgba(255,255,255,.35)';
-    for(let i=0;i<8;i++){ const a=Math.PI/8+i*Math.PI/4;
-      c.beginPath(); c.arc(C+Math.cos(a)*10*m, C+Math.sin(a)*10*m, 1.3*m,0,7); c.fill(); }
-    c.fillStyle=DOOR; c.beginPath(); c.arc(C,C,4.6*m,0,7); c.fill();
-    c.strokeStyle=GOLD; c.lineWidth=1.3*m; c.stroke();
-  } else if(kind==='fort'){
+  // ── Каркасные значки в неоне ──────────────────────────────────
+  // Раньше это были плоские залитые фигуры. Теперь — светящийся
+  // каркас: цвет владельца по линиям, полупрозрачные грани, лёгкий
+  // объём. Рисуется ОДИН раз при создании и потом штампуется
+  // готовым, поэтому на скорость не влияет вовсе.
+  const A = line + '22';                    // прозрачная грань
+  const B = line + '55';                    // грань поярче
+
+  // Основание в изометрии: ромб под строением
+  function base(rad, h){
     c.beginPath();
-    for(let i=0;i<12;i++){ const a=i*Math.PI/6, rad=(i%2? 9.5:15)*m;
-      const x=C+Math.cos(a)*rad, y=C+Math.sin(a)*rad; i?c.lineTo(x,y):c.moveTo(x,y); }
-    c.closePath(); c.fillStyle=STONE; c.fill();
-    c.strokeStyle=line; c.lineWidth=2.4*m; c.stroke();
-    c.fillStyle=DGREEN; c.beginPath(); c.arc(C,C,6*m,0,7); c.fill();
-    c.fillStyle=GOLD; c.beginPath(); c.arc(C,C,2.4*m,0,7); c.fill();
-  } else if(kind==='gun'||kind==='heavy'||kind==='rocket'){
-    const base = kind==='rocket'? 9.5*m : kind==='heavy'? 9*m : 7.5*m;
-    c.fillStyle = kind==='gun'? DGREEN : kind==='heavy'? '#3E4A33' : '#43382B';
-    c.beginPath(); c.arc(C,C,base,0,7); c.fill();
-    c.strokeStyle=line; c.lineWidth=2*m; c.stroke();
-    if(kind==='rocket'){
-      c.strokeStyle=GOLD; c.lineWidth=2.2*m;
-      [[-2.6,-11],[2.6,-11]].forEach(function(q){
-        c.beginPath(); c.moveTo(C+q[0]*m, C-2*m); c.lineTo(C+q[0]*m, C+q[1]*m); c.stroke(); });
-    } else {
-      c.strokeStyle=DARKI; c.lineWidth = kind==='heavy'? 4*m : 3*m;
-      c.beginPath(); c.moveTo(C,C); c.lineTo(C, C-13*m); c.stroke();
-    }
-  } else {                                   // земляной — насыпь с мешками
-    poly(8, 13*m, Math.PI/8, DGREEN, line, 2);
-    c.fillStyle='rgba(255,255,255,.18)';
-    for(let i=0;i<6;i++){ const a=i*Math.PI/3;
-      c.beginPath(); c.arc(C+Math.cos(a)*8*m, C+Math.sin(a)*8*m, 2.4*m, 0, 7); c.fill(); }
-    c.fillStyle=DOOR; c.fillRect(C-2.6*m, C-3*m, 5.2*m, 6*m);
+    c.moveTo(C, C + rad*0.55 + h);
+    c.lineTo(C + rad, C + h);
+    c.lineTo(C, C - rad*0.55 + h);
+    c.lineTo(C - rad, C + h);
+    c.closePath();
   }
+  // Столбы от основания к вершине
+  function walls(rad, top){
+    const pts = [[0, rad*0.55], [rad, 0], [0, -rad*0.55], [-rad, 0]];
+    for(const q of pts){
+      c.beginPath();
+      c.moveTo(C + q[0], C + q[1]);
+      c.lineTo(C, C - top);
+      c.stroke();
+    }
+  }
+
+  c.strokeStyle = line;
+
+  if(kind === 'concrete'){
+    // Бетон: приземистая коробка с широким основанием
+    c.lineWidth = 1.6*m;
+    base(13*m, 3*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(13*m, -3*m); c.fillStyle = B; c.fill(); c.stroke();
+    for(const q of [[0,13*0.55],[13,0],[0,-13*0.55],[-13,0]]){
+      c.beginPath();
+      c.moveTo(C + q[0]*m, C + q[1]*m + 3*m);
+      c.lineTo(C + q[0]*m, C + q[1]*m - 3*m); c.stroke();
+    }
+
+  } else if(kind === 'steel'){
+    // Сталь: восьмигранный купол с рёбрами
+    c.lineWidth = 1.6*m;
+    base(13*m, 2*m); c.fillStyle = A; c.fill(); c.stroke();
+    c.beginPath();
+    for(let i = 0; i < 8; i++){
+      const a = Math.PI/8 + i*Math.PI/4;
+      const x = C + Math.cos(a)*9*m, y = C + Math.sin(a)*5*m - 4*m;
+      i ? c.lineTo(x, y) : c.moveTo(x, y);
+    }
+    c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
+    walls(13*m, 9*m);
+
+  } else if(kind === 'fort'){
+    // Крепость: ступенчатая пирамида, как на образце
+    c.lineWidth = 1.7*m;
+    for(let k = 0; k < 3; k++){
+      base((14 - k*4)*m, (2 - k*4)*m);
+      c.fillStyle = k === 2 ? B : A; c.fill(); c.stroke();
+    }
+    walls(14*m, 11*m);
+    c.fillStyle = line;
+    c.beginPath(); c.arc(C, C - 11*m, 2*m, 0, 7); c.fill();
+
+  } else if(kind === 'gun' || kind === 'heavy' || kind === 'rocket'){
+    // Пушки: основание-ромб и ствол. Чем дороже, тем массивнее.
+    const rad = kind === 'rocket' ? 10*m : kind === 'heavy' ? 9*m : 7.5*m;
+    c.lineWidth = 1.6*m;
+    base(rad, 4*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(rad*0.6, 0); c.fillStyle = B; c.fill(); c.stroke();
+    if(kind === 'rocket'){
+      // спаренные направляющие
+      c.lineWidth = 2*m;
+      for(const dx of [-3, 3]){
+        c.beginPath();
+        c.moveTo(C + dx*m, C - 1*m);
+        c.lineTo(C + dx*m - 3*m, C - 12*m); c.stroke();
+      }
+      c.lineWidth = 1.4*m;
+      c.beginPath(); c.moveTo(C - 6*m, C - 12*m); c.lineTo(C + 0*m, C - 12*m); c.stroke();
+    } else {
+      c.lineWidth = (kind === 'heavy' ? 3 : 2.2)*m;
+      c.beginPath(); c.moveTo(C, C - 1*m); c.lineTo(C + 9*m, C - 10*m); c.stroke();
+      c.lineWidth = 1.4*m;
+      c.beginPath(); c.arc(C, C - 1*m, 3*m, 0, 7); c.stroke();
+    }
+
+  } else {
+    // Земляной: низкая насыпь с мешками по кромке
+    c.lineWidth = 1.5*m;
+    base(12*m, 2*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(12*m, -2*m); c.fillStyle = B; c.fill(); c.stroke();
+    c.fillStyle = line + '99';
+    for(let i = 0; i < 6; i++){
+      const a = i*Math.PI/3;
+      c.beginPath();
+      c.arc(C + Math.cos(a)*8*m, C + Math.sin(a)*4.4*m - 2*m, 1.6*m, 0, 7);
+      c.fill();
+    }
+  }
+
   _spriteCache.set(key, s);
   return s;
 }
@@ -4723,7 +4801,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 56;
+const APP_V = 57;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
