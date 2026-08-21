@@ -12,7 +12,7 @@
 //
 // ВАЖНО: этот номер надо поднимать при каждой выкладке. По нему
 // браузер и понимает, что появилось новое.
-const SHELL = 'ogt-shell-v27';
+const SHELL = 'ogt-shell-v29';
 const TILES = 'ogt-tiles-v1';
 const TILE_CAP = 900;                 // примерно 25-40 МБ, дальше чистим старое
 
@@ -20,7 +20,10 @@ const SHELL_FILES = [
   './', './index.html', './manifest.json', './splash-1080.webp', './lang.json', './pay.html',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js',
+  'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css',
+  'https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.js'
 ];
 
 // Кладём по одному файлу. addAll бросает всё целиком, если не скачался
