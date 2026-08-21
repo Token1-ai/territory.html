@@ -53,15 +53,48 @@ async function sbRpc(fn, body) {
   return r.json();
 }
 
-// Курс берём у биржи. Не ответила — сервер возьмёт запасной из настроек.
+// Курс BNB.
+//
+// РАНЬШЕ спрашивали ТОЛЬКО Binance и при отказе возвращали пустоту.
+// А Binance закрывает доступ серверам из дата-центров — в том числе
+// нашим. Курс приходил пустой, база отвечала bad_amount, и платёж не
+// зачислялся НИКОГДА, хотя деньги уходили. Отсюда «оплатил и ничего».
+//
+// Теперь три биржи по очереди, потом запасное число из настроек базы,
+// и только в самом конце — вшитое. Пустоту не возвращаем ни при каких
+// обстоятельствах.
 async function bnbUsd() {
+  const tries = [
+    ['https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT', j => parseFloat(j.price)],
+    ['https://api.coinbase.com/v2/prices/BNB-USD/spot', j => parseFloat(j.data && j.data.amount)],
+    ['https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd',
+     j => parseFloat(j.binancecoin && j.binancecoin.usd)],
+    ['https://api.kraken.com/0/public/Ticker?pair=BNBUSD',
+     j => { const k = j.result && Object.keys(j.result)[0]; return k ? parseFloat(j.result[k].c[0]) : NaN; }],
+  ];
+  for (const [url, pick] of tries) {
+    try {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 4000);
+      const r = await fetch(url, { signal: c.signal });
+      clearTimeout(t);
+      if (!r.ok) continue;
+      const p = pick(await r.json());
+      if (p > 50 && p < 5000) return p;        // защита от чепухи
+    } catch (e) {}
+  }
+  // Биржи молчат — берём число, записанное в настройках игры.
   try {
-    const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT');
-    const j = await r.json();
-    const p = parseFloat(j.price);
-    if (p > 50 && p < 5000) return p;          // защита от чепухи
+    const r = await fetch(SB_URL + '/rest/v1/territory_config?key=eq.bnb_usd&select=value', {
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+    });
+    if (r.ok) {
+      const rows = await r.json();
+      const p = rows && rows[0] && parseFloat(rows[0].value);
+      if (p > 50 && p < 5000) return p;
+    }
   } catch (e) {}
-  return null;
+  return 600;                                  // последняя подпорка
 }
 
 module.exports = async (req, res) => {
@@ -110,6 +143,14 @@ module.exports = async (req, res) => {
       p: { tx_hash: tx, wallet: player, from_addr: from, wei: amount,
            bnb_usd: rate, block_num: mined, kind: isUsd ? 'usd' : 'bnb' },
     });
+    // Если база отказала — говорим ЧЕМ именно кормили. Без этого
+    // приходится гадать, а гадать мы уже пробовали.
+    if (!out || out.ok !== true) {
+      return res.status(200).json(Object.assign({}, out, {
+        sent: { wei: String(amount), bnb_usd: rate, kind: isUsd ? 'usd' : 'bnb',
+                wallet: player },
+      }));
+    }
     return res.status(200).json(out);
   } catch (e) {
     return res.status(200).json({ ok: false, error: String(e.message || e) });
