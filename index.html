@@ -471,7 +471,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 56;
+var LANG_V = 57;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -677,14 +677,15 @@ const GOLD='#C9A227', DOOR='#1E7A4A', DGREEN='#2C4327', STONE='#9A968A',
       STEEL='#6E7480', DARKI='#22261D', FOE='#B23A2E';
 const _spriteCache = new Map();
 
-function sprite(kind, px, foe){
-  const key = kind+'|'+px+'|'+(foe?1:0);
+function sprite(kind, px, foe, colour){
+  const line = colour || (foe ? FOE : GOLD);
+  const key = kind+'|'+px+'|'+line;
   if(_spriteCache.has(key)) return _spriteCache.get(key);
   const s = document.createElement('canvas');
   const r = Math.min(window.devicePixelRatio || 1, 2);
   s.width = s.height = Math.round(px*r);
   const c = s.getContext('2d'); c.scale(r,r);
-  const m = px/32, C = px/2, line = foe ? FOE : GOLD;
+  const m = px/32, C = px/2;
   c.lineJoin = c.lineCap = 'round';
   // Неоновое свечение вокруг знака. Рисуется ОДИН раз при создании
   // значка и потом штампуется готовым — на кадры не влияет вовсе.
@@ -1112,7 +1113,8 @@ const Sprites = (function(){
       const p = map.latLngToContainerPoint([b.lat, b.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
       if(fogHides(b.lat, b.lng, b.owner, 'b'+b.id)) continue;
-      ctx.drawImage(sprite(b.kind||'earth', px, !(addr && b.owner===addr)),
+      ctx.drawImage(sprite(b.kind||'earth', px, !(addr && b.owner===addr),
+                    (addr && b.owner===addr) ? GOLD : ownerColor(b.owner)),
                     p.x-half, p.y-half, px, px);
       const hb = HP.get('b'+b.id);
       if(hb) drawHpBar(ctx, p.x, p.y - half, Math.max(30, px*1.15), hb.hp, hb.max,
@@ -1129,7 +1131,8 @@ const Sprites = (function(){
       const p = map.latLngToContainerPoint([u.lat, u.lng]);
       if(p.x < -pad || p.y < -pad || p.x > w+pad || p.y > h+pad) continue;
       if(fogHides(u.lat, u.lng, u.owner, 'u'+u.id)) continue;
-      ctx.drawImage(sprite(u.code||'gun', gp, !(addr && u.owner===addr)),
+      ctx.drawImage(sprite(u.code||'gun', gp, !(addr && u.owner===addr),
+                    (addr && u.owner===addr) ? GOLD : ownerColor(u.owner)),
                     p.x-gh, p.y-gh, gp, gp);
       const hu = HP.get('u'+u.id);
       if(hu) drawHpBar(ctx, p.x, p.y - gh, Math.max(24, gp*1.2), hu.hp, hu.max,
@@ -2237,11 +2240,12 @@ function paintBagBtn(){
   const t = document.getElementById('btn-bag');
   if(t){
     const n = bagTotal();
+    // Пусто — значка нет вовсе. Место в нижнем меню дорогое, а
+    // мозолить глаза кнопкой, которой нечего делать, незачем.
+    t.style.display = n > 0 ? '' : 'none';
     let c = t.querySelector('b');
     if(!c){ c = document.createElement('b'); t.appendChild(c); }
     c.textContent = n;
-    c.style.display = n > 0 ? '' : 'none';
-    t.style.opacity = n > 0 ? '' : '.55';
   }
 }
 function openBag(){
@@ -4101,19 +4105,37 @@ const OWNER_COLORS = ['#84f236','#36f274','#36e2f2','#3655f2','#a436f2','#f236b3
 // покажутся похожими, штрих у них будет разный. Всего сочетаний 44.
 const OWNER_DASH = ['9 6', '2 5', '14 5 3 5', '20 6'];
 
-function ownerHash(w){
-  let h = 0;
-  for(let i = 0; i < String(w).length; i++) h = (h * 31 + String(w).charCodeAt(i)) & 0xffffff;
-  return Math.abs(h);
+// Счёт по кошельку с перемешиванием.
+//
+// Простое «умножь и сложи» тут не годится: кошелёк — это шестнадцать
+// разных знаков, а цветов 16 и штрихов 4, и то и другое — степени
+// двойки. В итоге и цвет, и штрих зависели от одних и тех же младших
+// битов, и вместо 64 сочетаний выходило 32: у каждого цвета было
+// только два возможных штриха.
+//
+// Здесь каждый знак замешивается сдвигами, а потом число ещё раз
+// перетряхивается. Цвет берём из одной половины битов, штрих — из
+// другой, поэтому они друг от друга не зависят.
+function ownerHash(w, salt){
+  const t = String(w).toLowerCase();
+  let h = 0x811c9dc5 ^ (salt || 0);
+  for(let i = 0; i < t.length; i++){
+    h ^= t.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  h ^= h >>> 15; h = Math.imul(h, 0x85ebca6b) >>> 0;
+  h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0;
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 function ownerColor(w){
   if(!w) return OWNER_COLORS[0];
-  return OWNER_COLORS[ownerHash(w) % OWNER_COLORS.length];
+  return OWNER_COLORS[ownerHash(w, 0) % OWNER_COLORS.length];
 }
 function ownerDash(w){
   if(!w) return OWNER_DASH[0];
-  // делим на длину палитры, чтобы штрих не шёл в ногу с цветом
-  return OWNER_DASH[Math.floor(ownerHash(w) / OWNER_COLORS.length) % OWNER_DASH.length];
+  // старшие биты другого замеса: с цветом не пересекаются
+  return OWNER_DASH[(ownerHash(w, 0x9e3779b9) >>> 20) % OWNER_DASH.length];
 }
 
 function drawLabels(){
@@ -4701,7 +4723,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 55;
+const APP_V = 56;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
