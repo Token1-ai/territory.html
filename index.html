@@ -485,7 +485,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 59;
+var LANG_V = 61;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -755,39 +755,70 @@ function sprite(kind, px, foe, colour){
   c.strokeStyle = line;
 
   if(kind === 'concrete'){
-    // Бетон: приземистая коробка с широким основанием
-    c.lineWidth = 1.6*m;
-    base(13*m, 3*m); c.fillStyle = A; c.fill(); c.stroke();
-    base(13*m, -3*m); c.fillStyle = B; c.fill(); c.stroke();
-    for(const q of [[0,13*0.55],[13,0],[0,-13*0.55],[-13,0]]){
+    // БЕТОН: приземистый дот с бойницей и коротким шпилем.
+    // Силуэт — широкий и низкий, ни с чем не спутаешь.
+    c.lineWidth = 1.7*m;
+    base(14*m, 4*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(14*m, -2*m); c.fillStyle = B; c.fill(); c.stroke();
+    for(const q of [[0, 14*0.55], [14, 0], [0, -14*0.55], [-14, 0]]){
       c.beginPath();
-      c.moveTo(C + q[0]*m, C + q[1]*m + 3*m);
-      c.lineTo(C + q[0]*m, C + q[1]*m - 3*m); c.stroke();
+      c.moveTo(C + q[0]*m, C + q[1]*m + 4*m);
+      c.lineTo(C + q[0]*m, C + q[1]*m - 2*m); c.stroke();
     }
+    // бойница — тёмная щель по фасаду
+    c.lineWidth = 2.4*m;
+    c.beginPath(); c.moveTo(C - 6*m, C + 2*m); c.lineTo(C + 6*m, C - 1*m); c.stroke();
+    // шпиль
+    c.lineWidth = 1.3*m;
+    c.beginPath(); c.moveTo(C, C - 2*m); c.lineTo(C, C - 9*m); c.stroke();
+    c.fillStyle = line;
+    c.beginPath(); c.arc(C, C - 9*m, 1.6*m, 0, 7); c.fill();
 
   } else if(kind === 'steel'){
-    // Сталь: восьмигранный купол с рёбрами
-    c.lineWidth = 1.6*m;
-    base(13*m, 2*m); c.fillStyle = A; c.fill(); c.stroke();
+    // СТАЛЬ: высокий купол с рёбрами и люком наверху.
+    // Силуэт — круглый и заметно выше бетона.
+    c.lineWidth = 1.7*m;
+    base(13*m, 4*m); c.fillStyle = A; c.fill(); c.stroke();
+    // купол
     c.beginPath();
-    for(let i = 0; i < 8; i++){
-      const a = Math.PI/8 + i*Math.PI/4;
-      const x = C + Math.cos(a)*9*m, y = C + Math.sin(a)*5*m - 4*m;
-      i ? c.lineTo(x, y) : c.moveTo(x, y);
-    }
+    c.moveTo(C - 11*m, C + 3*m);
+    c.bezierCurveTo(C - 11*m, C - 11*m, C + 11*m, C - 11*m, C + 11*m, C + 3*m);
     c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
-    walls(13*m, 9*m);
+    // рёбра купола
+    c.lineWidth = 1.1*m;
+    for(const dx of [-6, 0, 6]){
+      c.beginPath();
+      c.moveTo(C + dx*m, C + 3*m);
+      c.quadraticCurveTo(C + dx*m*0.6, C - 7*m, C, C - 8.5*m);
+      c.stroke();
+    }
+    // люк
+    c.lineWidth = 1.5*m;
+    c.beginPath(); c.ellipse(C, C - 8*m, 3.2*m, 1.5*m, 0, 0, 7);
+    c.fillStyle = line + '77'; c.fill(); c.stroke();
 
   } else if(kind === 'fort'){
-    // Крепость: ступенчатая пирамида, как на образце
-    c.lineWidth = 1.7*m;
-    for(let k = 0; k < 3; k++){
-      base((14 - k*4)*m, (2 - k*4)*m);
-      c.fillStyle = k === 2 ? B : A; c.fill(); c.stroke();
+    // КРЕПОСТЬ: ступенчатая пирамида с башнями по углам и огнём
+    // наверху. Самый крупный и сложный силуэт.
+    c.lineWidth = 1.8*m;
+    for(let k2 = 0; k2 < 3; k2++){
+      base((15 - k2*4)*m, (3 - k2*4.5)*m);
+      c.fillStyle = k2 === 2 ? B : A; c.fill(); c.stroke();
     }
-    walls(14*m, 11*m);
+    // угловые башни
+    c.lineWidth = 1.4*m;
+    for(const q of [[-15, 0], [15, 0], [0, -15*0.55], [0, 15*0.55]]){
+      const bx = C + q[0]*m*0.86, by = C + q[1]*m*0.86 + 3*m;
+      c.beginPath();
+      c.moveTo(bx - 2*m, by); c.lineTo(bx - 2*m, by - 6*m);
+      c.lineTo(bx + 2*m, by - 6*m); c.lineTo(bx + 2*m, by);
+      c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
+    }
+    // огонь на вершине
     c.fillStyle = line;
-    c.beginPath(); c.arc(C, C - 11*m, 2*m, 0, 7); c.fill();
+    c.beginPath();
+    c.moveTo(C, C - 15*m); c.lineTo(C + 2.4*m, C - 10.5*m);
+    c.lineTo(C - 2.4*m, C - 10.5*m); c.closePath(); c.fill();
 
   } else if(kind === 'gun' || kind === 'heavy' || kind === 'rocket'){
     // Пушки различаются на глаз, а не только цифрой в описании.
@@ -846,17 +877,21 @@ function sprite(kind, px, foe, colour){
     }
 
   } else {
-    // Земляной: низкая насыпь с мешками по кромке
+    // ЗЕМЛЯНОЙ: плоская насыпь без верхушки, обложенная мешками.
+    // Самый низкий и простой силуэт — сразу видно, что бесплатный.
     c.lineWidth = 1.5*m;
     base(12*m, 2*m); c.fillStyle = A; c.fill(); c.stroke();
-    base(12*m, -2*m); c.fillStyle = B; c.fill(); c.stroke();
-    c.fillStyle = line + '99';
-    for(let i = 0; i < 6; i++){
-      const a = i*Math.PI/3;
-      c.beginPath();
-      c.arc(C + Math.cos(a)*8*m, C + Math.sin(a)*4.4*m - 2*m, 1.6*m, 0, 7);
-      c.fill();
+    // мешки по кромке — плотным кольцом, это его примета
+    c.lineWidth = 1*m;
+    for(let i = 0; i < 10; i++){
+      const a = i*Math.PI/5;
+      const bx = C + Math.cos(a)*10*m, by = C + Math.sin(a)*5.5*m + 1*m;
+      c.beginPath(); c.ellipse(bx, by, 2*m, 1.3*m, 0, 0, 7);
+      c.fillStyle = line + '55'; c.fill(); c.stroke();
     }
+    // тёмный вход
+    c.lineWidth = 2*m;
+    c.beginPath(); c.moveTo(C - 3*m, C + 1*m); c.lineTo(C + 3*m, C + 1*m); c.stroke();
   }
 
   _spriteCache.set(key, s);
@@ -1190,7 +1225,13 @@ function drawHpBar(ctx, x, y, w, hp, max, mine, sel){
 // на мелком масштабе они всё равно слились бы в кашу, а телефон грелся.
 const Sprites = (function(){
   let cv = null, ctx = null, need = false;
-  function sizeFor(z){ return z>=18?32 : z===17?28 : z===16?22 : z===15?16 : 0; }
+  function sizeFor(z){
+    // Значки стали крупнее и рисуются ДАЖЕ при сильном отдалении.
+    // Раньше ниже 15-го приближения их не было вовсе, и на карте
+    // города нельзя было понять, где чья земля.
+    return z>=18 ? 46 : z===17 ? 40 : z===16 ? 32 : z===15 ? 26
+         : z===14 ? 20 : z===13 ? 15 : 11;
+  }
   function attach(){
     cv = document.createElement('canvas'); cv.className = 'ogt-sprites';
     ctx = cv.getContext('2d');
@@ -2029,23 +2070,68 @@ const FX = (function(){
         ctx.strokeStyle = '#FFD67A'; ctx.lineWidth = 3; ctx.stroke();
       }
       if(o.kind === 'blast'){
-        const base = Math.max(34, o.r / mPerPx);
-        // две волны подряд — так удар читается даже краем глаза
-        for(const [d, wmul] of [[0, 1], [0.18, 0.62]]){
-          const kk = Math.max(0, Math.min(1, (k - d) / (1 - d)));
-          if(kk <= 0) continue;
-          ctx.beginPath(); ctx.arc(p.x, p.y, base * (0.35 + kk*2.1) * wmul + 4, 0, 7);
-          ctx.strokeStyle = 'rgba(226,122,95,' + (1-kk)*0.9 + ')';
-          ctx.lineWidth = 6*(1-kk) + 1; ctx.stroke();
+        // ── ВЗРЫВ ───────────────────────────────────────────────
+        // Четыре слоя, как в настоящей игре: белое ядро, огненный
+        // шар, ударная волна кольцом и разлетающиеся искры.
+        const base = Math.max(38, o.r / mPerPx);
+
+        // 1. ударная волна — тонкое быстрое кольцо
+        const w1 = Math.min(1, k / 0.55);
+        if(w1 < 1){
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, base * (0.2 + w1 * 1.9), 0, 7);
+          ctx.strokeStyle = 'rgba(255,236,190,' + (1 - w1) * 0.75 + ')';
+          ctx.lineWidth = 5 * (1 - w1) + 0.8;
+          ctx.stroke();
         }
-        if(k < 0.35){
-          const f = 1 - k/0.35;
-          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, base*1.1*f + 10);
-          gr.addColorStop(0, 'rgba(255,246,214,' + (0.95*f) + ')');
-          gr.addColorStop(0.5, 'rgba(255,196,90,' + (0.6*f) + ')');
-          gr.addColorStop(1, 'rgba(178,58,46,0)');
-          ctx.beginPath(); ctx.arc(p.x, p.y, base*1.1*f + 10, 0, 7);
+        // 2. вторая волна, помедленнее и краснее
+        const w2 = Math.max(0, Math.min(1, (k - 0.12) / 0.75));
+        if(w2 > 0 && w2 < 1){
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, base * (0.15 + w2 * 1.45), 0, 7);
+          ctx.strokeStyle = 'rgba(226,110,70,' + (1 - w2) * 0.55 + ')';
+          ctx.lineWidth = 8 * (1 - w2) + 0.6;
+          ctx.stroke();
+        }
+        // 3. огненный шар: белое ядро, оранжевая оболочка
+        if(k < 0.45){
+          const f = 1 - k / 0.45;
+          const rr = base * (0.30 + (1 - f) * 0.55);
+          const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr);
+          gr.addColorStop(0,    'rgba(255,255,246,' + (0.98 * f) + ')');
+          gr.addColorStop(0.22, 'rgba(255,232,150,' + (0.92 * f) + ')');
+          gr.addColorStop(0.55, 'rgba(255,150,50,'  + (0.66 * f) + ')');
+          gr.addColorStop(1,    'rgba(150,40,20,0)');
+          ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 7);
           ctx.fillStyle = gr; ctx.fill();
+        }
+        // 4. искры во все стороны
+        if(!o.sp){
+          o.sp = [];
+          const n = 14;
+          for(let i = 0; i < n; i++){
+            const a = (i / n) * 6.283 + Math.random() * 0.4;
+            o.sp.push([Math.cos(a), Math.sin(a), 0.6 + Math.random() * 0.9]);
+          }
+        }
+        ctx.lineCap = 'round';
+        for(const sp of o.sp){
+          const d0 = base * 0.25 + base * 1.5 * k * sp[2];
+          const d1 = d0 + base * 0.16 * (1 - k);
+          ctx.beginPath();
+          ctx.moveTo(p.x + sp[0]*d0, p.y + sp[1]*d0 + 8*k*k);
+          ctx.lineTo(p.x + sp[0]*d1, p.y + sp[1]*d1 + 8*k*k);
+          ctx.strokeStyle = 'rgba(255,214,140,' + (1 - k) * 0.85 + ')';
+          ctx.lineWidth = 2.2 * (1 - k) + 0.4;
+          ctx.stroke();
+        }
+        // 5. дымное облако, остаётся после огня
+        if(k > 0.3){
+          const sf = (k - 0.3) / 0.7;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y - 6 * sf, base * (0.35 + sf * 0.5), 0, 7);
+          ctx.fillStyle = 'rgba(60,56,50,' + (0.28 * (1 - sf)) + ')';
+          ctx.fill();
         }
       }
       if(o.kind === 'burst'){
@@ -2084,26 +2170,84 @@ const FX = (function(){
         }
       }
       if(o.kind === 'rocket'){
+        // ── РАКЕТА ──────────────────────────────────────────────
+        // Летит по дуге, а не по прямой. Сзади — раскалённый факел
+        // и остывающий дымный след, который тает не сразу. Корпус
+        // повёрнут по ходу движения. Перед целью — метка попадания.
         const q = map.latLngToContainerPoint([o.toLat, o.toLng]);
-        const ease = k*k*0.55 + k*0.45;                 // разгон и подлёт
-        const x = p.x + (q.x - p.x)*ease;
-        const y = p.y + (q.y - p.y)*ease - Math.sin(Math.PI*ease)*46;   // дуга
-        o.trail.push([x,y]); if(o.trail.length > 26) o.trail.shift();
-        // след
-        for(let i=0;i<o.trail.length;i++){
-          const t = i/o.trail.length;
-          ctx.beginPath(); ctx.arc(o.trail[i][0], o.trail[i][1], 1.5 + t*3.5, 0, 7);
-          ctx.fillStyle = 'rgba(226,150,95,' + (t*0.55) + ')'; ctx.fill();
+        const f = Math.min(1, k / 0.93);
+        const e = f < 0.5 ? 2*f*f : 1 - Math.pow(-2*f + 2, 2) / 2;
+        const dist = Math.hypot(q.x - p.x, q.y - p.y);
+        const lift = Math.sin(Math.PI * e) * Math.min(90, dist * 0.28);
+        const x = p.x + (q.x - p.x) * e;
+        const y = p.y + (q.y - p.y) * e - lift;
+
+        if(f < 1){
+          o.trail.push([x, y, now]);
+          if(o.trail.length > 46) o.trail.shift();
         }
-        if(k < 0.98){
-          const ang = Math.atan2(q.y-p.y, q.x-p.x);
-          ctx.save(); ctx.translate(x,y); ctx.rotate(ang);
-          ctx.fillStyle = '#FFD67A';
-          ctx.beginPath(); ctx.moveTo(9,0); ctx.lineTo(-6,4); ctx.lineTo(-6,-4); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = 'rgba(255,150,60,.9)';
-          ctx.beginPath(); ctx.moveTo(-6,0); ctx.lineTo(-15-Math.random()*8,0);
-          ctx.lineTo(-6,3); ctx.closePath(); ctx.fill();
+        // дымный след: от густого у сопла к прозрачному вдали
+        for(let i = 0; i < o.trail.length; i++){
+          const t = i / o.trail.length;
+          const age = (now - o.trail[i][2]) / 1400;
+          if(age > 1) continue;
+          const rr = 1.6 + (1 - t) * 1.2 + age * 7;
+          ctx.beginPath();
+          ctx.arc(o.trail[i][0], o.trail[i][1], rr, 0, 7);
+          ctx.fillStyle = 'rgba(150,146,138,' + (0.30 * t * (1 - age)) + ')';
+          ctx.fill();
+        }
+
+        if(f < 1){
+          // направление полёта — по двум последним точкам следа
+          const prev = o.trail.length > 2 ? o.trail[o.trail.length - 3] : [p.x, p.y];
+          const ang = Math.atan2(y - prev[1], x - prev[0]);
+          ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+
+          // факел: три языка разной длины, мерцают
+          const fl = 12 + Math.sin(now / 40) * 5;
+          const g1 = ctx.createLinearGradient(-6, 0, -6 - fl, 0);
+          g1.addColorStop(0, 'rgba(255,250,220,.95)');
+          g1.addColorStop(0.35, 'rgba(255,170,60,.8)');
+          g1.addColorStop(1, 'rgba(226,90,40,0)');
+          ctx.beginPath();
+          ctx.moveTo(-5, -3.4); ctx.lineTo(-6 - fl, 0); ctx.lineTo(-5, 3.4);
+          ctx.closePath(); ctx.fillStyle = g1; ctx.fill();
+
+          // корпус
+          ctx.beginPath();
+          ctx.moveTo(9, 0); ctx.lineTo(2, -3.2); ctx.lineTo(-5, -2.6);
+          ctx.lineTo(-5, 2.6); ctx.lineTo(2, 3.2); ctx.closePath();
+          ctx.fillStyle = '#E8E3D5'; ctx.fill();
+          ctx.strokeStyle = 'rgba(20,22,16,.8)'; ctx.lineWidth = 1; ctx.stroke();
+          // носовой конус и стабилизаторы
+          ctx.beginPath(); ctx.moveTo(9, 0); ctx.lineTo(3, -3.1); ctx.lineTo(3, 3.1);
+          ctx.closePath(); ctx.fillStyle = '#B23A2E'; ctx.fill();
+          ctx.fillStyle = '#9A9585';
+          ctx.beginPath(); ctx.moveTo(-5, -2.6); ctx.lineTo(-9, -5.6);
+          ctx.lineTo(-5, -0.6); ctx.closePath(); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(-5, 2.6); ctx.lineTo(-9, 5.6);
+          ctx.lineTo(-5, 0.6); ctx.closePath(); ctx.fill();
           ctx.restore();
+
+          // метка попадания: сжимающийся круг с крестом
+          const cf = Math.max(0, (f - 0.25) / 0.75);
+          if(cf > 0){
+            ctx.save();
+            ctx.strokeStyle = 'rgba(226,122,95,' + (0.25 + 0.6*cf) + ')';
+            ctx.lineWidth = 1.6;
+            const rr = 34 * (1 - cf) + 9;
+            ctx.setLineDash([5, 5]); ctx.lineDashOffset = -now / 45;
+            ctx.beginPath(); ctx.arc(q.x, q.y, rr, 0, 7); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(q.x - rr - 4, q.y); ctx.lineTo(q.x - rr + 4, q.y);
+            ctx.moveTo(q.x + rr - 4, q.y); ctx.lineTo(q.x + rr + 4, q.y);
+            ctx.moveTo(q.x, q.y - rr - 4); ctx.lineTo(q.x, q.y - rr + 4);
+            ctx.moveTo(q.x, q.y + rr - 4); ctx.lineTo(q.x, q.y + rr + 4);
+            ctx.stroke();
+            ctx.restore();
+          }
         }
       }
       if(o.kind === 'droneRun'){
@@ -4160,24 +4304,29 @@ function drawOne(b){
   const mine = addr && b.owner === addr;
   const col = mine ? '#E0A32E' : ownerColor(b.owner);
   const r = Number(cfg.radius_earth_m) || 250;
+  // ТОЛЬКО СВЕТЯЩИЙСЯ КОНТУР, без заливки.
+  //
+  // Заливка была слабая — семь процентов. Но кругов на экране два
+  // десятка, они накладываются друг на друга, и карта тонула в мутном
+  // жёлтом: улиц не разобрать, чья земля — тем более. Один контур
+  // читается лучше любой заливки.
   L.circle([b.lat, b.lng], {
     radius: r,
-    color: col, weight: mine ? 2.5 : 2,
-    opacity: mine ? 0.95 : 0.85,
-    fillColor: col,
-    // Чужую землю обводим ярче и толще: цвет читается по КОНТУРУ,
-    // а заливка нужна лишь чтобы понять, где чьё. Раньше цвет тонул
-    // в полупрозрачной заливке и все земли казались одинаковыми.
-    fillOpacity: mine ? 0.16 : 0.13,
-    weight: mine ? 2 : 3.2,
-    opacity: mine ? 0.9 : 1,
+    color: col,
+    weight: mine ? 3 : 2.6,
+    opacity: 1,
+    fill: false,
+    className: 'glow-ring',
     dashArray: mine ? null : ownerDash(b.owner)
   }).addTo(g);
-  // внутренний обод — чтобы чужая земля читалась даже поверх карты
-  L.circle([b.lat, b.lng], {
-    radius: Math.max(20, r * 0.28),
-    color: col, weight: 1.5, opacity: 0.7,
-    fillColor: col, fillOpacity: mine ? 0.22 : 0.3
+  // Ядро точки: маленький яркий кружок цветом владельца. Он не
+  // мешает карте, но виден при любом отдалении — по нему и понятно,
+  // чья это земля, когда контуры становятся тонкими.
+  L.circleMarker([b.lat, b.lng], {
+    radius: 4,
+    color: col, weight: 2, opacity: 1,
+    fillColor: col, fillOpacity: 0.9,
+    className: 'glow-ring'
   }).addTo(g);
   g.addTo(map); layers.set(b.id, g);
   Sprites.refresh();
@@ -4820,7 +4969,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 58;
+const APP_V = 60;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
