@@ -223,7 +223,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
    что купленное вообще где-то лежит */
 #bag-btn.empty{opacity:.45;}
 /* Лавка прямо в шапке: раньше до неё надо было лезть через профиль */
-#btn-shop{font-size:15px;padding:5px 10px;line-height:1;}
+#btn-shop{font-size:16px;padding:6px 11px;line-height:1;color:#FFC94A;
+  border-color:rgba(255,201,74,.85);background:rgba(255,201,74,.16);
+  box-shadow:0 0 12px rgba(255,201,74,.45);}
+#btn-shop svg{filter:drop-shadow(0 0 5px rgba(255,201,74,.9));}
+/* Свечение контуров. Даёт браузер средствами видеочипа — на кадры
+   это почти не влияет, в отличие от рисования ореолов вручную. */
+.glow-ring{filter:drop-shadow(0 0 5px currentColor);}
+/* Купол неприкосновенности новичка: дышит, чтобы отличаться от
+   обычного круга земли. */
+.shield-dome{filter:drop-shadow(0 0 9px #7FBF6A);
+  animation:domePulse 2.4s ease-in-out infinite;}
+@keyframes domePulse{0%,100%{opacity:.5;}50%{opacity:1;}}
 /* Нижняя панель: одна главная кнопка и круглые значки под ней.
    Раньше пять широких надписей съедали треть экрана — карты почти
    не оставалось. Теперь панель втрое ниже. */
@@ -485,7 +496,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 61;
+var LANG_V = 63;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -705,9 +716,9 @@ function sprite(kind, px, foe, colour){
   c.lineJoin = c.lineCap = 'round';
   // Неоновое свечение вокруг знака. Рисуется ОДИН раз при создании
   // значка и потом штампуется готовым — на кадры не влияет вовсе.
-  const halo = c.createRadialGradient(C, C, px*0.10, C, C, px*0.48);
-  halo.addColorStop(0, line + '55');
-  halo.addColorStop(0.6, line + '1e');
+  const halo = c.createRadialGradient(C, C, px*0.08, C, C, px*0.50);
+  halo.addColorStop(0, line + '77');
+  halo.addColorStop(0.55, line + '2e');
   halo.addColorStop(1, line + '00');
   c.fillStyle = halo;
   c.beginPath(); c.arc(C, C, px*0.48, 0, 7); c.fill();
@@ -729,8 +740,13 @@ function sprite(kind, px, foe, colour){
   // каркас: цвет владельца по линиям, полупрозрачные грани, лёгкий
   // объём. Рисуется ОДИН раз при создании и потом штампуется
   // готовым, поэтому на скорость не влияет вовсе.
-  const A = line + '22';                    // прозрачная грань
-  const B = line + '55';                    // грань поярче
+  // Тело значка НЕПРОЗРАЧНОЕ. Раньше грани были 13% и 33% — сквозь
+  // них просвечивала карта, и бункер выглядел проволочным наброском,
+  // а не строением. Теперь под цветом лежит плотная тёмная основа,
+  // поверх неё насыщенные грани, сверху яркий контур.
+  const BODY = '#0E1109';                   // тёмная основа под цвет
+  const A = line + 'AA';                    // боковая грань
+  const B = line + 'FF';                    // верхняя грань, полный цвет
 
   // Основание в изометрии: ромб под строением
   function base(rad, h){
@@ -740,6 +756,12 @@ function sprite(kind, px, foe, colour){
     c.lineTo(C, C - rad*0.55 + h);
     c.lineTo(C - rad, C + h);
     c.closePath();
+  }
+  // Залить плотно: сперва тёмная подложка, потом цвет. Без подложки
+  // любой цвет поверх карты выглядит выцветшим.
+  function solid(fill){
+    c.fillStyle = BODY; c.fill();
+    c.fillStyle = fill;  c.fill();
   }
   // Столбы от основания к вершине
   function walls(rad, top){
@@ -758,8 +780,8 @@ function sprite(kind, px, foe, colour){
     // БЕТОН: приземистый дот с бойницей и коротким шпилем.
     // Силуэт — широкий и низкий, ни с чем не спутаешь.
     c.lineWidth = 1.7*m;
-    base(14*m, 4*m); c.fillStyle = A; c.fill(); c.stroke();
-    base(14*m, -2*m); c.fillStyle = B; c.fill(); c.stroke();
+    base(14*m, 4*m); solid(A); c.stroke();
+    base(14*m, -2*m); solid(B); c.stroke();
     for(const q of [[0, 14*0.55], [14, 0], [0, -14*0.55], [-14, 0]]){
       c.beginPath();
       c.moveTo(C + q[0]*m, C + q[1]*m + 4*m);
@@ -778,12 +800,12 @@ function sprite(kind, px, foe, colour){
     // СТАЛЬ: высокий купол с рёбрами и люком наверху.
     // Силуэт — круглый и заметно выше бетона.
     c.lineWidth = 1.7*m;
-    base(13*m, 4*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(13*m, 4*m); solid(A); c.stroke();
     // купол
     c.beginPath();
     c.moveTo(C - 11*m, C + 3*m);
     c.bezierCurveTo(C - 11*m, C - 11*m, C + 11*m, C - 11*m, C + 11*m, C + 3*m);
-    c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
+    c.closePath(); solid(B); c.stroke();
     // рёбра купола
     c.lineWidth = 1.1*m;
     for(const dx of [-6, 0, 6]){
@@ -795,7 +817,7 @@ function sprite(kind, px, foe, colour){
     // люк
     c.lineWidth = 1.5*m;
     c.beginPath(); c.ellipse(C, C - 8*m, 3.2*m, 1.5*m, 0, 0, 7);
-    c.fillStyle = line + '77'; c.fill(); c.stroke();
+    solid(line + 'CC'); c.stroke();
 
   } else if(kind === 'fort'){
     // КРЕПОСТЬ: ступенчатая пирамида с башнями по углам и огнём
@@ -803,7 +825,7 @@ function sprite(kind, px, foe, colour){
     c.lineWidth = 1.8*m;
     for(let k2 = 0; k2 < 3; k2++){
       base((15 - k2*4)*m, (3 - k2*4.5)*m);
-      c.fillStyle = k2 === 2 ? B : A; c.fill(); c.stroke();
+      solid(k2 === 2 ? B : A); c.stroke();
     }
     // угловые башни
     c.lineWidth = 1.4*m;
@@ -812,7 +834,7 @@ function sprite(kind, px, foe, colour){
       c.beginPath();
       c.moveTo(bx - 2*m, by); c.lineTo(bx - 2*m, by - 6*m);
       c.lineTo(bx + 2*m, by - 6*m); c.lineTo(bx + 2*m, by);
-      c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
+      c.closePath(); solid(B); c.stroke();
     }
     // огонь на вершине
     c.fillStyle = line;
@@ -828,7 +850,7 @@ function sprite(kind, px, foe, colour){
     c.lineWidth = 1.5*m;
 
     // тренога
-    base(rad, 5*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(rad, 5*m); solid(A); c.stroke();
     for(const q of [[-rad*0.7, 2*m], [rad*0.7, 2*m], [0, 5.5*m]]){
       c.beginPath();
       c.moveTo(C + q[0], C + q[1] + 3*m);
@@ -836,7 +858,7 @@ function sprite(kind, px, foe, colour){
     }
     // поворотная тумба
     c.beginPath(); c.ellipse(C, C - 1*m, rad*0.52, rad*0.30, 0, 0, 7);
-    c.fillStyle = B; c.fill(); c.stroke();
+    solid(B); c.stroke();
 
     if(kind === 'rocket'){
       // короб с ячейками, задран вверх
@@ -844,7 +866,7 @@ function sprite(kind, px, foe, colour){
       c.beginPath();
       c.moveTo(bx - bw, by + bh); c.lineTo(bx + bw*0.55, by - bh*0.4);
       c.lineTo(bx + bw, by - bh*0.05); c.lineTo(bx - bw*0.6, by + bh*1.3);
-      c.closePath(); c.fillStyle = B; c.fill(); c.stroke();
+      c.closePath(); solid(B); c.stroke();
       // ячейки
       c.lineWidth = 1*m;
       for(let r = 0; r < 2; r++) for(let q = 0; q < 3; q++){
@@ -880,14 +902,14 @@ function sprite(kind, px, foe, colour){
     // ЗЕМЛЯНОЙ: плоская насыпь без верхушки, обложенная мешками.
     // Самый низкий и простой силуэт — сразу видно, что бесплатный.
     c.lineWidth = 1.5*m;
-    base(12*m, 2*m); c.fillStyle = A; c.fill(); c.stroke();
+    base(12*m, 2*m); solid(A); c.stroke();
     // мешки по кромке — плотным кольцом, это его примета
     c.lineWidth = 1*m;
     for(let i = 0; i < 10; i++){
       const a = i*Math.PI/5;
       const bx = C + Math.cos(a)*10*m, by = C + Math.sin(a)*5.5*m + 1*m;
       c.beginPath(); c.ellipse(bx, by, 2*m, 1.3*m, 0, 0, 7);
-      c.fillStyle = line + '55'; c.fill(); c.stroke();
+      solid(line + 'DD'); c.stroke();
     }
     // тёмный вход
     c.lineWidth = 2*m;
@@ -1275,7 +1297,8 @@ const Sprites = (function(){
       drawn++;
     }
     // Пушки мельче бункеров: на карте сразу видно, что главное, а что охрана
-    const gp = Math.round(px*0.7), gh = gp/2;
+    // Пушки были втрое мельче бункера и терялись на карте.
+  const gp = Math.round(px*0.85), gh = gp/2;
     void gp;
     for(let i=0;i<units.length && drawn<800;i++){
       const u = units[i];
@@ -1405,9 +1428,12 @@ function paintReticle(){
       : '± '+Math.round(acc)+' м · '+T('need')+' '+(cfg.max_accuracy_m||40)+' м';
 
   // ── что мешает встать здесь: живое число, а не «нельзя»
-  const blk = (here && good && !siege) ? whyBlocked(here[0], here[1]) : null;
+  const blk = (here && good && !siege && !aimMode) ? whyBlocked(here[0], here[1]) : null;
   if(el){
-    if(!good || siege){ el.style.display = 'none'; }
+    // При наведённом прицеле подсказка про постройку молчит: она
+    // сбивала с толку — человек с выбранной ракетой видел «здесь
+    // ставить нельзя» и думал, что не может выстрелить.
+    if(!good || siege || aimMode){ el.style.display = 'none'; }
     else if(blk && blk.kind === 'near'){
       el.style.display = 'block'; el.className = 'bad';
       el.textContent = T(blk.mine ? 'why_mine' : 'why_foreign',
@@ -1428,8 +1454,17 @@ function paintReticle(){
     }
   }
   if(btn){
-    btn.disabled = !good || !!blk;
-    btn.textContent = T(placeMode === 'gun' ? 'gun_btn' : 'plant');
+    // С прицелом главная кнопка становится отменой — иначе она зря
+    // занимает самое удобное место на экране.
+    if(aimMode){
+      btn.disabled = false;
+      btn.textContent = T('dr_cancel');
+      btn.onclick = aimCancel;
+    } else {
+      btn.disabled = !good || !!blk;
+      btn.textContent = T(placeMode === 'gun' ? 'gun_btn' : 'plant');
+      btn.onclick = function(){ placeMode === 'gun' ? askGun() : plant(); };
+    }
   }
 }
 
@@ -2175,7 +2210,7 @@ const FX = (function(){
         // и остывающий дымный след, который тает не сразу. Корпус
         // повёрнут по ходу движения. Перед целью — метка попадания.
         const q = map.latLngToContainerPoint([o.toLat, o.toLng]);
-        const f = Math.min(1, k / 0.93);
+        const f = Math.min(1, k);
         const e = f < 0.5 ? 2*f*f : 1 - Math.pow(-2*f + 2, 2) / 2;
         const dist = Math.hypot(q.x - p.x, q.y - p.y);
         const lift = Math.sin(Math.PI * e) * Math.min(90, dist * 0.28);
@@ -2280,24 +2315,42 @@ const FX = (function(){
         if(fly < 1){
           const ang = Math.atan2(q.y - p.y, q.x - p.x);
           ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
-          // корпус
-          ctx.fillStyle = '#2C4327';
-          ctx.beginPath(); ctx.ellipse(0, 0, 7, 4, 0, 0, 7); ctx.fill();
-          ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 1.4; ctx.stroke();
-          // лучи и винты: винт рисуется отрезком, который крутится,
-          // поэтому на глаз он сливается в диск
-          const spin = now / 14;
-          for(const [ox, oy] of [[-7,-6],[7,-6],[-7,6],[7,6]]){
-            ctx.strokeStyle = 'rgba(201,162,39,.9)'; ctx.lineWidth = 1.2;
+          const spin = now / 11;
+
+          // лучи рамы — сперва тёмные, чтобы читались на светлой карте
+          ctx.lineCap = 'round';
+          for(const [ox, oy] of [[-9,-8],[9,-8],[-9,8],[9,8]]){
+            ctx.strokeStyle = 'rgba(10,12,8,.9)'; ctx.lineWidth = 3.6;
             ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(ox, oy); ctx.stroke();
-            ctx.save(); ctx.translate(ox, oy); ctx.rotate(spin);
-            ctx.strokeStyle = 'rgba(232,227,213,.75)'; ctx.lineWidth = 1.1;
-            ctx.beginPath(); ctx.moveTo(-4.5, 0); ctx.lineTo(4.5, 0); ctx.stroke();
-            ctx.globalAlpha = .35;
-            ctx.beginPath(); ctx.arc(0, 0, 4.5, 0, 7); ctx.stroke();
-            ctx.globalAlpha = 1;
+            ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(ox, oy); ctx.stroke();
+          }
+          // винты: размытый диск и две крутящиеся лопасти
+          for(const [ox, oy] of [[-9,-8],[9,-8],[-9,8],[9,8]]){
+            ctx.save(); ctx.translate(ox, oy);
+            ctx.beginPath(); ctx.arc(0, 0, 6, 0, 7);
+            ctx.fillStyle = 'rgba(232,227,213,.16)'; ctx.fill();
+            ctx.strokeStyle = 'rgba(232,227,213,.45)'; ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.rotate(spin + (ox + oy));
+            ctx.strokeStyle = 'rgba(240,236,222,.95)'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(6, 0); ctx.stroke();
             ctx.restore();
           }
+          // корпус: плотное тело с кабиной и подвесом
+          ctx.beginPath();
+          ctx.moveTo(9, 0); ctx.lineTo(3, -5); ctx.lineTo(-6, -4);
+          ctx.lineTo(-8, 0); ctx.lineTo(-6, 4); ctx.lineTo(3, 5);
+          ctx.closePath();
+          ctx.fillStyle = '#1B2016'; ctx.fill();
+          ctx.strokeStyle = '#C9A227'; ctx.lineWidth = 1.6; ctx.stroke();
+          // глазок камеры
+          ctx.beginPath(); ctx.arc(5, 0, 2, 0, 7);
+          ctx.fillStyle = '#E27A5F'; ctx.fill();
+          // бомба под брюхом, пока не сброшена
+          ctx.beginPath(); ctx.ellipse(-1, 6, 2.6, 4, 0, 0, 7);
+          ctx.fillStyle = '#E8E3D5'; ctx.fill();
+          ctx.strokeStyle = 'rgba(10,12,8,.8)'; ctx.lineWidth = 1; ctx.stroke();
           ctx.restore();
         }
 
@@ -2577,6 +2630,7 @@ function paintAim(){
   } else {
     el.style.display = 'none';
   }
+  paintReticle();          // кнопка внизу меняется вместе с прицелом
 }
 // Ткнули в цель, пока висел прицел
 function aimFire(t, kind){
@@ -2672,6 +2726,9 @@ async function showItemResult(code, data, extra){
   }
   // ── Дальняя ракета: летит долго и видна всем
   if(code === 'longrocket'){
+    // Ракета летит ровно столько, сколько живёт её эффект, и взрыв
+    // приходит в тот же миг. Раньше эффект жил дольше полёта, и она
+    // несколько секунд висела над целью, прежде чем рвануть.
     const fly = (cfg.siege_warn_sec || 15) * 4 * 1000;
     say(T('lr_flying', { n: Math.round(fly / 1000) }));
     try{ FX.rocket(here[0], here[1], tLat, tLng, fly); }catch(e){}
@@ -3440,11 +3497,14 @@ function showBunker(b){
     + '<div class="pf-row"><span>' + T('sg_dist') + '</span><b>'
         + (d === null ? '—' : d + ' м') + '</b></div>'
     + (under ? '<div class="pf-row"><span>' + T('sg_state') + '</span><b>' + T('sg_live') + '</b></div>' : '');
+  const shielded = !mine && isNewbie(b);
   document.getElementById('sheet-p').textContent =
       mine ? T('sg_mine_p')
-           : (d !== null && d <= reach ? T('sg_can') : T('sg_come', { n: reach }));
+      : shielded ? T('sg_newbie', { n: newbieLeft(b) })
+      : (d !== null && d <= reach ? T('sg_can') : T('sg_come', { n: reach }));
   document.getElementById('sheet-ok').textContent =
-      (!mine && d !== null && d <= reach) ? T(under ? 'sg_join' : 'sg_attack') : T('closebtn');
+      (!mine && !shielded && d !== null && d <= reach)
+        ? T(under ? 'sg_join' : 'sg_attack') : T('closebtn');
   document.getElementById('veil').classList.add('on');
   sheetOpened();
 }
@@ -4328,6 +4388,17 @@ function drawOne(b){
     fillColor: col, fillOpacity: 0.9,
     className: 'glow-ring'
   }).addTo(g);
+  // Купол неприкосновенности. Пока он светится — точку не тронуть, и
+  // идти к ней незачем. Раньше это выяснялось только на месте:
+  // пришёл, нажал напасть и получил отказ.
+  if(isNewbie(b) && !(addr && b.owner === addr)){
+    L.circle([b.lat, b.lng], {
+      radius: Math.max(45, r * 0.45),
+      color: '#7FBF6A', weight: 2.4, opacity: 1,
+      fill: true, fillColor: '#7FBF6A', fillOpacity: 0.12,
+      className: 'shield-dome', interactive: false
+    }).addTo(g);
+  }
   g.addTo(map); layers.set(b.id, g);
   Sprites.refresh();
 }
@@ -4362,6 +4433,27 @@ const OWNER_DASH = ['9 6', '2 5', '14 5 3 5', '20 6'];
 // Здесь каждый знак замешивается сдвигами, а потом число ещё раз
 // перетряхивается. Цвет берём из одной половины битов, штрих — из
 // другой, поэтому они друг от друга не зависят.
+// Точка под защитой новичка: её нельзя трогать первые 48 часов.
+// Правило то же, что на сервере: точка моложе срока И у хозяина нет
+// ни одной точки старше срока. Считаем на телефоне по тем данным,
+// что и так пришли, — лишнего запроса не нужно.
+function isNewbie(b){
+  if(!b || !b.built_at) return false;
+  const h = (cfg.siege_newbie_h || 48) * 3600000;
+  const now = Date.now();
+  if(now - Date.parse(b.built_at) >= h) return false;
+  for(const x of bunkers){
+    if(x.owner !== b.owner || x.alive === false) continue;
+    if(now - Date.parse(x.built_at) >= h) return false;   // хозяин не новичок
+  }
+  return true;
+}
+// Сколько часов ещё нельзя трогать
+function newbieLeft(b){
+  const h = (cfg.siege_newbie_h || 48) * 3600000;
+  return Math.max(1, Math.ceil((h - (Date.now() - Date.parse(b.built_at))) / 3600000));
+}
+
 function ownerHash(w, salt){
   const t = String(w).toLowerCase();
   let h = 0x811c9dc5 ^ (salt || 0);
@@ -4969,7 +5061,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 60;
+const APP_V = 62;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
@@ -5043,6 +5135,10 @@ document.addEventListener('visibilitychange', () => { if(!document.hidden) check
   // чтобы он не занимал место в телефоне у тех, кто уже играл.
   try{ await DB.put('kv', null, 'seenIds'); }catch(e){}
   paintGunBtn(); paintBagBtn(); Sprites.refresh(); drawRing();
+  // Что куплено — спрашиваем СРАЗУ при запуске. Раньше список
+  // подтягивался только внутри лавки, и портфель не появлялся,
+  // пока человек туда не заглянет.
+  loadMoney().then(paintBagBtn).catch(() => {});
   watchMe();
   startPoll();
   sync();
