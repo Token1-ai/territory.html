@@ -1822,7 +1822,7 @@
   "fog_off": "Niebla desactivada: se ve todo",
   "sg_join": "Unirse al asedio",
   "sg_joined": "Te uniste al asedio. Golpead juntos.",
-  "sg_short": "{a} vs {d} · {p}/min",
+  "sg_short": "{a} contra {d} · {p}/min",
   "dr_launch": "Lanzar dron",
   "dr_left": "quedan {n}",
   "dr_aim": "Toca el objetivo: un búnker o cañón enemigo.",
