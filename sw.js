@@ -12,12 +12,15 @@
 //
 // ВАЖНО: этот номер надо поднимать при каждой выкладке. По нему
 // браузер и понимает, что появилось новое.
-const SHELL = 'ogt-shell-v39';
+const SHELL = 'ogt-shell-v41';
 const TILES = 'ogt-tiles-v1';
 const TILE_CAP = 900;                 // примерно 25-40 МБ, дальше чистим старое
 
 const SHELL_FILES = [
   './', './index.html', './manifest.json', './splash-1080.webp', './lang.json', './pay.html',
+  // Листы со значками бункеров, пушек и бойца. Держим в оболочке, чтобы
+  // карта выглядела одинаково и без сети.
+  './map-sheet1.png', './map-sheet2.png',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
