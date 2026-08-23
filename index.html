@@ -1145,7 +1145,118 @@ let _mapMoving = false;
 // осады, состав и список снесённых точек. Общая сверка при этом
 // осталась редкой, то есть сервер дёргается не больше прежнего, а
 // война видна почти сразу.
+// ── Живая связь ─────────────────────────────────────────────────
+// Раньше телефон СПРАШИВАЛ сервер про бои каждые 45 секунд — всегда,
+// даже когда вокруг ничего не происходило. На сотне игроков это ещё
+// терпимо, на десяти тысячах — это тысячи запросов в секунду и счёт
+// за трафик больше, чем за саму базу.
+//
+// Теперь сервер САМ говорит, что случилось: в базе стоит триггер,
+// который шлёт весть в канал по клетке карты (клетка — 0.01 градуса,
+// примерно километр). Телефон подписан только на те клетки, что у
+// него на экране — обычно одну-четыре. Опрос остаётся, но редким: он
+// теперь не главный источник новостей, а страховка.
+let _rtChans = new Map();     // 'war:5177:1945' → канал
+let _rtOn    = false;
+let _rtGuard = null;
+
+function warCells(){
+  if(!map) return [];
+  const b = map.getBounds();
+  const la1 = Math.floor(b.getSouth() * 100), la2 = Math.floor(b.getNorth() * 100);
+  const ln1 = Math.floor(b.getWest()  * 100), ln2 = Math.floor(b.getEast()  * 100);
+  const out = [];
+  for(let a = la1; a <= la2; a++){
+    for(let o = ln1; o <= ln2; o++){
+      out.push('war:' + a + ':' + o);
+      // Отвёл карту на весь город — клеток десятки, подписка на них
+      // дороже опроса. В этом случае живую связь не держим вовсе.
+      if(out.length > 16) return [];
+    }
+  }
+  return out;
+}
+
+function syncWarChannels(){
+  if(!sb || typeof sb.channel !== 'function') return;
+  const want = new Set(warCells());
+  for(const [k, ch] of Array.from(_rtChans)){
+    if(!want.has(k)){
+      try{ sb.removeChannel(ch); }catch(e){}
+      _rtChans.delete(k);
+    }
+  }
+  for(const k of want){
+    if(_rtChans.has(k)) continue;
+    try{
+      const ch = sb.channel(k)
+        .on('broadcast', { event:'hit' }, m => onWarMsg(m && m.payload))
+        .on('broadcast', { event:'war' }, m => onWarMsg(m && m.payload))
+        // Живая связь считается работающей ТОЛЬКО когда канал ответил
+        // «подписан». Не поднялась — игра тут же возвращается к опросу
+        // и ничего не теряет: связь ускоряет, но ни за что не отвечает.
+        .subscribe(st => {
+          ch._ok = (st === 'SUBSCRIBED');
+          const was = _rtOn;
+          _rtOn = Array.from(_rtChans.values()).some(c => c._ok);
+          if(was && !_rtOn) hurryWarPoll();
+        });
+      ch._ok = false;
+      _rtChans.set(k, ch);
+    }catch(e){}
+  }
+  _rtOn = Array.from(_rtChans.values()).some(c => c._ok);
+}
+// Связь оборвалась — не ждём пять минут до следующего опроса.
+function hurryWarPoll(){
+  if(!_warPoll) return;
+  clearTimeout(_warPoll); _warPoll = null;
+  stopWarPoll(); startWarPoll();
+}
+function stopWarChannels(){
+  for(const [k, ch] of Array.from(_rtChans)){
+    try{ sb.removeChannel(ch); }catch(e){}
+    _rtChans.delete(k);
+  }
+  _rtOn = false;
+}
+
+// Весть с сервера: прилёт или начало/конец боя.
+function onWarMsg(m){
+  if(!m) return;
+  if(m.t === 'hit'){
+    if(_seenHits.has(m.id)) return;
+    _seenHits.add(m.id);
+    if(Number(m.id) > _hitsAfterId) _hitsAfterId = Number(m.id);
+    showHit(m);
+    return;
+  }
+  if(m.t === 'war'){
+    if(!Array.isArray(sieges)) sieges = [];
+    if(m.state === 'start'){
+      if(!sieges.some(s => s.id === m.id)){
+        sieges.push({ id:m.id, bunker_id:m.bunker_id, attacker:m.attacker,
+                      total_hp:m.total_hp, damage:m.damage, state:'live', parts:[] });
+      }
+    } else {
+      sieges = sieges.filter(s => s.id !== m.id);
+      _knownWars.delete(m.id);
+    }
+    try{ checkMySiege(); hpFromSieges(); noticeWars(); Sprites.refresh(); }catch(e){}
+  }
+}
+
+// Как часто спрашивать. Смысл простой: спрашиваем часто только тогда,
+// когда есть на что смотреть.
+function warPace(){
+  if(siege) return 20000;                       // сам в бою — чаще всех
+  const hot = Array.isArray(sieges) && sieges.length > 0;
+  if(!_rtOn) return hot ? 45000 : 150000;       // связи нет — опрос главный
+  return hot ? 90000 : 300000;                  // связь есть — только сверка
+}
+
 let _warPoll = null;
+let _warFirst = true;
 function startWarPoll(){
   if(_warPoll || !map) return;
   const run = async () => {
@@ -1155,23 +1266,35 @@ function startWarPoll(){
         const bb = map.getBounds();
         const { data } = await sb.rpc('sieges_near_v1', { p:{
           lat_min: bb.getSouth(), lat_max: bb.getNorth(),
-          lng_min: bb.getWest(),  lng_max: bb.getEast(), dead_min: 20 } });
+          lng_min: bb.getWest(),  lng_max: bb.getEast(),
+          // Снесённые за последние минуты: при первом заходе смотрим
+          // назад подальше, дальше хватает окна между опросами.
+          dead_min: _warFirst ? 20 : 6,
+          // Бойцов рисуем только с приличного приближения (zoom 15).
+          // На карте города это сотни лишних записей в каждом ответе.
+          parts: map.getZoom() >= 15 } });
+        _warFirst = false;
         if(data && Array.isArray(data.sieges)){
           sieges = data.sieges;
           if(Array.isArray(data.dead) && data.dead.length) killLocal(data.dead);
           checkMySiege(); hpFromSieges(); noticeWars(); Sprites.refresh();
         }
       }catch(e){}
-      // Чужие прилёты — тем же тактом, что и осады.
-      await pollHits();
+      // Прилёты: только если живая связь не поднялась. Когда она есть,
+      // они приходят сами и мгновенно.
+      if(!_rtOn) await pollHits();
     }
     // pace() растягивает паузу, когда сервер отвечает медленно —
     // при перегрузке война обновляется реже, но игра не встаёт.
-    _warPoll = setTimeout(run, pace(45000));
+    _warPoll = setTimeout(run, pace(warPace()));
   };
   _warPoll = setTimeout(run, 1200);
+  syncWarChannels();
 }
-function stopWarPoll(){ if(_warPoll){ clearTimeout(_warPoll); _warPoll = null; } }
+function stopWarPoll(){
+  if(_warPoll){ clearTimeout(_warPoll); _warPoll = null; }
+  stopWarChannels();
+}
 
 function startWarSmoke(){
   if(_warSmoke) return;
@@ -1189,6 +1312,9 @@ function startWarSmoke(){
     });
     map.on('moveend zoomend', () => {
       clearTimeout(_moveGuard); _mapMoving = false;
+      // Экран уехал — переподписываемся на новые клетки карты.
+      clearTimeout(_rtGuard);
+      _rtGuard = setTimeout(() => { try{ syncWarChannels(); }catch(e){} }, 600);
     });
   }
   _warSmoke = setInterval(() => {
@@ -5836,7 +5962,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 71;
+const APP_V = 72;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
