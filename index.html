@@ -1162,6 +1162,8 @@ function startWarPoll(){
           checkMySiege(); hpFromSieges(); noticeWars(); Sprites.refresh();
         }
       }catch(e){}
+      // Чужие прилёты — тем же тактом, что и осады.
+      await pollHits();
     }
     // pace() растягивает паузу, когда сервер отвечает медленно —
     // при перегрузке война обновляется реже, но игра не встаёт.
@@ -1352,76 +1354,103 @@ async function pruneDead(force){
   }catch(e){}
 }
 
-async function showIncoming(ids){
-  if(!ids || !ids.length) return;
-  const since = _hitsFrom || new Date(Date.now() - 90000).toISOString();
+// ── Прилёты видны ВСЕМ ──────────────────────────────────────────
+// Раньше чужие удары дроном и дальней ракетой спрашивались только
+// внутри общей сверки — раз в три-десять минут, и только по тем
+// точкам, что уже лежали в телефоне. Свидетелем чужого боя человек
+// почти никогда не становился.
+//
+// Теперь удары спрашиваются тем же быстрым опросом, что и осады:
+// раз в 45 секунд, ОДНИМ запросом по рамке экрана. Что попало в
+// эту рамку — видят все, кто туда смотрит, а не только хозяин точки.
+//
+// Отсчёт идёт по НОМЕРУ события, а не по времени: часы телефона тут
+// не участвуют, и ни один удар не теряется и не повторяется дважды.
+let _hitsAfterId = 0;
+let _hitsFirst   = true;
+
+async function pollHits(){
+  if(!map) return;
   try{
-    const { data } = await sb.from('territory_events')
-      .select('id,kind,bunker_id,data,at')
-      .in('kind', ['drone_strike','longrocket'])
-      .in('bunker_id', ids.slice(0, 60))
-      .gt('at', since)
-      .order('at', { ascending:false })
-      .limit(30);
-    _hitsFrom = new Date().toISOString();
-    if(!data || !data.length) return;
-    for(const e of data){
-      if(_seenHits.has(e.id)) continue;
-      _seenHits.add(e.id);
-      const b = bunkerById(e.bunker_id);
-      if(!b || !map || !map.getBounds().contains([b.lat, b.lng])) continue;
-      const d = e.data || {};
-      // прилёт рисуем от края экрана к цели: откуда именно пустили,
-      // защитнику знать не положено — он видит только, что прилетело
-      const q = map.getBounds();
-      const fromLat = b.lat + (q.getNorth() - q.getSouth()) * 0.55;
-      const fromLng = b.lng + (q.getEast() - q.getWest()) * 0.35;
-      try{
-        if(e.kind === 'drone') FX.drone(fromLat, fromLng, b.lat, b.lng, 2600);
-        else FX.rocket(fromLat, fromLng, b.lat, b.lng, 2600);
-        setTimeout(() => {
-          if(d.intercepted){ FX.blast(b.lat, b.lng, 14, false); FX.burst(b.lat, b.lng); }
-          else {
-            FX.blast(b.lat, b.lng, cfg.siege_blast_m || 20, false);
-            FX.smoke(b.lat, b.lng);
-            if(d.damage) FX.num(b.lat, b.lng, '\u2212' + d.damage, '#E27A5F');
-          }
-        }, 2600);
-      }catch(err){}
-      // по своей точке — ещё и словами, чтобы не пропустить
-      if(b.owner === addr){
-        say(d.intercepted ? T('gd_shotdown') : T('gd_incoming', { n: d.damage || 0 }), 'warn');
-        try{ if(navigator.vibrate) navigator.vibrate([40,60,40]); }catch(err){}
-      }
+    const bb = map.getBounds();
+    const { data } = await sb.rpc('hits_near_v1', { p:{
+      lat_min: bb.getSouth(), lat_max: bb.getNorth(),
+      lng_min: bb.getWest(),  lng_max: bb.getEast(),
+      after_id: _hitsAfterId } });
+    if(!data) return;
+    if(data.max_id != null) _hitsAfterId = Number(data.max_id);
+    // Первый опрос только запоминает место в списке: иначе при входе
+    // в игру разом рвануло бы всё, что случилось за последние минуты.
+    if(_hitsFirst){ _hitsFirst = false; return; }
+    const hits = Array.isArray(data.hits) ? data.hits : [];
+    for(let i = 0; i < hits.length && i < 8; i++){
+      const h = hits[i];
+      if(_seenHits.has(h.id)) continue;
+      _seenHits.add(h.id);
+      // вразнобой: восемь одновременных разрывов сливаются в кашу
+      setTimeout(() => showHit(h), i * 220);
     }
     if(_seenHits.size > 400) _seenHits = new Set();
   }catch(e){}
 }
 
-// Бой начался поблизости — говорим об этом ОДИН раз.
-let _knownWars = new Set();
-// Свой ли это человек. Состав клана уже приходит в clan.list.
-function isClanMate(w){
-  if(!w || !clan || !Array.isArray(clan.list)) return false;
-  const me = String(addr || '').toLowerCase();
-  const o  = String(w).toLowerCase();
-  if(o === me) return false;
-  return clan.list.some(m => String(m.wallet).toLowerCase() === o);
+// Один прилёт на карте: полёт от края экрана к цели и разрыв.
+// Откуда именно пустили — не показываем: этого не знает и защитник.
+function showHit(h){
+  if(!map || !h || h.lat == null) return;
+  const q = map.getBounds();
+  if(!q.contains([h.lat, h.lng])) return;
+  const fromLat = h.lat + (q.getNorth() - q.getSouth()) * 0.55;
+  const fromLng = h.lng + (q.getEast()  - q.getWest())  * 0.35;
+  try{
+    // Раньше здесь сравнивали с 'drone', а в базе вид записан как
+    // 'drone_strike' — и дрон всегда рисовался ракетой.
+    if(h.kind === 'drone_strike') FX.drone(fromLat, fromLng, h.lat, h.lng, 2600);
+    else                          FX.rocket(fromLat, fromLng, h.lat, h.lng, 2600);
+    setTimeout(() => {
+      if(h.intercepted){ FX.blast(h.lat, h.lng, 14, false); FX.burst(h.lat, h.lng); }
+      else {
+        FX.blast(h.lat, h.lng, cfg.siege_blast_m || 20, false);
+        FX.smoke(h.lat, h.lng);
+        if(h.damage) FX.num(h.lat, h.lng, '\u2212' + h.damage, '#E27A5F');
+      }
+    }, 2600);
+  }catch(e){}
+  // по своей точке — ещё и словами, чтобы не пропустить
+  if(h.owner === addr){
+    say(h.intercepted ? T('gd_shotdown') : T('gd_incoming', { n: h.damage || 0 }), 'warn');
+    try{ if(navigator.vibrate) navigator.vibrate([40,60,40]); }catch(e){}
+  }
 }
+
 function noticeWars(){
   if(!sieges) return;
   const now = new Set();
+  // Чужих боёв за один опрос показываем не больше трёх: если отвести
+  // карту на весь город, строчки иначе зальют весь экран.
+  let shown = 0;
   for(const sg of sieges){
     now.add(sg.id);
     if(_knownWars.has(sg.id)) continue;
     _knownWars.add(sg.id);
     const b = bunkerById(sg.bunker_id);
-    if(!b || !here) continue;
-    const d = metersBetween(here[0], here[1], b.lat, b.lng);
-    if(d > (cfg.war_notice_m || 1500)) continue;
+    if(!b) continue;
     if(siege && siege.bunker_id === sg.bunker_id) continue;   // сам в нём стою
     const mine = b.owner === addr;
     const ally = !mine && isClanMate(b.owner);
+    // Расстояние — от себя, а без сигнала спутников от середины экрана.
+    const ref = here || (map ? [map.getCenter().lat, map.getCenter().lng] : null);
+    if(!ref) continue;
+    const d = metersBetween(ref[0], ref[1], b.lat, b.lng);
+    // Свою и союзную точку зовём с ЛЮБОГО расстояния: это твоя земля,
+    // и знать о ней надо, даже если смотришь в другой конец города.
+    // Чужой бой показываем, когда он попал на экран — человек смотрит
+    // именно туда, значит хочет видеть, что там происходит.
+    if(!mine && !ally){
+      const onScreen = map && map.getBounds().contains([b.lat, b.lng]);
+      if(!onScreen || shown >= 3) continue;
+      shown++;
+    }
     say(mine ? T('st_warmine', { n: Math.round(d) })
         : ally ? T('st_warclan', { n: Math.round(d) })
         : T('st_warnear', { n: Math.round(d) }),
@@ -5031,7 +5060,7 @@ async function sync(){
           checkMySiege();
         }
       }
-      await showIncoming(ids);
+      // прилёты теперь спрашивает быстрый опрос — см. pollHits()
       noticeWars();
       paintGunBtn(); drawRing();
     }
@@ -5807,7 +5836,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 70;
+const APP_V = 71;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
