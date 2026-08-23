@@ -315,7 +315,10 @@
   "inst_sam": "Open the menu (three lines, bottom right), pick «Add page to», then «Home screen».",
   "inst_opera": "Open the menu, pick «Add to», then «Home screen».",
   "lr_gone": "That cannon is already gone — it was shot down earlier.",
-  "claimed": "This spot belongs to whoever won the fight for it — {n} min left."
+  "claimed": "This spot belongs to whoever won the fight for it — {n} min left.",
+  "it_soldier": "Squad of soldiers",
+  "itd_soldier": "Four soldiers. They walk, shoot and go where you send them.",
+  "ith_soldier": "Four soldiers you command yourself.\n\nEvery bunker already holds four of its own — they come out when the point is attacked and defend it on their own.\n\nThis squad is YOURS. Press and hold on them, they light up, then tap where to go. They attack whatever stands there: cannons, the bunker, or the enemy's soldiers.\n\nWhen soldiers meet soldiers, they fight each other and no one else."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -633,7 +636,10 @@
   "inst_sam": "Відкрий меню (три смужки праворуч унизу), вибери «Додати сторінку», потім «На головний екран».",
   "inst_opera": "Відкрий меню, вибери «Додати до», потім «На головний екран».",
   "lr_gone": "Цієї гармати вже немає — її збили раніше.",
-  "claimed": "Місце ще {n} хв закріплене за тим, хто відбив точку."
+  "claimed": "Місце ще {n} хв закріплене за тим, хто відбив точку.",
+  "it_soldier": "Загін солдатів",
+  "itd_soldier": "Четверо солдатів. Ходять, стріляють і йдуть куди пошлеш.",
+  "ith_soldier": "Четверо солдатів, якими керуєш ти сам.\n\nУ кожного бункера вже є свої четверо — вони виходять, коли на точку нападають, і боронять її самі.\n\nЦей загін — ТВІЙ. Натисни й потримай на них, вони засвітяться, потім тицьни куди йти. Вони атакують те, що там стоїть: гармати, бункер або чужих солдатів.\n\nКоли солдати сходяться із солдатами — б'ються між собою і ні з ким іншим."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -951,7 +957,10 @@
   "inst_sam": "Открой меню (три полоски справа внизу), выбери «Добавить страницу», потом «На главный экран».",
   "inst_opera": "Открой меню, выбери «Добавить в», потом «На главный экран».",
   "lr_gone": "Этой пушки уже нет — её сбили раньше.",
-  "claimed": "Место ещё {n} мин закреплено за тем, кто отбил точку."
+  "claimed": "Место ещё {n} мин закреплено за тем, кто отбил точку.",
+  "it_soldier": "Отряд солдат",
+  "itd_soldier": "Четверо солдат. Ходят, стреляют и идут куда пошлёшь.",
+  "ith_soldier": "Четверо солдат, которыми управляешь ты сам.\n\nУ каждого бункера уже есть свои четверо — они выходят, когда на точку нападают, и защищают её сами.\n\nЭтот отряд — ТВОЙ. Нажми и подержи на них, они засветятся, потом ткни куда идти. Они атакуют то, что там стоит: пушки, бункер или чужих солдат.\n\nКогда солдаты сходятся с солдатами — дерутся между собой и больше ни с кем."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1269,7 +1278,10 @@
   "inst_sam": "Otwórz menu (trzy kreski, prawy dolny róg), wybierz „Dodaj stronę”, potem „Ekran główny”.",
   "inst_opera": "Otwórz menu, wybierz „Dodaj do”, potem „Ekran główny”.",
   "lr_gone": "Tego działa już nie ma — zostało zniszczone wcześniej.",
-  "claimed": "Miejsce jest jeszcze przez {n} min zajęte przez zdobywcę punktu."
+  "claimed": "Miejsce jest jeszcze przez {n} min zajęte przez zdobywcę punktu.",
+  "it_soldier": "Oddział żołnierzy",
+  "itd_soldier": "Czterech żołnierzy. Chodzą, strzelają i idą tam, gdzie ich poślesz.",
+  "ith_soldier": "Czterech żołnierzy pod twoim dowództwem.\n\nKażdy bunkier ma już swoich czterech — wychodzą, gdy punkt jest atakowany, i bronią go sami.\n\nTen oddział jest TWÓJ. Naciśnij i przytrzymaj na nich, zaświecą się, potem wskaż dokąd iść. Atakują to, co tam stoi: działa, bunkier albo obcych żołnierzy.\n\nGdy żołnierze spotkają żołnierzy — biją się między sobą i z nikim innym."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1587,7 +1599,10 @@
   "inst_sam": "打开菜单（右下角三条横线），选择「添加页面到」，再选「主屏幕」。",
   "inst_opera": "打开菜单，选择「添加到」，再选「主屏幕」。",
   "lr_gone": "那门炮已经被摧毁了。",
-  "claimed": "此处属于夺下据点的玩家，还剩 {n} 分钟。"
+  "claimed": "此处属于夺下据点的玩家，还剩 {n} 分钟。",
+  "it_soldier": "士兵小队",
+  "itd_soldier": "四名士兵。会行走、射击，你指哪他们去哪。",
+  "ith_soldier": "四名由你亲自指挥的士兵。\n\n每座地堡本身已有四名——地堡被攻击时他们会出来，自行防守。\n\n这支小队是你的。按住他们，他们会亮起，然后点选要去的位置。他们会攻击那里的东西：火炮、地堡或敌方士兵。\n\n士兵遇上士兵时，只会互相厮杀，不管其他目标。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1905,7 +1920,10 @@
   "inst_sam": "Abre el menú (tres líneas abajo a la derecha), elige «Añadir página a» y luego «Pantalla de inicio».",
   "inst_opera": "Abre el menú, elige «Añadir a» y luego «Pantalla de inicio».",
   "lr_gone": "Ese cañón ya no existe: fue destruido antes.",
-  "claimed": "Este sitio pertenece a quien ganó el combate: quedan {n} min."
+  "claimed": "Este sitio pertenece a quien ganó el combate: quedan {n} min.",
+  "it_soldier": "Escuadrón de soldados",
+  "itd_soldier": "Cuatro soldados. Caminan, disparan y van donde los mandes.",
+  "ith_soldier": "Cuatro soldados que mandas tú mismo.\n\nCada búnker ya tiene los suyos: salen cuando atacan el punto y lo defienden solos.\n\nEste escuadrón es TUYO. Mantén pulsado sobre ellos, se encienden, y luego toca dónde ir. Atacan lo que haya allí: cañones, el búnker o los soldados enemigos.\n\nCuando los soldados se encuentran con soldados, pelean entre ellos y con nadie más."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2223,7 +2241,10 @@
   "inst_sam": "Öffne das Menü (drei Striche unten rechts), wähle „Seite hinzufügen zu“, dann „Startbildschirm“.",
   "inst_opera": "Öffne das Menü, wähle „Hinzufügen zu“, dann „Startbildschirm“.",
   "lr_gone": "Dieses Geschütz gibt es nicht mehr — es wurde bereits zerstört.",
-  "claimed": "Dieser Platz gehört noch {n} Min. dem Sieger des Kampfes."
+  "claimed": "Dieser Platz gehört noch {n} Min. dem Sieger des Kampfes.",
+  "it_soldier": "Soldatentrupp",
+  "itd_soldier": "Vier Soldaten. Sie laufen, schießen und gehen, wohin du sie schickst.",
+  "ith_soldier": "Vier Soldaten unter deinem Befehl.\n\nJeder Bunker hat bereits eigene vier — sie kommen heraus, wenn der Punkt angegriffen wird, und verteidigen ihn selbst.\n\nDieser Trupp gehört DIR. Halte den Finger auf ihnen, sie leuchten auf, dann tippe, wohin sie sollen. Sie greifen an, was dort steht: Geschütze, den Bunker oder fremde Soldaten.\n\nTreffen Soldaten auf Soldaten, kämpfen sie gegeneinander und sonst mit niemandem."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2541,6 +2562,9 @@
   "inst_sam": "Menüyü aç (sağ altta üç çizgi), «Sayfayı şuraya ekle» ve sonra «Ana ekran» seç.",
   "inst_opera": "Menüyü aç, «Şuraya ekle» ve sonra «Ana ekran» seç.",
   "lr_gone": "O top artık yok — daha önce yok edilmiş.",
-  "claimed": "Burası noktayı alan oyuncuya ait — {n} dk kaldı."
+  "claimed": "Burası noktayı alan oyuncuya ait — {n} dk kaldı.",
+  "it_soldier": "Asker takımı",
+  "itd_soldier": "Dört asker. Yürür, ateş eder ve gönderdiğin yere gider.",
+  "ith_soldier": "Kendi komuta ettiğin dört asker.\n\nHer sığınağın zaten kendi dördü var — noktaya saldırıldığında dışarı çıkıp kendileri savunur.\n\nBu takım SENİN. Üzerlerine basılı tut, yanarlar, sonra nereye gideceklerini işaretle. Orada ne varsa ona saldırırlar: toplar, sığınak ya da düşman askerleri.\n\nAskerler askerlerle karşılaşınca birbirleriyle döğüşür, başka kimseyle değil."
  }
 }
