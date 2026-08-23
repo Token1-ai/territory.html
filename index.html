@@ -415,6 +415,24 @@ button:disabled.press, .btn-buy.off.press{ transform:none; box-shadow:none; }
   document.addEventListener('pointerup', release, true);
   document.addEventListener('pointercancel', release, true);
   window.addEventListener('blur', release);
+  // Запас для старых телефонов: Pointer Events появились в iOS 13 и
+  // в Android-браузерах не сразу. Где их нет — работаем по касанию,
+  // и кнопка светится точно так же.
+  if(!('onpointerdown' in window)){
+    document.addEventListener('touchstart', e => {
+      const el = pick(e); if(!el || el.disabled) return;
+      el._pressT = performance.now(); el.classList.add('press');
+      try{ if(navigator.vibrate) navigator.vibrate(12); }catch(_){}
+    }, true);
+    document.addEventListener('touchend', release, true);
+    document.addEventListener('touchcancel', release, true);
+    // мышь на настольном браузере без Pointer Events
+    document.addEventListener('mousedown', e => {
+      const el = pick(e); if(!el || el.disabled) return;
+      el._pressT = performance.now(); el.classList.add('press');
+    }, true);
+    document.addEventListener('mouseup', release, true);
+  }
 })();
 </script>
 <div id="splash"><img src="splash-1080.webp" alt="Gate Territory" fetchpriority="high"/><div id="splash-bar"><i></i></div></div>
@@ -1390,7 +1408,9 @@ function startWarSmoke(){
         // тяжёлая — дротиком, ракетная — ракетой. Раньше здесь стояла
         // общая трасса с круглым разрывом, поэтому платные пушки в
         // бою и выглядели «кружочками».
-        try{ FX.volley([g], tl, tn); }catch(e){}
+        // Свой бой дрожит, чужой — нет.
+        const mineFight = !!(siege && siege.bunker_id === b.id) || b.owner === addr;
+        try{ FX.volley([g], tl, tn, !mineFight); }catch(e){}
       }
       if(Math.random() < 0.3){
         // Разрыв на самой точке — тоже без колец.
@@ -1530,6 +1550,12 @@ let _hitsFirst   = true;
 // они «в бункере», и карта не зарастает фигурками.
 let soldiers = [];
 
+// Какие бои телефон уже показал. Раньше эту строку потеряли при
+// правке, и noticeWars() падал на первом же обращении: сообщения
+// «твоя точка под атакой» не приходили ВООБЩЕ, а вместе с ними
+// молча пропадала и перерисовка карты после каждого опроса.
+let _knownWars = new Set();
+
 // ── Сфера над точкой ────────────────────────────────────────────
 // id точки → до какого времени она под сферой. Список приходит с
 // сервера и виден ВСЕМ вокруг, а не только хозяину.
@@ -1554,7 +1580,9 @@ async function pollShields(){
 async function pollSoldiers(){
   if(!map) return;
   const hot = Array.isArray(sieges) && sieges.length > 0;
-  if(!hot || map.getZoom() < 15){ if(soldiers.length){ soldiers = []; } return; }
+  // Просим их с того же приближения, с какого рисуем (zoom 16),
+  // иначе телефон качает список, который всё равно не показывает.
+  if(!hot || map.getZoom() < 16){ if(soldiers.length){ soldiers = []; } return; }
   try{
     const bb = map.getBounds();
     const { data } = await sb.rpc('soldiers_near_v1', { p:{
@@ -1618,6 +1646,17 @@ function showHit(h){
   }
 }
 
+// Свой ли это человек. Строчку потеряли при одной из старых правок
+// вместе с _knownWars — и noticeWars() падал на ней каждый раз.
+// Сообщения «твоя точка под атакой» и «клан под атакой» не приходили
+// вообще, а вместе с ними молча пропадала перерисовка карты.
+function isClanMate(w){
+  if(!w || !clan || !Array.isArray(clan.list)) return false;
+  const me = String(addr || '').toLowerCase();
+  const o  = String(w).toLowerCase();
+  if(o === me) return false;
+  return clan.list.some(m => String(m.wallet).toLowerCase() === o);
+}
 function noticeWars(){
   if(!sieges) return;
   const now = new Set();
@@ -1849,7 +1888,10 @@ const Sprites = (function(){
     }
     try{ FX.paint(ctx, map, w, h); }catch(e){}
     // Купол «дышит», поэтому пока он на экране, слой перерисовываем.
-    if(domeSeen){ domeSeen = false; setTimeout(ask, 120); }
+    // Раз в треть секунды, и только когда игра на экране: на слабом
+    // телефоне восемь перерисовок в секунду греют его без толку.
+    if(domeSeen && !document.hidden){ domeSeen = false; setTimeout(ask, 340); }
+    else domeSeen = false;
   }
   function ask(){ if(need) return; need = true; requestAnimationFrame(draw); }
   return { attach, refresh: ask };
@@ -2671,7 +2713,11 @@ const FX = (function(){
   }
   // Залп: все живые пушки точки бьют по одному месту вразнобой,
   // иначе шесть одинаковых трасс выглядят как одна толстая.
-  function volley(guns, toLat, toLng){
+  // quiet — залп ЧУЖОГО боя, на который человек просто смотрит.
+  // Раньше такой залп тоже дёргал телефон, и он жужжал каждые две
+  // секунды всё время, пока бой на экране. Дрожать должен только
+  // свой бой.
+  function volley(guns, toLat, toLng, quiet){
     if(!Array.isArray(guns) || !guns.length) return;
     let hasRocket = false;
     guns.slice(0, 8).forEach((g, i) => {
@@ -2690,7 +2736,8 @@ const FX = (function(){
     });
     // Ракетная бьёт тяжелее — и телефон это чувствует иначе
     try{
-      if(navigator.vibrate) navigator.vibrate(hasRocket ? [25, 60, 25, 60, 40] : [15, 40, 15]);
+      if(!quiet && navigator.vibrate)
+        navigator.vibrate(hasRocket ? [25, 60, 25, 60, 40] : [15, 40, 15]);
     }catch(e){}
   }
   // Подрыв заряда: то же, что удар, но крупнее и с осколками
@@ -5774,6 +5821,15 @@ async function sendOne(item){
     const last = (await DB.get('kv', ck)) || 0;
     if(data.id > last) await DB.put('kv', data.id, ck);
     say(T('planted'),'good');
+    // Своя сфера должна встать СРАЗУ, а не через пять минут до
+    // следующего опроса: человек только что поставил точку и должен
+    // видеть, что она под защитой.
+    if(data.id){
+      const mins = Number(cfg.fresh_shield_min || 120);
+      shieldUntil.set(Number(data.id), Date.now() + mins*60000);
+      Sprites.refresh();
+    }
+    try{ pollShields(); }catch(e){}
     refreshStats();
     return 'ok';
   }catch(e){ return 'network'; }
@@ -6114,7 +6170,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 77;
+const APP_V = 79;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
