@@ -317,8 +317,11 @@
   "lr_gone": "That cannon is already gone — it was shot down earlier.",
   "claimed": "This spot belongs to whoever won the fight for it — {n} min left.",
   "it_soldier": "Squad of soldiers",
-  "itd_soldier": "Four soldiers. They walk, shoot and go where you send them.",
-  "ith_soldier": "Four soldiers you command yourself.\n\nEvery bunker already holds four of its own — they come out when the point is attacked and defend it on their own.\n\nThis squad is YOURS. Press and hold on them, they light up, then tap where to go. They attack whatever stands there: cannons, the bunker, or the enemy's soldiers.\n\nWhen soldiers meet soldiers, they fight each other and no one else."
+  "itd_soldier": "Four soldiers under your hand. They cut down cannons and fight enemy soldiers.",
+  "ith_soldier": "WHAT YOU GET\nFour soldiers. Thirty life each, 120 together.\n\nHOW TO COMMAND THEM\nPress and hold on a soldier — a ring lights up around him. Drag to take in the ones you want, then tap the target. They walk there, and everyone on the map sees it. Tap empty ground and they hold that spot.\n\nWHAT THEY DO PER MINUTE\n· to a cannon — 40 (a plain cannon falls in a minute and a half)\n· to enemy soldiers — 60\n· to a bunker — 16\n\nWHY YOU NEED THEM\nEvery bunker already holds four of its own, for free. When you attack, they come out and pin you down with fire — your damage drops by half. Put your squad against them and they are tied up in a fight, so you hit at full strength again. When soldiers meet soldiers, they fight each other and no one else.\n\nCAREFUL\nA rocket cannon takes 51 life a minute — a whole squad dies in two and a half minutes. Clear the rocket cannon with a drone first, then bring the infantry.\nOne drone kills one soldier.\n\nAFTER THE FIGHT\nWhoever survives goes back into your backpack. Two killed, two return.\n\nTHE LIMIT\nYou can never hold more than eight of your own soldiers — two squads. Lose some and the room frees up, then buy again.",
+  "bg_soon": "Soldiers are not fighting yet — the mechanics are being built. What you bought stays with you.",
+  "bgw_soon": "Soldiers are not fighting yet — the mechanics are being built. What you bought stays with you.",
+  "sg_sphere": "A sphere still stands over this point — {n} min left."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -638,8 +641,11 @@
   "lr_gone": "Цієї гармати вже немає — її збили раніше.",
   "claimed": "Місце ще {n} хв закріплене за тим, хто відбив точку.",
   "it_soldier": "Загін солдатів",
-  "itd_soldier": "Четверо солдатів. Ходять, стріляють і йдуть куди пошлеш.",
-  "ith_soldier": "Четверо солдатів, якими керуєш ти сам.\n\nУ кожного бункера вже є свої четверо — вони виходять, коли на точку нападають, і боронять її самі.\n\nЦей загін — ТВІЙ. Натисни й потримай на них, вони засвітяться, потім тицьни куди йти. Вони атакують те, що там стоїть: гармати, бункер або чужих солдатів.\n\nКоли солдати сходяться із солдатами — б'ються між собою і ні з ким іншим."
+  "itd_soldier": "Четверо солдатів під твоєю рукою. Ріжуть гармати, б'ються з чужими солдатами.",
+  "ith_soldier": "ЩО КУПУЄШ\nЧетверо солдатів. У кожного 30 життя, разом 120.\n\nЯК КЕРУВАТИ\nНатисни й потримай на солдаті — навколо загориться коло. Обведи, кого береш, і тицьни в ціль. Вони підуть туди пішки, і це видно всім на карті. Тицьнув у порожнє місце — стануть там.\n\nЩО ВОНИ РОБЛЯТЬ ЗА ХВИЛИНУ\n· по гарматі — 40 (звичайну гармату валять за півтори хвилини)\n· по чужих солдатах — 60\n· по бункеру — 16\n\nНАВІЩО ВОНИ ПОТРІБНІ\nУ кожного бункера вже є свої четверо, безкоштовні. Коли ти нападаєш, вони виходять і притискають тебе вогнем — твій урон падає вдвічі. Виставив свій загін проти них — вони зв'язані боєм, і ти знову б'єш на повну. Коли солдати сходяться із солдатами, вони б'ються тільки між собою.\n\nОБЕРЕЖНО\nРакетна гармата знімає 51 життя за хвилину — цілий загін гине за дві з половиною хвилини. Спершу прибери ракетну дроном, потім веди піхоту.\nОдин дрон убиває одного солдата.\n\nПІСЛЯ БОЮ\nХто вижив — повертається в рюкзак. Убили двох — вернуться двоє.\n\nМЕЖА\nБільше восьми своїх солдатів мати не можна — два загони. Убили — місце звільнилось, докупив.",
+  "bg_soon": "Солдати ще не воюють — механіку роблю. Куплене нікуди не подінеться.",
+  "bgw_soon": "Солдати ще не воюють — механіку роблю. Куплене нікуди не подінеться.",
+  "sg_sphere": "Над точкою ще стоїть сфера — лишилось {n} хв."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -959,8 +965,11 @@
   "lr_gone": "Этой пушки уже нет — её сбили раньше.",
   "claimed": "Место ещё {n} мин закреплено за тем, кто отбил точку.",
   "it_soldier": "Отряд солдат",
-  "itd_soldier": "Четверо солдат. Ходят, стреляют и идут куда пошлёшь.",
-  "ith_soldier": "Четверо солдат, которыми управляешь ты сам.\n\nУ каждого бункера уже есть свои четверо — они выходят, когда на точку нападают, и защищают её сами.\n\nЭтот отряд — ТВОЙ. Нажми и подержи на них, они засветятся, потом ткни куда идти. Они атакуют то, что там стоит: пушки, бункер или чужих солдат.\n\nКогда солдаты сходятся с солдатами — дерутся между собой и больше ни с кем."
+  "itd_soldier": "Четверо солдат под твоей рукой. Режут пушки, дерутся с чужими солдатами.",
+  "ith_soldier": "ЧТО ПОКУПАЕШЬ\nЧетверо солдат. У каждого 30 жизни, вместе 120.\n\nКАК УПРАВЛЯТЬ\nНажми и подержи на солдате — вокруг загорится круг. Обведи, кого берёшь, и ткни в цель. Они пойдут туда пешком, и это видно всем на карте. Ткнул в пустое место — станут там.\n\nЧТО ОНИ ДЕЛАЮТ ЗА МИНУТУ\n· по пушке — 40 (обычную пушку валят за полторы минуты)\n· по чужим солдатам — 60\n· по бункеру — 16\n\nЗАЧЕМ ОНИ НУЖНЫ\nУ каждого бункера уже есть свои четверо, бесплатные. Когда ты нападаешь, они выходят и прижимают тебя огнём — твой урон падает вдвое. Выставил свой отряд против них — они связаны боем, и ты снова бьёшь в полную силу. Когда солдаты сходятся с солдатами, они дерутся только между собой.\n\nОСТОРОЖНО\nРакетная пушка снимает 51 жизнь в минуту — целый отряд гибнет за две с половиной минуты. Сперва убери ракетную дроном, потом веди пехоту.\nОдин дрон убивает одного солдата.\n\nПОСЛЕ БОЯ\nКто выжил — возвращается в рюкзак. Убили двоих — вернутся двое.\n\nПРЕДЕЛ\nБольше восьми своих солдат иметь нельзя — два отряда. Убили — место освободилось, докупил.",
+  "bg_soon": "Солдаты ещё не воюют — механика в работе. Купленное никуда не денется.",
+  "bgw_soon": "Солдаты ещё не воюют — механика в работе. Купленное никуда не денется.",
+  "sg_sphere": "Над точкой ещё стоит сфера — осталось {n} мин."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1280,8 +1289,11 @@
   "lr_gone": "Tego działa już nie ma — zostało zniszczone wcześniej.",
   "claimed": "Miejsce jest jeszcze przez {n} min zajęte przez zdobywcę punktu.",
   "it_soldier": "Oddział żołnierzy",
-  "itd_soldier": "Czterech żołnierzy. Chodzą, strzelają i idą tam, gdzie ich poślesz.",
-  "ith_soldier": "Czterech żołnierzy pod twoim dowództwem.\n\nKażdy bunkier ma już swoich czterech — wychodzą, gdy punkt jest atakowany, i bronią go sami.\n\nTen oddział jest TWÓJ. Naciśnij i przytrzymaj na nich, zaświecą się, potem wskaż dokąd iść. Atakują to, co tam stoi: działa, bunkier albo obcych żołnierzy.\n\nGdy żołnierze spotkają żołnierzy — biją się między sobą i z nikim innym."
+  "itd_soldier": "Czterech żołnierzy pod twoją ręką. Tną działa i biją się z obcymi żołnierzami.",
+  "ith_soldier": "CO KUPUJESZ\nCzterech żołnierzy. Każdy ma 30 życia, razem 120.\n\nJAK DOWODZIĆ\nNaciśnij i przytrzymaj na żołnierzu — wokół zapali się okrąg. Zakreśl tych, których bierzesz, i wskaż cel. Pójdą tam pieszo, a widzą to wszyscy na mapie. Wskażesz puste miejsce — staną tam.\n\nCO ROBIĄ NA MINUTĘ\n· działu — 40 (zwykłe działo padnie w półtorej minuty)\n· obcym żołnierzom — 60\n· bunkrowi — 16\n\nPO CO SĄ POTRZEBNI\nKażdy bunkier ma już swoich czterech, za darmo. Gdy atakujesz, wychodzą i przyduszają cię ogniem — twoje obrażenia spadają o połowę. Wystaw swój oddział przeciw nim, a zwiążą się walką i znów bijesz pełną siłą. Gdy żołnierze spotkają żołnierzy, biją się tylko między sobą.\n\nUWAGA\nDziało rakietowe zdejmuje 51 życia na minutę — cały oddział ginie w dwie i pół minuty. Najpierw usuń rakietowe dronem, potem prowadź piechotę.\nJeden dron zabija jednego żołnierza.\n\nPO WALCE\nKto przeżył — wraca do plecaka. Zginęło dwóch, wrócą dwaj.\n\nGRANICA\nWięcej niż ośmiu własnych żołnierzy mieć nie można — dwa oddziały. Zginęli, miejsce się zwolniło, dokupujesz.",
+  "bg_soon": "Żołnierze jeszcze nie walczą — mechanika w budowie. Kupione zostaje przy tobie.",
+  "bgw_soon": "Żołnierze jeszcze nie walczą — mechanika w budowie. Kupione zostaje przy tobie.",
+  "sg_sphere": "Nad punktem wciąż stoi sfera — zostało {n} min."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1601,8 +1613,11 @@
   "lr_gone": "那门炮已经被摧毁了。",
   "claimed": "此处属于夺下据点的玩家，还剩 {n} 分钟。",
   "it_soldier": "士兵小队",
-  "itd_soldier": "四名士兵。会行走、射击，你指哪他们去哪。",
-  "ith_soldier": "四名由你亲自指挥的士兵。\n\n每座地堡本身已有四名——地堡被攻击时他们会出来，自行防守。\n\n这支小队是你的。按住他们，他们会亮起，然后点选要去的位置。他们会攻击那里的东西：火炮、地堡或敌方士兵。\n\n士兵遇上士兵时，只会互相厮杀，不管其他目标。"
+  "itd_soldier": "四名归你指挥的士兵。专砍火炮，也与敌方士兵交战。",
+  "ith_soldier": "你买到什么\n四名士兵。每人 30 点生命，合计 120。\n\n怎么指挥\n按住某个士兵，他周围会亮起一个圈。拖动圈选要带走的人，然后点选目标。他们会走过去，地图上所有人都看得见。点空地，他们就在那里驻守。\n\n每分钟造成的伤害\n· 对火炮 —— 40（普通火炮一分半就倒）\n· 对敌方士兵 —— 60\n· 对地堡 —— 16\n\n为什么需要他们\n每座地堡本身已有四名，免费的。你进攻时他们会出来用火力压制你，你的伤害减半。把自己的小队派上去，他们就被缠住，你又能全力输出。士兵遇上士兵，只会互相厮杀，不管其他目标。\n\n小心\n火箭炮每分钟削掉 51 点生命 —— 整支小队两分半就没了。先用无人机清掉火箭炮，再带步兵上。\n一架无人机杀死一名士兵。\n\n战斗之后\n活下来的回到背包。死了两个，就回来两个。\n\n上限\n自己的士兵最多八名 —— 两支小队。有人阵亡就空出名额，可以再买。",
+  "bg_soon": "士兵还不能作战——机制正在制作中。已购买的不会消失。",
+  "bgw_soon": "士兵还不能作战——机制正在制作中。已购买的不会消失。",
+  "sg_sphere": "这个点上还罩着护盾——还有 {n} 分钟。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -1922,8 +1937,11 @@
   "lr_gone": "Ese cañón ya no existe: fue destruido antes.",
   "claimed": "Este sitio pertenece a quien ganó el combate: quedan {n} min.",
   "it_soldier": "Escuadrón de soldados",
-  "itd_soldier": "Cuatro soldados. Caminan, disparan y van donde los mandes.",
-  "ith_soldier": "Cuatro soldados que mandas tú mismo.\n\nCada búnker ya tiene los suyos: salen cuando atacan el punto y lo defienden solos.\n\nEste escuadrón es TUYO. Mantén pulsado sobre ellos, se encienden, y luego toca dónde ir. Atacan lo que haya allí: cañones, el búnker o los soldados enemigos.\n\nCuando los soldados se encuentran con soldados, pelean entre ellos y con nadie más."
+  "itd_soldier": "Cuatro soldados a tus órdenes. Destrozan cañones y pelean con soldados enemigos.",
+  "ith_soldier": "QUÉ COMPRAS\nCuatro soldados. Treinta de vida cada uno, 120 en total.\n\nCÓMO MANDARLOS\nMantén pulsado sobre un soldado: se enciende un círculo a su alrededor. Arrastra para incluir a los que quieras y toca el objetivo. Van andando, y todo el mundo lo ve en el mapa. Toca suelo vacío y se quedan allí.\n\nQUÉ HACEN POR MINUTO\n· a un cañón — 40 (un cañón normal cae en minuto y medio)\n· a soldados enemigos — 60\n· a un búnker — 16\n\nPARA QUÉ SIRVEN\nCada búnker ya tiene los suyos, gratis. Cuando atacas, salen y te sujetan a tiros: tu daño baja a la mitad. Pon tu escuadrón contra ellos y quedan trabados en combate, así vuelves a pegar con todo. Cuando los soldados se encuentran con soldados, pelean solo entre ellos.\n\nCUIDADO\nUn cañón de cohetes quita 51 de vida por minuto: un escuadrón entero muere en dos minutos y medio. Quita primero el cañón de cohetes con un dron y luego mete la infantería.\nUn dron mata a un soldado.\n\nDESPUÉS DEL COMBATE\nEl que sobrevive vuelve a la mochila. Si matan a dos, vuelven dos.\n\nEL LÍMITE\nNo puedes tener más de ocho soldados propios: dos escuadrones. Si caen, queda hueco y compras otra vez.",
+  "bg_soon": "Los soldados aún no combaten: la mecánica se está construyendo. Lo comprado se queda contigo.",
+  "bgw_soon": "Los soldados aún no combaten: la mecánica se está construyendo. Lo comprado se queda contigo.",
+  "sg_sphere": "Sobre este punto aún hay una esfera: quedan {n} min."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2243,8 +2261,11 @@
   "lr_gone": "Dieses Geschütz gibt es nicht mehr — es wurde bereits zerstört.",
   "claimed": "Dieser Platz gehört noch {n} Min. dem Sieger des Kampfes.",
   "it_soldier": "Soldatentrupp",
-  "itd_soldier": "Vier Soldaten. Sie laufen, schießen und gehen, wohin du sie schickst.",
-  "ith_soldier": "Vier Soldaten unter deinem Befehl.\n\nJeder Bunker hat bereits eigene vier — sie kommen heraus, wenn der Punkt angegriffen wird, und verteidigen ihn selbst.\n\nDieser Trupp gehört DIR. Halte den Finger auf ihnen, sie leuchten auf, dann tippe, wohin sie sollen. Sie greifen an, was dort steht: Geschütze, den Bunker oder fremde Soldaten.\n\nTreffen Soldaten auf Soldaten, kämpfen sie gegeneinander und sonst mit niemandem."
+  "itd_soldier": "Vier Soldaten unter deiner Hand. Sie zerlegen Geschütze und kämpfen gegen fremde Soldaten.",
+  "ith_soldier": "WAS DU KAUFST\nVier Soldaten. Je 30 Leben, zusammen 120.\n\nWIE DU SIE FÜHRST\nHalte den Finger auf einen Soldaten — um ihn leuchtet ein Kreis auf. Zieh ihn auf, um weitere einzuschließen, und tippe dann das Ziel an. Sie gehen zu Fuß dorthin, und alle auf der Karte sehen es. Tippst du leeren Boden an, halten sie dort die Stellung.\n\nWAS SIE PRO MINUTE MACHEN\n· gegen ein Geschütz — 40 (ein einfaches fällt in anderthalb Minuten)\n· gegen fremde Soldaten — 60\n· gegen einen Bunker — 16\n\nWOZU DU SIE BRAUCHST\nJeder Bunker hat bereits eigene vier, kostenlos. Wenn du angreifst, kommen sie heraus und nageln dich mit Feuer fest — dein Schaden halbiert sich. Stell deinen Trupp dagegen, dann sind sie im Kampf gebunden und du schlägst wieder mit voller Kraft. Treffen Soldaten auf Soldaten, kämpfen sie nur gegeneinander.\n\nVORSICHT\nEin Raketengeschütz nimmt 51 Leben pro Minute — ein ganzer Trupp stirbt in zweieinhalb Minuten. Räum das Raketengeschütz erst mit einer Drohne weg, dann führ die Infanterie heran.\nEine Drohne tötet einen Soldaten.\n\nNACH DEM KAMPF\nWer überlebt, kommt zurück in den Rucksack. Zwei gefallen, zwei kehren zurück.\n\nDIE GRENZE\nMehr als acht eigene Soldaten gehen nicht — zwei Trupps. Fallen welche, wird Platz frei und du kaufst nach.",
+  "bg_soon": "Die Soldaten kämpfen noch nicht — die Mechanik entsteht gerade. Gekauftes bleibt dir erhalten.",
+  "bgw_soon": "Die Soldaten kämpfen noch nicht — die Mechanik entsteht gerade. Gekauftes bleibt dir erhalten.",
+  "sg_sphere": "Über dem Punkt steht noch eine Sphäre — {n} Min. übrig."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2564,7 +2585,10 @@
   "lr_gone": "O top artık yok — daha önce yok edilmiş.",
   "claimed": "Burası noktayı alan oyuncuya ait — {n} dk kaldı.",
   "it_soldier": "Asker takımı",
-  "itd_soldier": "Dört asker. Yürür, ateş eder ve gönderdiğin yere gider.",
-  "ith_soldier": "Kendi komuta ettiğin dört asker.\n\nHer sığınağın zaten kendi dördü var — noktaya saldırıldığında dışarı çıkıp kendileri savunur.\n\nBu takım SENİN. Üzerlerine basılı tut, yanarlar, sonra nereye gideceklerini işaretle. Orada ne varsa ona saldırırlar: toplar, sığınak ya da düşman askerleri.\n\nAskerler askerlerle karşılaşınca birbirleriyle döğüşür, başka kimseyle değil."
+  "itd_soldier": "Senin komutanda dört asker. Topları biçer, düşman askerleriyle döğüşür.",
+  "ith_soldier": "NE SATIN ALIYORSUN\nDört asker. Her birinin 30 canı var, toplamda 120.\n\nNASIL KOMUTA EDİLİR\nBir askerin üzerine basılı tut — etrafında bir halka yanar. Alacaklarını içine alacak şekilde sürükle, sonra hedefi işaretle. Yürüyerek giderler ve bunu haritadaki herkes görür. Boş bir yeri işaretlersen orada mevzilenirler.\n\nDAKİKADA NE YAPARLAR\n· topa — 40 (sıradan bir top bir buçuk dakikada düşer)\n· düşman askerlerine — 60\n· sığınağa — 16\n\nNEDEN GEREKLİLER\nHer sığınağın zaten kendi dördü var, bedava. Sen saldırdığında dışarı çıkıp seni ateşle bastırırlar — hasarın yarıya düşer. Kendi takımını karşılarına çıkar, çatışmaya bağlanırlar ve sen yine tam güçle vurursun. Askerler askerlerle karşılaşınca sadece birbirleriyle döğüşürler.\n\nDİKKAT\nRoketatar dakikada 51 can götürür — bütün takım iki buçuk dakikada biter. Önce roketatarı dronla temizle, sonra piyadeyi getir.\nBir dron bir askeri öldürür.\n\nSAVAŞTAN SONRA\nSağ kalan sırt çantasına döner. İkisi ölmüşse ikisi döner.\n\nSINIR\nSekizden fazla kendi askerin olamaz — iki takım. Kayıp verirsen yer açılır, yenisini alırsın.",
+  "bg_soon": "Askerler henüz savaşmıyor — mekanik yapım aşamasında. Satın aldığın sende kalır.",
+  "bgw_soon": "Askerler henüz savaşmıyor — mekanik yapım aşamasında. Satın aldığın sende kalır.",
+  "sg_sphere": "Bu noktanın üstünde hâlâ küre var — {n} dk kaldı."
  }
 }
