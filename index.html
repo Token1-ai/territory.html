@@ -1465,7 +1465,7 @@ function startWarSmoke(){
         if(Array.isArray(sg.parts))
           for(const m of sg.parts) if(m.side === 'a' && m.lat != null) foes.push([m.lat, m.lng]);
         for(const m of soldiers)
-          if(m.lat != null && m.b === b.id && !m.free) foes.push([m.lat, m.lng]);
+          if(m.lat != null && m.b === b.id && !isGarrison(m)) foes.push([m.lat, m.lng]);
         for(const wk of walkers)
           if(wk.lat != null && wk.sid === sg.id) foes.push([wk.lat, wk.lng]);
         if(siege && siege.bunker_id === b.id && here) foes.push([here[0], here[1]]);
@@ -1662,11 +1662,16 @@ async function pollWalkers(){
 //
 // Место хранится ОТДЕЛЬНО от списка бойцов: список сервер заменяет
 // целиком на каждом опросе, и любое поле внутри него потерялось бы.
+// ВАЖНО ПРО КЛЮЧ. Номера бойцов и ходоков идут из РАЗНЫХ таблиц и
+// спокойно совпадают: боец №501 и ходок №501 существуют оба. Ключ по
+// голому номеру склеивал их в одну запись, и ходок прыгал на место
+// солдата. Поэтому в ключе стоит буква вида.
 const _march = new Map();
-function march(o){
+function march(o, kind){
   const now = performance.now();
-  let st = _march.get(o.id);
-  if(!st){ st = { dl:o.lat, dn:o.lng, at:now }; _march.set(o.id, st); }
+  const key = (kind || 's') + o.id;
+  let st = _march.get(key);
+  if(!st){ st = { dl:o.lat, dn:o.lng, at:now }; _march.set(key, st); }
   // Сильно разошлись с сервером — не спорим, встаём где сказано.
   if(metersBetween(st.dl, st.dn, o.lat, o.lng) > 60){ st.dl = o.lat; st.dn = o.lng; }
   const dt = Math.min(2.5, (now - st.at) / 1000);
@@ -1676,73 +1681,108 @@ function march(o){
     const d = metersBetween(st.dl, st.dn, o.tl, o.tn);
     if(d <= step || d < 0.4){ st.dl = o.tl; st.dn = o.tn; }
     else { const k = step / d; st.dl += (o.tl - st.dl) * k; st.dn += (o.tn - st.dn) * k; }
+  } else {
+    // Цели нет — подтягиваемся к тому месту, где боец у сервера.
+    // Без этого он оставался бы стоять там, куда его довёл телефон.
+    const d = metersBetween(st.dl, st.dn, o.lat, o.lng);
+    if(d > 0.3){
+      const k = Math.min(1, (2.5 * dt) / d);
+      st.dl += (o.lat - st.dl) * k; st.dn += (o.lng - st.dn) * k;
+    }
   }
   return [st.dl, st.dn];
+}
+
+// Гарнизон это или пришедший. Главное — поле free, но если игра
+// говорит со старым сервером, где его ещё нет, различаем по стороне.
+// Путать нельзя: на этом держится, кто в кого стреляет.
+function isGarrison(m){
+  return !!m && (m.free != null ? !!m.free : m.side === 'def');
 }
 
 // Во что стреляет боец. Свои бьют по точке и её пушкам, гарнизон —
 // по тем, кто пришёл. Считается так же, как на сервере.
 function soldTarget(m){
-  const mine = addr && String(m.o).toLowerCase() === String(addr).toLowerCase();
-  const near = list => {
-    let best = null, bd = 1e9;
-    for(const q of list){
-      if(q.lat == null) continue;
-      const d = metersBetween(m.lat, m.lng, q.lat, q.lng);
-      if(d < bd){ bd = d; best = [q.lat, q.lng]; }
-    }
-    return best;
+  const me = String(m.o).toLowerCase();
+  let best = null, bd = 1e9;
+  const near = (lat, lng) => {
+    if(lat == null) return;
+    const d = metersBetween(m.lat, m.lng, lat, lng);
+    if(d < bd){ bd = d; best = [lat, lng]; }
   };
-  const foeSold = soldiers.filter(x => x.alive !== false && x.id !== m.id
-                    && String(x.o).toLowerCase() !== String(m.o).toLowerCase());
-  const s = near(foeSold);
-  if(s) return s;
-  if(m.free){                                   // гарнизон бьёт по пришедшим
-    return near(walkers.filter(x => String(x.o).toLowerCase() !== String(m.o).toLowerCase()));
+  // чужая пехота — всегда первая цель
+  for(const x of soldiers)
+    if(x.id !== m.id && String(x.o).toLowerCase() !== me) near(x.lat, x.lng);
+  if(best) return best;
+
+  if(isGarrison(m)){                            // гарнизон бьёт по пришедшим
+    for(const x of walkers)
+      if(String(x.o).toLowerCase() !== me) near(x.lat, x.lng);
+    return best;
   }
   const b = bunkers.find(x => x.id === m.b && x.alive !== false);
   if(!b) return null;
   if(m.job === 'bunker') return [b.lat, b.lng];
-  const g = near(units.filter(u => u.alive !== false && u.bunker_id === b.id));
-  return g || [b.lat, b.lng];
+  for(const u of units)
+    if(u.alive !== false && u.bunker_id === b.id) near(u.lat, u.lng);
+  return best || [b.lat, b.lng];
 }
 
 // Огонь пехоты и ходоков. Без него бой выглядел так, будто все
 // просто стоят: сервер считал урон, а на экране ничего не менялось.
+//
+// ПРО СКОРОСТЬ. Поиск цели перебирает всю пехоту и все пушки района,
+// поэтому звать его на каждого бойца нельзя: на сотне фигурок и
+// тысяче пушек это сотни тысяч действий каждые две секунды, и слабый
+// телефон начинает заикаться. Сперва бросаем жребий и берём НЕ БОЛЬШЕ
+// горстки стрелков за раз — на глаз разницы нет, работы в разы меньше.
 function fireFighters(view, zoom){
   if(zoom < 14 || !map) return;
-  const rng = (Number(cfg.soldier_range_m) || 40) * 1.6;
-  let n = 0;
+  const rng  = (Number(cfg.soldier_range_m) || 40) * 1.6;
+  const wrng = (Number(cfg.walker_range_m)  || 80) * 1.4;
+  const mineOf = o => addr && String(o).toLowerCase() === String(addr).toLowerCase();
+
+  const seen = [];
   for(const m of soldiers){
-    if(n >= 6) break;
-    if(m.lat == null || !view.contains([m.lat, m.lng])) continue;
+    if(m.lat == null) continue;
+    if(!view.contains([m.lat, m.lng])) continue;
+    seen.push(m);
+    if(seen.length >= 60) break;
+  }
+  let n = 0;
+  const from = seen.length ? Math.floor(Math.random() * seen.length) : 0;
+  for(let i = 0; i < seen.length && n < 5; i++){
+    const m = seen[(from + i) % seen.length];
+    if(Math.random() > 0.5) continue;            // жребий ДО поиска цели
     const t = soldTarget(m);
     if(!t || metersBetween(m.lat, m.lng, t[0], t[1]) > rng) continue;
-    if(Math.random() > 0.55) continue;
     n++;
     const p = march(m);
-    const mine = addr && String(m.o).toLowerCase() === String(addr).toLowerCase();
+    const mine = mineOf(m.o);
     try{
       FX.muzzle(p[0], p[1], t[0], t[1], false);
       FX.tracer(p[0], p[1], t[0], t[1], 380, mine ? '#FFD67A' : '#E29A7A', 1);
     }catch(e){}
   }
+
   // Ходок бьёт очередью из четырёх стволов — коротко и часто
+  let wn = 0;
   for(const wk of walkers){
+    if(wn >= 4) break;
     if(wk.lat == null || !view.contains([wk.lat, wk.lng])) continue;
-    const t = wkAim(wk);
-    if(!t) continue;
-    if(metersBetween(wk.lat, wk.lng, t[0], t[1]) > (Number(cfg.walker_range_m) || 80) * 1.4) continue;
     if(Math.random() > 0.7) continue;
-    const mine = addr && String(wk.o).toLowerCase() === String(addr).toLowerCase();
+    const t = wkAim(wk);
+    if(!t || metersBetween(wk.lat, wk.lng, t[0], t[1]) > wrng) continue;
+    wn++;
+    const mine = mineOf(wk.o);
+    const fl = wk.lat, fn = wk.lng, tl = t[0], tn = t[1];
     try{
-      FX.muzzle(wk.lat, wk.lng, t[0], t[1], true);
+      FX.muzzle(fl, fn, tl, tn, true);
       for(let k = 0; k < 4; k++)
         setTimeout(() => {
-          try{ FX.tracer(wk.lat, wk.lng, t[0], t[1], 300,
-                         mine ? '#FFD67A' : '#E29A7A', 1.3); }catch(e){}
+          try{ FX.tracer(fl, fn, tl, tn, 300, mine ? '#FFD67A' : '#E29A7A', 1.3); }catch(e){}
         }, k * 110);
-      setTimeout(() => { try{ FX.impact2(t[0], t[1], 'heavy'); }catch(e){} }, 480);
+      setTimeout(() => { try{ FX.impact2(tl, tn, 'heavy'); }catch(e){} }, 480);
     }catch(e){}
   }
 }
@@ -1776,28 +1816,34 @@ async function wkGone(w){
 // Во что целится ходок прямо сейчас. Сервер держит только вид цели —
 // куда именно смотрит ствол, телефон досчитывает сам, по тому же
 // правилу, по какому считает сервер: ближайшая цель этого вида.
+// Ответ держим секунду: эту нить рисует КАЖДЫЙ кадр по каждому
+// ходоку, а внутри перебор всех пушек и всей пехоты района. Без
+// памятки слабый телефон считал бы одно и то же по три раза в секунду.
+const _aimCache = new Map();
 function wkAim(wk){
+  const now = performance.now();
+  const key = wk.id + '|' + (wk.job || 'bunker');
+  const hit = _aimCache.get(key);
+  if(hit && now - hit.at < 1000) return hit.t;
+  if(_aimCache.size > 200) _aimCache.clear();
+
   const sg = (Array.isArray(sieges) ? sieges : []).find(s => Number(s.id) === Number(wk.sid));
   const b  = sg ? bunkers.find(x => x.id === sg.bunker_id && x.alive !== false) : null;
   const job = wk.job || 'bunker';
-  const pick = list => {
-    let best = null, bd = 1e9;
-    for(const q of list){
-      if(q.lat == null) continue;
-      const d = metersBetween(wk.lat, wk.lng, q.lat, q.lng);
-      if(d < bd){ bd = d; best = [q.lat, q.lng]; }
-    }
-    return best;
+  const me = String(wk.o).toLowerCase();
+  let best = null, bd = 1e9;
+  const near = (lat, lng) => {
+    if(lat == null) return;
+    const d = metersBetween(wk.lat, wk.lng, lat, lng);
+    if(d < bd){ bd = d; best = [lat, lng]; }
   };
-  if(job === 'cannons'){
-    const g = pick(units.filter(u => u.alive !== false && b && u.bunker_id === b.id));
-    if(g) return g;
-  }
-  if(job === 'soldiers'){
-    const s = pick(soldiers.filter(m => String(m.o).toLowerCase() !== String(wk.o).toLowerCase()));
-    if(s) return s;
-  }
-  return b ? [b.lat, b.lng] : null;
+  if(job === 'cannons' && b)
+    for(const u of units) if(u.alive !== false && u.bunker_id === b.id) near(u.lat, u.lng);
+  if(job === 'soldiers')
+    for(const m of soldiers) if(String(m.o).toLowerCase() !== me) near(m.lat, m.lng);
+  const t = best || (b ? [b.lat, b.lng] : null);
+  _aimCache.set(key, { at: now, t });
+  return t;
 }
 
 async function pollShields(){
@@ -1819,7 +1865,7 @@ async function pollShields(){
 }
 // Бойцы и ходоки одним ответом. Оба списка нужны в один и тот же
 // момент, и держать под них два запроса — лишний поход на сервер.
-let _warRound = 0;
+let _warRound = 5;      // чтобы сферы пришли на первом же круге, а не на шестом
 async function pollFighters(){
   if(!map) return;
   const hot = Array.isArray(sieges) && sieges.length > 0;
@@ -2362,7 +2408,7 @@ const Sprites = (function(){
       for(let i=0;i<walkers.length && i<60;i++){
         const wk = walkers[i];
         if(wk.lat == null) continue;
-        const q = map.latLngToContainerPoint(march(wk));
+        const q = map.latLngToContainerPoint(march(wk, 'w'));
         if(q.x < -pad || q.y < -pad || q.x > w+pad || q.y > h+pad) continue;
         const mine = addr && String(wk.o).toLowerCase() === String(addr).toLowerCase();
         if(wkSel.length && wkSel.indexOf(wk.id) >= 0){
@@ -2402,7 +2448,7 @@ const Sprites = (function(){
         if(m.lat == null) continue;
         // Идут ПЛАВНО, а не прыгают раз в минуту вслед за сервером
         const at = march(m);
-        if(m.tl != null) domeSeen = true;
+        if(m.tl != null && metersBetween(at[0], at[1], m.tl, m.tn) > 1.5) domeSeen = true;
         const q = map.latLngToContainerPoint(at);
         if(q.x < -pad || q.y < -pad || q.x > w+pad || q.y > h+pad) continue;
         const mine = addr && m.o === addr;
@@ -5550,8 +5596,12 @@ function endSiege(msg, good){
   // считал, что они там и остались.
   const gone = siege ? siege.id : null;
   if(gone != null){
+    for(const w of walkers)
+      if(Number(w.sid) === Number(gone)
+         && addr && String(w.o).toLowerCase() === String(addr).toLowerCase())
+        wkGone(w);                       // уцелел — станет твоей пушкой
     walkers  = walkers.filter(w => Number(w.sid) !== Number(gone));
-    soldiers = soldiers.filter(m => m.free || Number(m.sid) !== Number(gone));
+    soldiers = soldiers.filter(m => isGarrison(m) || Number(m.sid) !== Number(gone));
   }
   sqSel = []; wkSel = [];
   siege = null; siegeTarget = null;
