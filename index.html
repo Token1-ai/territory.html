@@ -1215,6 +1215,7 @@ function hpSet(key, now, max){ if(max > 0) HP.set(key, { hp: now, max: max, t: D
 // только над той, где стоишь сам. Отдалил карту и сразу видно, где
 // в городе идут бои. Раньше дым рисовался лишь внутри своей осады.
 let _warSmoke = null;
+let _warFire  = null;      // отдельный, более частый такт стрельбы
 let _mapMoving = false;
 // ═══════════ Бои в реальном времени ═══════════
 //
@@ -1483,12 +1484,21 @@ function startWarSmoke(){
         try{ FX.impact2(b.lat, b.lng, 'heavy'); }catch(e){}
       }
     }
-    // Пехота и ходоки тоже стреляют, а не стоят молча
-    try{ fireFighters(view, map.getZoom()); }catch(e){}
   }, 1800);
+
+  // ОГОНЬ ПЕХОТЫ ИДЁТ СВОИМ, БОЛЕЕ ЧАСТЫМ ТАКТОМ.
+  // Раньше он был привязан к дыму — раз в 1,8 секунды. Между тактами
+  // на экране стояла тишина, и бой выглядел так, будто все замерли.
+  // Семьсот миллисекунд читаются уже как непрерывная перестрелка.
+  _warFire = setInterval(() => {
+    if(document.hidden || !map || _mapMoving) return;
+    if(!sieges || !sieges.length) return;
+    try{ fireFighters(map.getBounds(), map.getZoom()); }catch(e){}
+  }, 700);
 }
 function stopWarSmoke(){
   if(_warSmoke){ clearInterval(_warSmoke); _warSmoke = null; }
+  if(_warFire){  clearInterval(_warFire);  _warFire  = null; }
 }
 
 // Полный запас цели по её виду. Числа лежат в настройках на сервере,
@@ -1751,17 +1761,27 @@ function fireFighters(view, zoom){
   }
   let n = 0;
   const from = seen.length ? Math.floor(Math.random() * seen.length) : 0;
-  for(let i = 0; i < seen.length && n < 5; i++){
+  for(let i = 0; i < seen.length && n < 8; i++){
     const m = seen[(from + i) % seen.length];
-    if(Math.random() > 0.5) continue;            // жребий ДО поиска цели
+    if(Math.random() > 0.8) continue;            // жребий ДО поиска цели
     const t = soldTarget(m);
     if(!t || metersBetween(m.lat, m.lng, t[0], t[1]) > rng) continue;
     n++;
     const p = march(m);
     const mine = mineOf(m.o);
+    const col = mine ? '#FFD67A' : '#E29A7A';
     try{
+      // Очередь из трёх, а не один тонкий росчерк: раньше выстрел
+      // длился треть секунды нитью в один пиксель, и на телефоне его
+      // было попросту не разглядеть.
       FX.muzzle(p[0], p[1], t[0], t[1], false);
-      FX.tracer(p[0], p[1], t[0], t[1], 380, mine ? '#FFD67A' : '#E29A7A', 1);
+      for(let k = 0; k < 3; k++)
+        setTimeout(() => {
+          try{
+            FX.tracer(p[0], p[1], t[0], t[1], 300, col, 1.8);
+            if(k === 2) FX.burst(t[0], t[1]);
+          }catch(e){}
+        }, k * 90);
     }catch(e){}
   }
 
@@ -2421,17 +2441,7 @@ const Sprites = (function(){
           ctx.restore();
           domeSeen = true;
         }
-        // Куда наведён: нить к ближайшей цели того вида, что ему задали
-        const aimAt = wkAim(wk);
-        if(aimAt){
-          const g2 = map.latLngToContainerPoint([aimAt[0], aimAt[1]]);
-          ctx.save();
-          ctx.setLineDash([3, 6]);
-          ctx.strokeStyle = mine ? 'rgba(255,214,122,.40)' : 'rgba(226,122,95,.34)';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(g2.x, g2.y); ctx.stroke();
-          ctx.restore();
-        }
+        // Нить прицела тоже убрана — куда бьёт, видно по очередям.
         ctx.drawImage(sprite('walker', wp, !mine, mine ? GOLD : ownerColor(wk.o)),
                       q.x-wh, q.y-wh, wp, wp);
         if(wk.hp != null && wk.max && wk.hp < wk.max)
@@ -2465,16 +2475,9 @@ const Sprites = (function(){
         }
         ctx.drawImage(sprite('soldier', sp, !mine, mine ? GOLD : ownerColor(m.o)),
                       q.x-sh, q.y-sh, sp, sp);
-        // Куда идёт: тонкая нить от бойца к его цели
-        if(m.tl != null && metersBetween(at[0], at[1], m.tl, m.tn) > 6){
-          const g2 = map.latLngToContainerPoint([m.tl, m.tn]);
-          ctx.save();
-          ctx.setLineDash([4, 5]);
-          ctx.strokeStyle = 'rgba(255,214,122,.45)';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(g2.x, g2.y); ctx.stroke();
-          ctx.restore();
-        }
+        // Нить «куда идёт» убрана: на боевом отдалении из четырёх
+        // ниток получалась паутина поверх боя. Куда идут — и так
+        // видно по самим фигуркам.
         if(m.hp != null && m.max && m.hp < m.max)
           drawHpBar(ctx, q.x, q.y - sh, Math.max(18, sp*1.3), m.hp, m.max, mine, false);
       }
@@ -2492,7 +2495,16 @@ const Sprites = (function(){
 
 // ═══════════ Карта ═══════════
 function initMap(){
+  // ПОЧЕМУ ЗДЕСЬ ПОТОЛОК ПРИБЛИЖЕНИЯ.
+  //
+  // Без него палец разводил карту сколько угодно. Дальше 19-го у карты
+  // просто НЕТ данных: фон становится чёрным, а все точки уезжают за
+  // край экрана — и человек видит пустоту. Со стороны это выглядит
+  // так, будто игра перестала показывать бункеры вообще.
+  //
+  // Ниже 11-го тоже не пускаем: там значков столько, что каша.
   map = L.map('map', { zoomControl:false, preferCanvas:true,
+    maxZoom:19, minZoom:11,
     renderer: L.canvas({ padding:0.3 }) }).setView([50.4501, 30.5234], 16);
   // ── КАРТА ────────────────────────────────────────────────────
   // Раньше брали картинки с благотворительного сервера OSM. Их
@@ -6796,7 +6808,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 83;
+const APP_V = 84;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
