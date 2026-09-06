@@ -841,15 +841,13 @@ const _spriteCache = new Map();
 const ART_SHEETS = {
   // лист : [файл, columns, rows]
   a: { src:'map-sheet1.png', cols:3, rows:2 },
-  b: { src:'map-sheet2.png', cols:2, rows:1 },
-  c: { src:'map-sheet3.png', cols:1, rows:1 }
+  b: { src:'map-sheet2.png', cols:2, rows:1 }
 };
 // какой значок в какой клетке: [лист, колонка, ряд]
 const ART_CELL = {
   earth:   ['a',0,0], concrete:['a',1,0], steel:['a',2,0],
   gun:     ['a',0,1], heavy:   ['a',1,1], fort: ['a',2,1],
-  rocket:  ['b',0,0], soldier: ['b',1,0],
-  walker:  ['c',0,0]
+  rocket:  ['b',0,0], soldier: ['b',1,0]
 };
 const _artImg = {};
 let _artReady = false;
@@ -1136,50 +1134,6 @@ function sprite(kind, px, foe, colour){
       c.beginPath(); c.arc(C + 1*m, C - 2*m, 2.4*m, 0, 7); c.stroke();
     }
 
-  } else if(kind === 'walker'){
-    // ХОДОК: походная пушка на ногах. Силуэт — две расставленные ноги,
-    // корпус-коробка и блок из четырёх стволов. Ни с чем не спутаешь:
-    // у всех остальных пушек тренога и один-три ствола.
-    // Каждая тяга рисуется дважды: сперва тёмная подложка потолще,
-    // потом яркая жила. Без этого ноги и стволы слипаются в пятно, и
-    // на карте вместо машины видна клякса.
-    const rod = (pts, w2) => {
-      c.beginPath();
-      pts.forEach((q, i) => i ? c.lineTo(C + q[0]*m, C + q[1]*m)
-                              : c.moveTo(C + q[0]*m, C + q[1]*m));
-      c.strokeStyle = BODY; c.lineWidth = (w2 + 1.8)*m; c.stroke();
-      c.strokeStyle = line; c.lineWidth = w2*m;         c.stroke();
-    };
-    // ноги: бедро в сторону, голень к земле, ступня-блин
-    for(const sd of [-1, 1]){
-      rod([[sd*2.4, -3], [sd*8.5, 2], [sd*6.4, 9.5]], 2.2);
-      c.fillStyle = BODY;
-      c.beginPath(); c.ellipse(C + sd*6.4*m, C + 9.5*m, 3.4*m, 1.9*m, 0, 0, 7); c.fill();
-      c.fillStyle = line;
-      c.beginPath(); c.ellipse(C + sd*6.4*m, C + 9.5*m, 2.5*m, 1.2*m, 0, 0, 7); c.fill();
-    }
-    // корпус — коробка с покатым верхом, в тёмной обкладке
-    c.beginPath();
-    c.moveTo(C - 5.4*m, C - 2*m); c.lineTo(C - 4.2*m, C - 9.4*m);
-    c.lineTo(C + 3.6*m, C - 11*m); c.lineTo(C + 5.6*m, C - 3.6*m);
-    c.closePath();
-    c.strokeStyle = BODY; c.lineWidth = 3.6*m; c.stroke();
-    c.fillStyle = BODY; c.fill();
-    c.fillStyle = line + 'DD'; c.fill();
-    c.strokeStyle = line; c.lineWidth = 1.5*m; c.stroke();
-    // блок из четырёх стволов — с тёмными зазорами между ними
-    for(const dy of [-3.4, -1.3, 0.8, 2.9])
-      rod([[3.6, -6.6 + dy], [15, -9.4 + dy]], 1.7);
-    // обойма у корня стволов
-    c.beginPath(); c.ellipse(C + 4.2*m, C - 6*m, 2.1*m, 4.2*m, -0.26, 0, 7);
-    c.fillStyle = BODY; c.fill(); c.fillStyle = line; c.fill();
-    // кабина
-    c.fillStyle = BODY;
-    c.beginPath(); c.arc(C - 1.8*m, C - 7.6*m, 2.6*m, 0, 7); c.fill();
-    c.fillStyle = line;
-    c.beginPath(); c.arc(C - 1.8*m, C - 7.6*m, 1.6*m, 0, 7); c.fill();
-    c.strokeStyle = line;
-
   } else {
     // ЗЕМЛЯНОЙ: плоская насыпь без верхушки, обложенная мешками.
     // Самый низкий и простой силуэт — сразу видно, что бесплатный.
@@ -1374,8 +1328,10 @@ function startWarPoll(){
       // Теперь запросы уходят разом: круг стоит одну задержку, а не
       // четыре. Бойцы и ходоки к тому же спрашиваются ОДНИМ ответом.
       //
-      // Сферы меняются раз в часы — их хватает раз в шесть кругов.
-      _warRound = (_warRound + 1) % 6;
+      // Сфера живёт всего два часа, а поставить точку рядом могут в
+      // любую секунду. Раз в шесть кругов было слишком редко: сосед
+      // успевал построиться и остаться без кольца на чужих экранах.
+      _warRound = (_warRound + 1) % 2;
       await Promise.all([
         _rtOn ? null : pollHits(),
         pollFighters(),
@@ -1467,8 +1423,6 @@ function startWarSmoke(){
           for(const m of sg.parts) if(m.side === 'a' && m.lat != null) foes.push([m.lat, m.lng]);
         for(const m of soldiers)
           if(m.lat != null && m.b === b.id && !isGarrison(m)) foes.push([m.lat, m.lng]);
-        for(const wk of walkers)
-          if(wk.lat != null && wk.sid === sg.id) foes.push([wk.lat, wk.lng]);
         if(siege && siege.bunker_id === b.id && here) foes.push([here[0], here[1]]);
         if(foes.length){
           const pick = foes[Math.floor(Math.random() * foes.length)];
@@ -1628,11 +1582,6 @@ let _hitsFirst   = true;
 // они «в бункере», и карта не зарастает фигурками.
 let soldiers = [];
 
-// Ходоки — походные пушки, поставленные на время боя. Живут ТОЛЬКО в
-// памяти: в телефон их не сохраняем и в общий список пушек не кладём,
-// иначе после боя на карте навсегда остались бы призраки.
-let walkers = [];
-
 // Какие бои телефон уже показал. Раньше эту строку потеряли при
 // правке, и noticeWars() падал на первом же обращении: сообщения
 // «твоя точка под атакой» не приходили ВООБЩЕ, а вместе с ними
@@ -1643,27 +1592,6 @@ let _knownWars = new Set();
 // id точки → до какого времени она под сферой. Список приходит с
 // сервера и виден ВСЕМ вокруг, а не только хозяину.
 let shieldUntil = new Map();
-// Ходоки района. Спрашиваются тем же быстрым опросом, что и солдаты,
-// и только пока рядом идёт бой: в тихое время их не бывает вовсе.
-async function pollWalkers(){
-  if(!map) return;
-  const hot = Array.isArray(sieges) && sieges.length > 0;
-  if(!hot || map.getZoom() < 15){ if(walkers.length) walkers = []; return; }
-  try{
-    const bb = map.getBounds();
-    const { data } = await sb.rpc('walkers_near_v1', { p:{
-      lat_min: bb.getSouth(), lat_max: bb.getNorth(),
-      lng_min: bb.getWest(),  lng_max: bb.getEast() } });
-    const list = Array.isArray(data) ? data : [];
-    for(const w of walkers) if(!list.some(x => x.id === w.id)) wkGone(w);
-    walkers = list;
-    if(wkSel.length){
-      const live = new Set(list.map(x => x.id));
-      wkSel = wkSel.filter(id => live.has(id));
-    }
-  }catch(e){}
-}
-
 // ── ХОДЬБА МЕЖДУ ОТВЕТАМИ СЕРВЕРА ───────────────────────────────
 // Сервер двигает бойцов раз в минуту, одним прыжком. Показывать это
 // как есть нельзя: на экране солдаты просто стоят, а раз в минуту
@@ -1754,11 +1682,7 @@ function soldTarget(m){
     if(x.id !== m.id && String(x.o).toLowerCase() !== me) near(x.lat, x.lng);
   if(best) return best;
 
-  if(isGarrison(m)){                            // гарнизон бьёт по пришедшим
-    for(const x of walkers)
-      if(String(x.o).toLowerCase() !== me) near(x.lat, x.lng);
-    return best;
-  }
+  if(isGarrison(m)) return best;                // гарнизон бьёт по пришедшим
   const b = bunkers.find(x => x.id === m.b && x.alive !== false);
   if(!b) return null;
   if(m.job === 'bunker') return [b.lat, b.lng];
@@ -1778,7 +1702,6 @@ function soldTarget(m){
 function fireFighters(view, zoom){
   if(zoom < 14 || !map) return;
   const rng  = (Number(cfg.soldier_range_m) || 40) * 1.6;
-  const wrng = (Number(cfg.walker_range_m)  || 80) * 1.4;
   const mineOf = o => addr && String(o).toLowerCase() === String(addr).toLowerCase();
 
   const seen = [];
@@ -1811,104 +1734,9 @@ function fireFighters(view, zoom){
         }, k * 85);
     }catch(e){}
   }
-
-  // Ходок бьёт очередью из четырёх стволов — коротко и часто
-  let wn = 0;
-  for(const wk of walkers){
-    if(wn >= 4) break;
-    if(wk.lat == null || !view.contains([wk.lat, wk.lng])) continue;
-    if(Math.random() > 0.7) continue;
-    const t = wkAim(wk);
-    if(!t || metersBetween(wk.lat, wk.lng, t[0], t[1]) > wrng) continue;
-    wn++;
-    const mine = mineOf(wk.o);
-    const fl = wk.lat, fn = wk.lng, tl = t[0], tn = t[1];
-    try{
-      FX.muzzle(fl, fn, tl, tn, true);
-      for(let k = 0; k < 4; k++)
-        setTimeout(() => {
-          try{ FX.tracer(fl, fn, tl, tn, 300, mine ? '#FFD67A' : '#E29A7A', 1.3); }catch(e){}
-        }, k * 110);
-      setTimeout(() => { try{ FX.impact2(tl, tn, 'heavy'); }catch(e){} }, 480);
-    }catch(e){}
-  }
 }
 
-// Ходок пропал из боя. Два разных исхода, и человеку важно видеть
-// какой: либо его сбили, либо бой кончился победой и походная пушка
-// осталась стоять — теперь она обычная своя пушка на карте.
-async function wkGone(w, force){
-  // Ушёл за край экрана — это НЕ «пропал». Список ходоков приходит по
-  // рамке карты: отвёл карту в сторону — ходок из ответа выпал. Раньше
-  // на этом месте он молча превращался в постоянную пушку и оставался
-  // на карте навсегда. Конец боя спрашивает с force: там судьбу ходока
-  // надо узнать в любом случае, даже если карта смотрит в другую сторону.
-  if(!force){
-    try{
-      if(map && w.lat != null && !map.getBounds().contains([w.lat, w.lng])) return;
-    }catch(e){}
-    if(isFresh('w', w.id)) return;    // только что поставлен — сервер ещё не догнал
-  }
-  try{
-    const { data } = await sb.from('territory_units')
-      .select('id,owner,bunker_id,code,lat,lng,hp_left,alive,temp,built_at')
-      .eq('id', w.id).eq('alive', true).limit(1);
-    const u = (data || [])[0];
-    // temp = ещё походный. Постоянной пушкой он становится только
-    // после победы, когда сервер сам снимает эту метку.
-    if(u && !u.temp){
-      if(!haveUnitIds.has(u.id)){
-        haveUnitIds.add(u.id); units.push(u);
-        try{ await DB.put('units', u); }catch(e){}
-      }
-      try{ FX.place('gun', u.lat, u.lng); }catch(e){}
-      if(addr && String(u.owner).toLowerCase() === String(addr).toLowerCase())
-        say(T('wk_stay'), 'good');
-      Sprites.refresh();
-      return;
-    }
-    // Жив и всё ещё походный — значит просто выпал из ответа.
-    // Ни взрыва, ни сообщения: хоронить некого.
-    if(u) return;
-  }catch(e){}
-  try{ FX.burst(w.lat, w.lng); FX.smoke(w.lat, w.lng); }catch(e){}
-  if(addr && String(w.o).toLowerCase() === String(addr).toLowerCase())
-    say(T('wk_down'), 'warn');
-}
-
-// Во что целится ходок прямо сейчас. Сервер держит только вид цели —
-// куда именно смотрит ствол, телефон досчитывает сам, по тому же
-// правилу, по какому считает сервер: ближайшая цель этого вида.
-// Ответ держим секунду: эту нить рисует КАЖДЫЙ кадр по каждому
-// ходоку, а внутри перебор всех пушек и всей пехоты района. Без
-// памятки слабый телефон считал бы одно и то же по три раза в секунду.
-const _aimCache = new Map();
-function wkAim(wk){
-  const now = performance.now();
-  const key = wk.id + '|' + (wk.job || 'bunker');
-  const hit = _aimCache.get(key);
-  if(hit && now - hit.at < 1000) return hit.t;
-  if(_aimCache.size > 200) _aimCache.clear();
-
-  const sg = (Array.isArray(sieges) ? sieges : []).find(s => Number(s.id) === Number(wk.sid));
-  const b  = sg ? bunkers.find(x => x.id === sg.bunker_id && x.alive !== false) : null;
-  const job = wk.job || 'bunker';
-  const me = String(wk.o).toLowerCase();
-  let best = null, bd = 1e9;
-  const near = (lat, lng) => {
-    if(lat == null) return;
-    const d = metersBetween(wk.lat, wk.lng, lat, lng);
-    if(d < bd){ bd = d; best = [lat, lng]; }
-  };
-  if(job === 'cannons' && b)
-    for(const u of units) if(u.alive !== false && u.bunker_id === b.id) near(u.lat, u.lng);
-  if(job === 'soldiers')
-    for(const m of soldiers) if(String(m.o).toLowerCase() !== me) near(m.lat, m.lng);
-  const t = best || (b ? [b.lat, b.lng] : null);
-  _aimCache.set(key, { at: now, t });
-  return t;
-}
-
+let _shGuard = null;      // отложенный опрос сфер после переезда карты
 async function pollShields(){
   if(!map) return;
   try{
@@ -1928,13 +1756,12 @@ async function pollShields(){
 }
 // Бойцы и ходоки одним ответом. Оба списка нужны в один и тот же
 // момент, и держать под них два запроса — лишний поход на сервер.
-let _warRound = 5;      // чтобы сферы пришли на первом же круге, а не на шестом
+let _warRound = 1;      // чтобы сферы пришли на первом же круге, а не на втором
 async function pollFighters(){
   if(!map) return;
   const hot = Array.isArray(sieges) && sieges.length > 0;
   if(!hot || map.getZoom() < 15){
     if(soldiers.length) soldiers = [];
-    if(walkers.length)  walkers  = [];
     return;
   }
   try{
@@ -1945,15 +1772,8 @@ async function pollFighters(){
     // Общего ответа на сервере ещё нет — спрашиваем по-старому,
     // двумя запросами. Игра не должна ломаться из-за порядка
     // выкладки: сперва файлы, заплатка следом.
-    if(!data){ await Promise.all([pollSoldiers(), pollWalkers()]); return; }
+    if(!data){ await pollSoldiers(); return; }
     soldiers = Array.isArray(data.soldiers) ? data.soldiers : [];
-    const list = Array.isArray(data.walkers) ? data.walkers : [];
-    for(const w of walkers) if(!list.some(x => x.id === w.id)) wkGone(w);
-    walkers = list;
-    if(wkSel.length){
-      const live = new Set(list.map(x => x.id));
-      wkSel = wkSel.filter(id => live.has(id));
-    }
     if(_march.size > 400) _march.clear();
     if(_fresh.size > 80)  _fresh.clear();
   }catch(e){}
@@ -2005,7 +1825,6 @@ async function pollHits(){
 // Как в Art of War: подержал палец на своих — они загорелись,
 // ткнул в цель — пошли. Никаких меню.
 let sqSel = [];            // выбранные свои солдаты
-let wkSel = [];            // выбранные свои ходоки
 let _sqDown = null;        // где палец лёг и когда
 let _sqTimer = null;
 
@@ -2023,21 +1842,9 @@ function sqPickAt(px, py){
 }
 
 function sqClear(){
-  if(!sqSel.length && !wkSel.length) return;
-  sqSel = []; wkSel = [];
+  if(!sqSel.length) return;
+  sqSel = [];
   try{ Sprites.refresh(); }catch(e){}
-}
-
-// Свои ходоки под пальцем — тем же кругом, что и солдаты
-function wkPickAt(px, py){
-  if(!map) return [];
-  const out = [];
-  for(const w of walkers){
-    if(!addr || String(w.o).toLowerCase() !== String(addr).toLowerCase()) continue;
-    const q = map.latLngToContainerPoint([w.lat, w.lng]);
-    if(Math.hypot(q.x - px, q.y - py) <= 70) out.push(w.id);
-  }
-  return out;
 }
 
 // Куда именно ткнули: по солдатам, по пушкам или по самой точке.
@@ -2070,30 +1877,6 @@ function sqJobAt(ll, def){
   look(units,    'cannons',  u => u.alive !== false,  u => mine(u.owner), u => u.lat, u => u.lng);
   look(bunkers,  'bunker',   b => b.alive !== false,  b => mine(b.owner), b => b.lat, b => b.lng);
   return job || def || 'soldiers';
-}
-
-// Приказ ходокам: куда бить. Сам ходок стоит на месте — наводится ствол.
-async function wkOrder(ll){
-  const ids = wkSel.slice();
-  const job = sqJobAt(ll, 'bunker');
-  sqClear();
-  try{
-    const { data } = await sb.rpc('walker_order_v1', { p:{
-      wallet: addr, ids, job } });
-    if(data && data.ok){
-      // Что именно сервер записал — то и говорим. Он мог поправить.
-      const j = data.job || job;
-      say(T('wk_aim_' + j, { n: data.aimed }), 'good');
-      try{ FX.claim(ll.lat, ll.lng, 25); }catch(e){}
-      // Только задание: ходок стоит на месте, а куда смотрит ствол,
-      // wkAim() досчитает сам. Поля tl/tn у него быть НЕ должно —
-      // по ним ходят солдаты, и ходок бы уехал вместе с ними.
-      for(const w of walkers) if(ids.indexOf(w.id) >= 0) w.job = j;
-      Sprites.refresh();
-    } else {
-      say(T('wk_none'), 'warn');
-    }
-  }catch(e){ say(T('noconn'), 'warn'); }
 }
 
 async function sqOrder(ll){
@@ -2132,11 +1915,9 @@ function sqHook(){
     _sqTimer = setTimeout(() => {
       if(!_sqDown) return;
       const ids = sqPickAt(_sqDown.x, _sqDown.y);
-      const wds = ids.length ? [] : wkPickAt(_sqDown.x, _sqDown.y);
-      if(!ids.length && !wds.length) return;
-      sqSel = ids; wkSel = wds;
-      say(ids.length ? T('sq_pick', { n: ids.length })
-                     : T('wk_pick', { n: wds.length }));
+      if(!ids.length) return;
+      sqSel = ids;
+      say(T('sq_pick', { n: ids.length }));
       try{ if(navigator.vibrate) navigator.vibrate([18, 40, 18]); }catch(_){}
       try{ Sprites.refresh(); }catch(_){}
     }, 450);
@@ -2214,52 +1995,6 @@ async function sqDeploy(){
       say(er === 'cap'         ? T('sd_cap', { n: (data && data.limit) || 8 })
         : er === 'no_soldiers' ? T('sd_none')
         : er === 'not_in_siege'? T('sd_nosiege')
-        : T('err_code', { e: er }), 'warn');
-    }
-  }catch(e){ say(T('noconn'), 'warn'); }
-}
-
-// Поставить ходока рядом с собой. Ходить никуда не надо: он встаёт
-// сам в пятнадцати метрах, лишь бы уже шёл твой бой за эту точку.
-async function wkDeploy(){
-  if(!siege || siege.side === 'defend'){ closeSheet(); say(T('wk_nosiege'), 'warn'); return; }
-  if(!here){ closeSheet(); say(T('dr_nogps'), 'warn'); return; }
-  closeSheet();
-  try{
-    const { data } = await sb.rpc('walker_deploy_v1', { p:{
-      wallet: addr, siege_id: siege.id, lat: here[0], lng: here[1] } });
-    if(data && data.ok){
-      say(T('wk_ok', { n: (data.alive || 0) + 1, k: data.carry || 2 }), 'good');
-      try{ if(navigator.vibrate) navigator.vibrate([25, 50, 25]); }catch(e){}
-      // Знак ставим ТАМ, ГДЕ ВСТАЛ ХОДОК, а не под ногами у человека.
-      // Раньше вспышка была на нём самом, ходок — в двадцати пяти
-      // метрах, и выходило «нажал, что-то мигнуло, а нового ничего».
-      const at = (data.lat != null) ? [data.lat, data.lng] : here;
-      if(data.lat != null && data.id != null && !walkers.some(x => x.id === data.id)){
-        walkers.push({ id:data.id, o:addr, lat:data.lat, lng:data.lng,
-                       hp:data.hp, max:data.hp,
-                       job:'bunker', sid:siege.id });
-      }
-      // Метку «только что поставлен» ставим ТОЛЬКО когда известно место.
-      // Она же на шесть секунд запрещает хоронить ходока; старый сервер
-      // места не возвращает — там и запрещать нечего.
-      if(data.lat != null && data.id != null) markFresh('w', data.id);
-      lookAtPlaced(at[0], at[1]);
-      try{ FX.place('gun', at[0], at[1]); }catch(e){}
-      Sprites.refresh();
-      await pollFighters();
-      if(data.lat != null && data.id != null && !walkers.some(x => x.id === data.id)){
-        walkers.push({ id:data.id, o:addr, lat:data.lat, lng:data.lng,
-                       hp:data.hp, max:data.hp, job:'bunker', sid:siege.id });
-      }
-      Sprites.refresh();
-      loadMoney();
-    } else {
-      const er = (data && data.error) || 'fail';
-      say(er === 'carry'       ? T('wk_carry', { n: (data && data.limit) || 2 })
-        : er === 'no_walker'   ? T('wk_nohave')
-        : er === 'not_in_siege'? T('wk_nosiege')
-        : er === 'no_siege'    ? T('wk_nosiege')
         : T('err_code', { e: er }), 'warn');
     }
   }catch(e){ say(T('noconn'), 'warn'); }
@@ -2411,7 +2146,7 @@ const Sprites = (function(){
     const t = shieldUntil.get(b.id);
     return t ? Math.max(0, t - Date.now()) : 0;
   }
-  function drawDome(ctx, x, y, px){
+  function drawDome(ctx, x, y, px, left){
     const r = px*0.72, k = 0.5 + 0.5*Math.sin(performance.now()/620);
     ctx.save();
     // тело сферы
@@ -2439,6 +2174,27 @@ const Sprites = (function(){
       ctx.beginPath();
       ctx.ellipse(x, y - r*0.10, r*w, r*0.92, 0, 0, 7);
       ctx.stroke();
+    }
+    // СКОЛЬКО ОСТАЛОСЬ. Без этой строки сфера просто исчезала в
+    // какой-то момент, и выглядело это как поломка: «поставил точку,
+    // кольцо было, через пару часов пропало». Теперь видно и хозяину,
+    // и всем вокруг, что защита не вечная и когда она кончится.
+    // Считаем в минутах: сфера живёт два часа, трёхзначных чисел не
+    // бывает, а слово «мин» уже есть во всех восьми языках.
+    if(left > 0 && px >= 26){
+      const mm = Math.max(1, Math.ceil(left / 60000));
+      const s  = mm + ' ' + T('sg_min');
+      ctx.font = 'bold ' + Math.max(9, Math.round(px*0.28)) + 'px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      // Ниже основания сферы: на 0.72 надпись ложилась прямо на нижний
+      // обод и читалась хуже. Основание кончается на 0.86 радиуса.
+      const ty = y + r*0.95;
+      ctx.lineWidth = Math.max(2, px*0.06);
+      ctx.strokeStyle = 'rgba(6,12,20,.75)';
+      ctx.strokeText(s, x, ty);
+      ctx.fillStyle = 'rgba(190,238,255,.95)';
+      ctx.fillText(s, x, ty);
     }
     ctx.restore();
   }
@@ -2491,7 +2247,8 @@ const Sprites = (function(){
       ctx.drawImage(sprite(b.kind||'earth', bp, !(addr && b.owner===addr),
                     (addr && b.owner===addr) ? GOLD : ownerColor(b.owner)),
                     p.x-bh, p.y-bh, bp, bp);
-      if(shieldLeft(b) > 0){ drawDome(ctx, p.x, p.y, bp); domeSeen = true; }
+      const sl = shieldLeft(b);
+      if(sl > 0){ drawDome(ctx, p.x, p.y, bp, sl); domeSeen = true; }
       const hb = HP.get('b'+b.id);
       if(hb) drawHpBar(ctx, p.x, p.y - bh, Math.max(30, bp*1.15), hb.hp, hb.max,
                        addr && b.owner===addr,
@@ -2516,35 +2273,6 @@ const Sprites = (function(){
                        addr && u.owner===addr,
                        siege && String(siege.target)===String(u.id));
       drawn++;
-    }
-    // ── Ходоки ──────────────────────────────────────────────────
-    // Размер вернули к пушечному: раньше ходок был крупнее бункера и
-    // закрывал собой полбоя.
-    if(walkers.length){
-      const wp = Math.round(px*0.72), wh = wp/2;
-      for(let i=0;i<walkers.length && i<60;i++){
-        const wk = walkers[i];
-        if(wk.lat == null) continue;
-        const q = map.latLngToContainerPoint(march(wk, 'w'));
-        if(q.x < -pad || q.y < -pad || q.x > w+pad || q.y > h+pad) continue;
-        const mine = addr && String(wk.o).toLowerCase() === String(addr).toLowerCase();
-        if(wkSel.length && wkSel.indexOf(wk.id) >= 0){
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(q.x, q.y, wp*0.62, 0, 7);
-          ctx.strokeStyle = 'rgba(255,214,122,' + (0.55 + 0.35*Math.sin(performance.now()/260)) + ')';
-          ctx.lineWidth = Math.max(1.6, wp*0.10);
-          ctx.stroke();
-          ctx.restore();
-          domeSeen = true;
-        }
-        if(isFresh('w', wk.id)){ drawFreshRing(ctx, q.x, q.y, wp*0.70); domeSeen = true; }
-        // Нить прицела тоже убрана — куда бьёт, видно по очередям.
-        ctx.drawImage(sprite('walker', wp, !mine, mine ? GOLD : ownerColor(wk.o)),
-                      q.x-wh, q.y-wh, wp, wp);
-        if(wk.hp != null && wk.max && wk.hp < wk.max)
-          drawHpBar(ctx, q.x, q.y - wh, Math.max(24, wp*1.2), wk.hp, wk.max, mine, false);
-      }
     }
     // ── Солдаты ─────────────────────────────────────────────────
     // Мелкие фигурки: на карте сразу видно, где стоит охрана, но
@@ -2634,6 +2362,15 @@ function initMap(){
     document.body.classList.add('raster-map');
   }
   map.on('moveend', drawLabels);
+  // Сферы над свежими точками спрашиваем и при каждом переезде карты.
+  // Раньше их брали только внутри военного круга, раз в шесть заходов:
+  // отвёл карту на соседний район — и чужая свежая точка стояла там
+  // без кольца, пока круг не дойдёт. Со стороны это читалось как
+  // «защиту видит только хозяин».
+  map.on('moveend zoomend', () => {
+    clearTimeout(_shGuard);
+    _shGuard = setTimeout(() => { try{ pollShields(); }catch(e){} }, 700);
+  });
   map.on('click', onMapTap);
   sqHook();
   Sprites.attach();
@@ -4245,8 +3982,7 @@ const ITEM_USE = {
   // расстановка и возвращалось словом no_such_item, которое человеку
   // ничего не говорит. Теперь отвечаем по-человечески и на сервер
   // вообще не идём.
-  soldier:'squad',
-  walker:'walker'
+  soldier:'squad'
 };
 
 let aimMode = null;          // код вещи, которой целимся
@@ -4349,7 +4085,6 @@ function useItem(code){
   // время был, просто его было не видно.
   if(bagCount(code) <= 0){ closeSheet(); say(T('bg_none'), 'warn'); return; }
   if(mode === 'squad'){ sqDeploy(); return; }
-  if(mode === 'walker'){ wkDeploy(); return; }
   if(mode === 'aim'){ aimStart(code); return; }
   if(mode === 'siege'){
     // Заряд рвётся только внутри СВОЕГО штурма. Стоять рядом с чужой
@@ -4691,7 +4426,6 @@ const SHOP_LIST = [
   { code:'longrocket', fam:'item'   },
   { code:'drone',      fam:'item'   },
   { code:'soldier',    fam:'squad'  },
-  { code:'walker',     fam:'portable'},
 ];
 function priceOf(code){
   // Настоящие цены живут в таблице territory_prices на сервере и
@@ -4702,7 +4436,7 @@ function priceOf(code){
   const c = Number(cfg['price_' + code]);
   if(c > 0) return c;
   const map = { reinforce:50, steel:100, fort:200, heavy:20, rocket:40,
-                charge:15, hcharge:30, longrocket:40, drone:5, soldier:1, walker:1 };
+                charge:15, hcharge:30, longrocket:40, drone:5, soldier:1 };
   return Number(map[code] || 0);
 }
 function money$(c){ return '$' + (Number(c)/100).toFixed(2); }
@@ -5259,7 +4993,6 @@ function onMapTap(e){
   }
   // Отряд выбран — тычок означает приказ, а не что-то другое
   if(sqSel.length){ sqOrder(ll); return; }
-  if(wkSel.length){ wkOrder(ll); return; }
   // Прицел перехватывает тычок раньше всего остального
   if(aimMode){
     // ПОЧЕМУ ЗДЕСЬ БОЛЬШЕ НЕ 80 МЕТРОВ.
@@ -5706,15 +5439,9 @@ function endSiege(msg, good){
   // ещё с минуту стояли на карте, пока не подойдёт опрос, и человек
   // считал, что они там и остались.
   const gone = siege ? siege.id : null;
-  if(gone != null){
-    for(const w of walkers)
-      if(Number(w.sid) === Number(gone)
-         && addr && String(w.o).toLowerCase() === String(addr).toLowerCase())
-        wkGone(w, true);                 // уцелел — станет твоей пушкой
-    walkers  = walkers.filter(w => Number(w.sid) !== Number(gone));
+  if(gone != null)
     soldiers = soldiers.filter(m => isGarrison(m) || Number(m.sid) !== Number(gone));
-  }
-  sqSel = []; wkSel = [];
+  sqSel = [];
   siege = null; siegeTarget = null;
   // вышел из боя — но чужая осада никуда не делась, полосу оставляем
   hpFromSieges(); Sprites.refresh();
@@ -6907,7 +6634,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 85;
+const APP_V = 86;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
