@@ -289,7 +289,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--field);
 .wallet-row b{font-size:20px;color:#E0A32E;font-variant-numeric:tabular-nums;}
 .card{display:flex;gap:10px;margin:8px 0;padding:8px;border-radius:11px;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
-.card img{width:84px;height:84px;border-radius:8px;object-fit:cover;flex:none;background:#1B1E16;}
+.card img{width:84px;height:84px;border-radius:8px;object-fit:cover;flex:none;background:transparent;}
 .card-b{flex:1;min-width:0;}
 .card-t{font-size:14px;font-weight:700;}
 .card-t i{font-style:normal;font-size:12px;color:#C9A227;}
@@ -4437,8 +4437,11 @@ function priceOf(code){
   if(srv > 0) return Number(srv);
   const c = Number(cfg['price_' + code]);
   if(c > 0) return c;
+  // Запасные цены. Держим их СЛОВО В СЛОВО такими же, как в таблице
+  // territory_prices на сервере: иначе телефон без связи покажет одну
+  // цену, а спишет сервер другую — и человек решит, что его обманули.
   const map = { reinforce:50, steel:100, fort:200, heavy:20, rocket:40,
-                charge:15, hcharge:30, longrocket:40, drone:5, soldier:1 };
+                charge:20, hcharge:30, longrocket:40, drone:40, soldier:40 };
   return Number(map[code] || 0);
 }
 function money$(c){ return '$' + (Number(c)/100).toFixed(2); }
@@ -4611,7 +4614,7 @@ async function openTopUp(needCents){
   document.getElementById('sheet-ok').textContent = T('back');
   document.getElementById('sheet-t').textContent = T('sh_topup');
   const rate = _rate.v || money.bnb_usd || 600;   // мгновенно, без ожидания
-  const minUsd = (money.min_cents || 180) / 100;
+  const minUsd = (money.min_cents || 50) / 100;
   const start = Math.max(minUsd, needCents ? Math.ceil(needCents)/100 : 1);
   let html = '';
   if(needCents) html += '<div class="mv-warn">' + esc(T('sh_notenough', { n: money$(needCents) })) + '</div>';
@@ -4630,7 +4633,7 @@ async function openTopUp(needCents){
         +   '<button class="btn-buy" style="flex:1;padding:12px" onclick="goPay(\'bnb\')">BNB</button>'
         +   '<button class="btn-ghost" style="flex:1;padding:12px" onclick="goPay(\'usd\')">USDT</button>'
         + '</div>'
-        + '<div class="mv-warn">' + esc(T('sh_min', { n: money$(money.min_cents || 180) })) + '</div>';
+        + '<div class="mv-warn">' + esc(T('sh_min', { n: money$(money.min_cents || 50) })) + '</div>';
 
   document.getElementById('sheet-body').innerHTML = html;
   document.getElementById('veil').classList.add('on');
@@ -4654,14 +4657,14 @@ function paintSum(){
   const h = document.getElementById('sum-hint');
   if(!h) return;
   const v = readSum(), rate = _rate.v || money.bnb_usd || 600;
-  const mn = (money.min_cents || 180) / 100;
+  const mn = (money.min_cents || 50) / 100;
   if(v < mn){ h.className = 'sum-hint bad'; h.textContent = T('sh_minlow', { n: money$(money.min_cents||180) }); return; }
   h.className = 'sum-hint';
   h.textContent = '≈ ' + (v / rate).toFixed(5) + ' BNB · ' + T('sh_or') + ' ' + v.toFixed(2) + ' USDT';
 }
 function goPay(kind){
   const v = readSum();
-  const mn = (money.min_cents || 180) / 100;
+  const mn = (money.min_cents || 50) / 100;
   if(v < mn){ say(T('sh_minlow', { n: money$(money.min_cents||180) }), 'warn'); return; }
   pickWallet(v, kind);
 }
@@ -6817,7 +6820,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 88;
+const APP_V = 89;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
