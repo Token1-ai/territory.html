@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gate Territory — що гра знає про тебе</title>
+<meta name="description" content="Політика конфіденційності Gate Territory: які дані гра збирає, навіщо, кому передає і як усе видалити.">
+<meta name="theme-color" content="#0B0D07">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=Commissioner:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --ground:#0B0D07;
+  --panel:#14170E;
+  --ink:#EDEBDE;
+  --soft:#8E9179;
+  --faint:#63664F;
+  --gold:#E0A32E;
+  --moss:#7E9B6E;
+  --line:#262A1A;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:'Commissioner',system-ui,-apple-system,sans-serif;
+  font-size:16.5px;line-height:1.65;
+  padding-left:18px;padding-right:18px;padding-block:0 64px;
+  overflow-x:hidden;
+}
+.wrap{max-width:660px;margin:0 auto;}
+a{color:var(--gold);text-underline-offset:2px;}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+
+header{border-bottom:2px solid var(--line);padding-block:40px 20px;margin-bottom:32px;}
+.back{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;display:inline-block;margin-bottom:18px;
+}
+h1{
+  font-family:'Archivo',system-ui,sans-serif;font-weight:700;
+  font-size:clamp(27px,6.4vw,38px);line-height:1.08;letter-spacing:-.02em;
+  margin:0 0 12px;text-wrap:balance;
+}
+.sub{color:var(--soft);margin:0;font-size:17px;}
+.when{
+  font-family:var(--mono);font-size:11.5px;color:var(--faint);
+  margin:16px 0 0;letter-spacing:.06em;
+}
+
+section{margin-bottom:38px;}
+h2{
+  font-family:'Archivo',system-ui,sans-serif;font-weight:600;
+  font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--faint);border-bottom:1px solid var(--line);
+  padding-bottom:9px;margin:0 0 20px;
+}
+h3{
+  font-family:'Archivo',sans-serif;font-weight:600;font-size:17.5px;
+  margin:0 0 6px;
+}
+p{margin:0 0 14px;max-width:62ch;}
+p:last-child{margin-bottom:0;}
+.lead{font-size:18px;font-weight:500;}
+
+/* что собирается */
+.data{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.item{background:var(--panel);padding:17px 19px;}
+.item .why{color:var(--soft);font-size:15.5px;margin:0;}
+.item .tag{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px;
+}
+
+/* чего нет */
+.no{
+  border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+}
+.no ul{margin:0;padding-left:18px;color:var(--soft);}
+.no li{margin-bottom:5px;}
+.no li:last-child{margin-bottom:0;}
+.no strong{color:var(--moss);font-weight:600;}
+
+/* кому передаём */
+.third{width:100%;border-collapse:collapse;font-size:15.5px;}
+.third th{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);text-align:left;
+  border-bottom:1px solid var(--line);padding:0 12px 8px 0;font-weight:700;
+}
+.third td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+.third td:first-child{font-weight:600;white-space:nowrap;}
+.third td:last-child{padding-right:0;color:var(--soft);}
+.third tr:last-child td{border-bottom:none;}
+.scroll{overflow-x:auto;}
+
+.box{
+  background:var(--panel);border-left:3px solid var(--gold);
+  padding:18px 20px;border-radius:0 10px 10px 0;
+}
+.box p{margin-bottom:10px;}
+.box p:last-child{margin-bottom:0;}
+
+footer{
+  border-top:1px solid var(--line);padding-top:20px;
+  font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--faint);
+}
+footer p{margin:0 0 6px;max-width:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <a class="back" href="start.html">← Gate Territory</a>
+  <h1>Що гра знає про тебе</h1>
+  <p class="sub">Це гра про те, де ти стоїш. Без місцезнаходження вона не працює зовсім — тому чесно розкажемо, що саме береться, навіщо і що з цим стається далі.</p>
+  <p class="when">Чинна з 12 вересня 2026 · Gate Territory · OpenGate</p>
+</header>
+
+<section>
+  <h2>Коротко</h2>
+  <p class="lead">Гра бере координати там, де ти сам щось робиш: ставиш точку, ставиш гармату, ведеш бій. Імені, телефону й пошти вона не питає взагалі.</p>
+  <p>Знімок, який ти робиш під час постановки бункера, <strong>залишається в телефоні</strong>. На сервер іде тільки його відбиток — рядок із 64 знаків, з якого картинку не відновити. Це не обіцянка на словах: у базі зараз п'ятдесят точок і жодного знімка.</p>
+</section>
+
+<section>
+  <h2>Що збирається</h2>
+  <div class="data">
+    <div class="item">
+      <span class="tag">Точні координати</span>
+      <h3>Коли ти сам щось ставиш</h3>
+      <p class="why">Координати бункера й гармати зберігаються назавжди й видно їх усім на карті — у цьому й полягає гра. Під час бою координати передаються, поки бій іде, щоб гармати точки могли стріляти у відповідь.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Приблизні координати</span>
+      <h3>Лічильник «гравців поруч»</h3>
+      <p class="why">Раз на десять хвилин іде округлена точка — до трьох знаків після коми, це приблизно сто десять метрів. Вона живе не довше години й стирається сама. Точного місця ця мітка не зберігає ніколи.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Номер гравця</span>
+      <h3>Рядок 0x… і більше нічого</h3>
+      <p class="why">Гра створює випадковий номер на самому телефоні. Це не ім'я, не пошта й не телефон — просто мітка, щоб знати, чиї бункери.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Відбиток знімка</span>
+      <h3>Сам знімок не йде нікуди</h3>
+      <p class="why">Фото лежить у пам'яті телефона, у сховищі гри. На сервер іде лише відбиток — щоб той самий знімок не можна було підсунути для двох різних точок.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Відомості про телефон</span>
+      <h3>Проти підробки координат</h3>
+      <p class="why">У мить постановки точки записується: назва браузера (перші 120 знаків), мова, кількість ядер, обсяг пам'яті, швидкість руху й кроки. Тільки для того, щоб відрізнити людину, яка справді дійшла, від підробленого GPS.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Сповіщення</span>
+      <h3>Лише якщо ти їх увімкнув</h3>
+      <p class="why">Браузер видає адресу доставки, гра зберігає її разом із мовою й тихими годинами. Вимкнув — запис прибирається.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Клан</span>
+      <h3>Повідомлення в клановому чаті</h3>
+      <p class="why">Текст і номер того, хто написав. Бачать тільки свої в клані.</p>
+    </div>
+    <div class="item">
+      <span class="tag">Покупки</span>
+      <h3>Рух грошей на ігровому рахунку</h3>
+      <p class="why">Що куплено, коли й на скільки. Самої оплати гра не бачить: нею займається магазин застосунків, і дані картки до гри не потрапляють ніколи.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Чого немає</h2>
+  <div class="no">
+    <ul>
+      <li><strong>Немає</strong> імені, прізвища, пошти й номера телефона — гра їх не питає.</li>
+      <li><strong>Немає</strong> доступу до контактів, галереї, дзвінків і повідомлень.</li>
+      <li><strong>Немає</strong> стеження у фоні. Поки гра закрита, координати не беруться взагалі.</li>
+      <li><strong>Немає</strong> рекламних стежок і чужих лічильників.</li>
+      <li><strong>Немає</strong> продажу даних. Нікому й ніколи.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Кому це видно</h2>
+  <p>Гру тримають кілька служб. Кожна бачить тільки свій шматок.</p>
+  <div class="scroll">
+  <table class="third">
+    <thead><tr><th>Хто</th><th>Що бачить</th></tr></thead>
+    <tbody>
+      <tr><td>Supabase</td><td>Зберігає базу гри: бункери, гармати, бої, рахунки</td></tr>
+      <tr><td>Vercel</td><td>Віддає сторінки гри; бачить звичайні записи веб-сервера</td></tr>
+      <tr><td>OpenStreetMap</td><td>Віддає плитки карти — а отже бачить, який клапоть карти ти дивишся</td></tr>
+      <tr><td>Google Play</td><td>Проводить оплату. Гра отримує лише «сплачено», без даних картки</td></tr>
+      <tr><td>Інші гравці</td><td>Твої бункери й гармати на карті, назву землі, повідомлення в клані</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Скільки це живе</h2>
+  <p><b>Бункери й гармати</b> — поки стоять. Знесені лишаються в історії бою.</p>
+  <p><b>Мітка «поруч»</b> — не довше години, потім стирається сама.</p>
+  <p><b>Записи про бої й гроші</b> — поки існує гравець; старі події прибираються раз на добу.</p>
+  <p><b>Знімки</b> — у твоєму телефоні, доки не видалиш гру або не почистиш її дані.</p>
+</section>
+
+<section>
+  <h2>Як усе прибрати</h2>
+  <div class="box">
+    <p><b>З телефона.</b> Видали гру або почисть дані сайту в браузері — зникнуть знімки, збережена карта й номер гравця.</p>
+    <p><b>З сервера.</b> Напиши на пошту нижче й додай свій номер гравця — його видно в «Профілі». Приберемо рахунок, бункери, гармати й усі записи протягом тридцяти днів і відпишемо, коли зробимо.</p>
+    <p><b>Сповіщення</b> вимикаються в самій грі, кнопкою в «Профілі».</p>
+  </div>
+</section>
+
+<section>
+  <h2>Діти</h2>
+  <p>Гра не для дітей. Вона про те, щоб ходити містом ногами й платити справжні гроші за предмети, тож підходить людям від шістнадцяти. Свідомо дані дітей ми не збираємо; якщо виявиться, що обліковий запис завів підліток молодший, він буде видалений.</p>
+</section>
+
+<section>
+  <h2>Якщо щось зміниться</h2>
+  <p>Коли зміниться те, що гра збирає, тут з'явиться нова дата вгорі, а в самій грі — повідомлення. Мовчки переписувати цю сторінку ми не будемо.</p>
+</section>
+
+<footer>
+  <p>Питання про дані й видалення: <a href="mailto:filipovigor768@gmail.com">filipovigor768@gmail.com</a></p>
+  <p>Gate Territory · OpenGate · <a href="start.html">про гру</a> · <a href="index.html">відкрити гру</a></p>
+</footer>
+
+</div>
+</body>
+</html>
