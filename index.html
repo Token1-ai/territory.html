@@ -5952,16 +5952,31 @@ const VIEW_MAX_DEG = 0.35;      // больше 39 км по широте — н
 let _viewAt = 0;                // когда в последний раз спрашивали
 let _viewGuard = null;
 
+// ВАЖНО ПРО «ЦЕЛИКОМ». Отметку «эту клетку знаем до номера N» можно
+// ставить ТОЛЬКО клетке, которая влезла в запрос ВСЯ. Клетка, задетая
+// экраном краем, отметку получать не имеет права: за краем в ней могли
+// остаться точки с МЕНЬШИМИ номерами, отметка объявила бы их
+// известными, и потом они не пришли бы никогда — ровно та беда, ради
+// которой всё это и делается.
+//
+// Поэтому спрашиваем не голый экран, а его РАСШИРЕНИЕ ДО ЦЕЛЫХ КЛЕТОК.
+// Тогда каждая клетка в ответе покрыта полностью и отметка честная.
+// Клетка — 2,2 км, обычный экран при этом растёт до двух-четырёх
+// клеток: по указателю (lat, lng, id) это те же доли миллисекунды.
 function viewCells(){
   if(!map) return null;
   const b = map.getBounds();
   const s = b.getSouth(), n = b.getNorth(), w = b.getWest(), e = b.getEast();
   if(n - s > VIEW_MAX_DEG) return null;
-  const out = [];
-  for(let i = Math.floor(s/CELL); i <= Math.floor(n/CELL); i++)
-    for(let j = Math.floor(w/CELL); j <= Math.floor(e/CELL); j++)
-      out.push('box:'+i+':'+j);
-  return { keys: out, latMin:s, latMax:n, lngMin:w, lngMax:e };
+  const i0 = Math.floor(s/CELL), i1 = Math.floor(n/CELL);
+  const j0 = Math.floor(w/CELL), j1 = Math.floor(e/CELL);
+  const keys = [];
+  for(let i = i0; i <= i1; i++)
+    for(let j = j0; j <= j1; j++) keys.push('box:'+i+':'+j);
+  if(!keys.length || keys.length > 30) return null;   // слишком широко
+  return { keys: keys,
+           latMin: i0*CELL, latMax: (i1+1)*CELL,
+           lngMin: j0*CELL, lngMax: (j1+1)*CELL };
 }
 
 async function syncView(force){
@@ -6568,8 +6583,13 @@ function say(t, cls){
 // «Встань там, где хочешь бункер» с русским «ВСЁ НА МЕСТЕ».
 //
 // Храним не готовый текст, а КЛЮЧ. Сменили язык — перерисовали обе.
-let _sayKey = null,  _sayVars = null,  _sayCls = null;
-let _linkKey = null, _linkVars = null, _linkCls = null;
+//
+// ПОЧЕМУ var, А НЕ let. Весь файл — одна большая простыня, и say()
+// стоит ВЫШЕ этих строк. У let до его строки переменной как бы ещё
+// нет: любой вызов say() раньше — и игра падает на запуске с пустым
+// экраном. var поднимается наверх сам и такой ловушки не оставляет.
+var _sayKey = null,  _sayVars = null,  _sayCls = null;
+var _linkKey = null, _linkVars = null, _linkCls = null;
 function sayT(k, vars, cls){
   say(T(k, vars), cls);
   _sayKey = k; _sayVars = vars || null; _sayCls = cls || null;
@@ -6797,7 +6817,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 87;
+const APP_V = 88;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
