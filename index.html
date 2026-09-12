@@ -4614,17 +4614,20 @@ async function openTopUp(needCents){
   document.getElementById('sheet-ok').textContent = T('back');
   document.getElementById('sheet-t').textContent = T('sh_topup');
   const rate = _rate.v || money.bnb_usd || 600;   // мгновенно, без ожидания
-  const minUsd = (money.min_cents || 50) / 100;
+  const minUsd = minCents() / 100;
   const start = Math.max(minUsd, needCents ? Math.ceil(needCents)/100 : 1);
   let html = '';
   if(needCents) html += '<div class="mv-warn">' + esc(T('sh_notenough', { n: money$(needCents) })) + '</div>';
   html += '<div class="pf-row"><span>' + T('sh_balance') + '</span><b>' + money$(money.balance_cents) + '</b></div>'
        + '<div class="mv-warn" style="margin:6px 0 10px">' + esc(T('sh_nowd')) + '</div>'
-        + '<div class="pf-sec">' + T('sh_howmuch') + '</div>'
+        + '<div class="pf-sec">' + T('sh_howmuch')
+        +   '<span style="float:right;font-weight:400;color:#E0A32E">'
+        +   esc(T('sh_minlow', { n: money$(minCents()) })) + '</span></div>'
         + '<div class="sum-box">'
         +   '<button class="sum-pm" onclick="bumpSum(-1)">−</button>'
         +   '<div class="sum-mid"><span>$</span>'
-        +     '<input id="topup-sum" type="number" inputmode="decimal" step="0.1" min="0.3" '
+        +     '<input id="topup-sum" type="number" inputmode="decimal" step="0.5" '
+        +            'min="' + (minCents()/100).toFixed(2) + '" '
         +            'value="' + start.toFixed(2) + '" oninput="paintSum()"/></div>'
         +   '<button class="sum-pm" onclick="bumpSum(1)">+</button>'
         + '</div>'
@@ -4633,12 +4636,18 @@ async function openTopUp(needCents){
         +   '<button class="btn-buy" style="flex:1;padding:12px" onclick="goPay(\'bnb\')">BNB</button>'
         +   '<button class="btn-ghost" style="flex:1;padding:12px" onclick="goPay(\'usd\')">USDT</button>'
         + '</div>'
-        + '<div class="mv-warn">' + esc(T('sh_min', { n: money$(money.min_cents || 50) })) + '</div>';
+        + '<div class="mv-warn">' + esc(T('sh_min', { n: money$(minCents()) })) + '</div>';
 
   document.getElementById('sheet-body').innerHTML = html;
   document.getElementById('veil').classList.add('on');
   sheetOpened();
 }
+
+// ПОРОГ ПОПОЛНЕНИЯ — В ОДНОМ МЕСТЕ.
+// Раньше он был вписан в пяти местах и тремя разными числами: 50,
+// 180 и ещё раз 50. Человек видел одно, а кнопка не пускала по
+// другому. Теперь число приходит с сервера, а здесь только запасное.
+function minCents(){ return Number(money.min_cents) || 200; }
 
 // Сколько платить — решает сам игрок, хоть $2.50
 function readSum(){
@@ -4650,22 +4659,22 @@ function readSum(){
 function bumpSum(dir){
   const el = document.getElementById('topup-sum');
   if(!el) return;
-  el.value = Math.max((money.min_cents||180)/100, readSum() + dir).toFixed(2);
+  el.value = Math.max(minCents()/100, readSum() + dir).toFixed(2);
   paintSum();
 }
 function paintSum(){
   const h = document.getElementById('sum-hint');
   if(!h) return;
   const v = readSum(), rate = _rate.v || money.bnb_usd || 600;
-  const mn = (money.min_cents || 50) / 100;
-  if(v < mn){ h.className = 'sum-hint bad'; h.textContent = T('sh_minlow', { n: money$(money.min_cents||180) }); return; }
+  const mn = minCents() / 100;
+  if(v < mn){ h.className = 'sum-hint bad'; h.textContent = T('sh_minlow', { n: money$(minCents()) }); return; }
   h.className = 'sum-hint';
   h.textContent = '≈ ' + (v / rate).toFixed(5) + ' BNB · ' + T('sh_or') + ' ' + v.toFixed(2) + ' USDT';
 }
 function goPay(kind){
   const v = readSum();
-  const mn = (money.min_cents || 50) / 100;
-  if(v < mn){ say(T('sh_minlow', { n: money$(money.min_cents||180) }), 'warn'); return; }
+  const mn = minCents() / 100;
+  if(v < mn){ say(T('sh_minlow', { n: money$(minCents()) }), 'warn'); return; }
   pickWallet(v, kind);
 }
 
@@ -6820,7 +6829,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 90;
+const APP_V = 91;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
