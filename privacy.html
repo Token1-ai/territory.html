@@ -35,7 +35,20 @@ body{
 a{color:var(--gold);text-underline-offset:2px;}
 a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
 
-header{border-bottom:2px solid var(--line);padding-block:40px 20px;margin-bottom:32px;}
+/* ── выбор языка ─────────────────────────────────────── */
+.lang{display:flex;justify-content:flex-end;padding-block:14px 0;margin-bottom:-8px;}
+.lang select{
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  color:var(--ink);background:var(--panel);
+  border:1px solid var(--line);border-radius:9px;
+  padding:8px 30px 8px 12px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23E0A32E' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+}
+.lang select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+header{border-bottom:2px solid var(--line);padding-block:26px 20px;margin-bottom:32px;}
 .back{
   font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
   text-transform:uppercase;display:inline-block;margin-bottom:18px;
@@ -76,9 +89,7 @@ p:last-child{margin-bottom:0;}
 }
 
 /* чего нет */
-.no{
-  border:1px solid var(--line);border-radius:12px;padding:18px 20px;
-}
+.no{border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
 .no ul{margin:0;padding-left:18px;color:var(--soft);}
 .no li{margin-bottom:5px;}
 .no li:last-child{margin-bottom:0;}
@@ -114,127 +125,155 @@ footer p{margin:0 0 6px;max-width:none;}
 <body>
 <div class="wrap">
 
+<div class="lang">
+  <select id="lang" aria-label="Language">
+    <option value="uk">Українська</option>
+    <option value="en">English</option>
+    <option value="ru">Русский</option>
+    <option value="pl">Polski</option>
+    <option value="de">Deutsch</option>
+    <option value="es">Español</option>
+    <option value="tr">Türkçe</option>
+    <option value="zh">中文</option>
+  </select>
+</div>
+
 <header>
-  <a class="back" href="start.html">← Gate Territory</a>
-  <h1>Що гра знає про тебе</h1>
-  <p class="sub">Це гра про те, де ти стоїш. Без місцезнаходження вона не працює зовсім — тому чесно розкажемо, що саме береться, навіщо і що з цим стається далі.</p>
-  <p class="when">Чинна з 12 вересня 2026 · Gate Territory · OpenGate</p>
+  <a class="back" href="start.html" data-t="back"></a>
+  <h1 data-t="h1"></h1>
+  <p class="sub" data-t="sub"></p>
+  <p class="when" data-t="when"></p>
 </header>
 
 <section>
-  <h2>Коротко</h2>
-  <p class="lead">Гра бере координати там, де ти сам щось робиш: ставиш точку, ставиш гармату, ведеш бій. Імені, телефону й пошти вона не питає взагалі.</p>
-  <p>Знімок, який ти робиш під час постановки бункера, <strong>залишається в телефоні</strong>. На сервер іде тільки його відбиток — рядок із 64 знаків, з якого картинку не відновити. Це не обіцянка на словах: у базі зараз п'ятдесят точок і жодного знімка.</p>
+  <h2 data-t="h2a"></h2>
+  <p class="lead" data-t="lead"></p>
+  <p data-t="p2" data-html="1"></p>
 </section>
 
 <section>
-  <h2>Що збирається</h2>
+  <h2 data-t="h2b"></h2>
   <div class="data">
-    <div class="item">
-      <span class="tag">Точні координати</span>
-      <h3>Коли ти сам щось ставиш</h3>
-      <p class="why">Координати бункера й гармати зберігаються назавжди й видно їх усім на карті — у цьому й полягає гра. Під час бою координати передаються, поки бій іде, щоб гармати точки могли стріляти у відповідь.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Приблизні координати</span>
-      <h3>Лічильник «гравців поруч»</h3>
-      <p class="why">Раз на десять хвилин іде округлена точка — до трьох знаків після коми, це приблизно сто десять метрів. Вона живе не довше години й стирається сама. Точного місця ця мітка не зберігає ніколи.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Номер гравця</span>
-      <h3>Рядок 0x… і більше нічого</h3>
-      <p class="why">Гра створює випадковий номер на самому телефоні. Це не ім'я, не пошта й не телефон — просто мітка, щоб знати, чиї бункери.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Відбиток знімка</span>
-      <h3>Сам знімок не йде нікуди</h3>
-      <p class="why">Фото лежить у пам'яті телефона, у сховищі гри. На сервер іде лише відбиток — щоб той самий знімок не можна було підсунути для двох різних точок.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Відомості про телефон</span>
-      <h3>Проти підробки координат</h3>
-      <p class="why">У мить постановки точки записується: назва браузера (перші 120 знаків), мова, кількість ядер, обсяг пам'яті, швидкість руху й кроки. Тільки для того, щоб відрізнити людину, яка справді дійшла, від підробленого GPS.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Сповіщення</span>
-      <h3>Лише якщо ти їх увімкнув</h3>
-      <p class="why">Браузер видає адресу доставки, гра зберігає її разом із мовою й тихими годинами. Вимкнув — запис прибирається.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Клан</span>
-      <h3>Повідомлення в клановому чаті</h3>
-      <p class="why">Текст і номер того, хто написав. Бачать тільки свої в клані.</p>
-    </div>
-    <div class="item">
-      <span class="tag">Покупки</span>
-      <h3>Рух грошей на ігровому рахунку</h3>
-      <p class="why">Що куплено, коли й на скільки. Самої оплати гра не бачить: нею займається магазин застосунків, і дані картки до гри не потрапляють ніколи.</p>
-    </div>
+    <div class="item"><span class="tag" data-t="i1t"></span><h3 data-t="i1h"></h3><p class="why" data-t="i1p"></p></div>
+    <div class="item"><span class="tag" data-t="i2t"></span><h3 data-t="i2h"></h3><p class="why" data-t="i2p"></p></div>
+    <div class="item"><span class="tag" data-t="i3t"></span><h3 data-t="i3h"></h3><p class="why" data-t="i3p"></p></div>
+    <div class="item"><span class="tag" data-t="i4t"></span><h3 data-t="i4h"></h3><p class="why" data-t="i4p"></p></div>
+    <div class="item"><span class="tag" data-t="i5t"></span><h3 data-t="i5h"></h3><p class="why" data-t="i5p"></p></div>
+    <div class="item"><span class="tag" data-t="i6t"></span><h3 data-t="i6h"></h3><p class="why" data-t="i6p"></p></div>
+    <div class="item"><span class="tag" data-t="i7t"></span><h3 data-t="i7h"></h3><p class="why" data-t="i7p"></p></div>
+    <div class="item"><span class="tag" data-t="i8t"></span><h3 data-t="i8h"></h3><p class="why" data-t="i8p"></p></div>
   </div>
 </section>
 
 <section>
-  <h2>Чого немає</h2>
+  <h2 data-t="h2c"></h2>
   <div class="no">
     <ul>
-      <li><strong>Немає</strong> імені, прізвища, пошти й номера телефона — гра їх не питає.</li>
-      <li><strong>Немає</strong> доступу до контактів, галереї, дзвінків і повідомлень.</li>
-      <li><strong>Немає</strong> стеження у фоні. Поки гра закрита, координати не беруться взагалі.</li>
-      <li><strong>Немає</strong> рекламних стежок і чужих лічильників.</li>
-      <li><strong>Немає</strong> продажу даних. Нікому й ніколи.</li>
+      <li data-t="n1" data-html="1"></li>
+      <li data-t="n2" data-html="1"></li>
+      <li data-t="n3" data-html="1"></li>
+      <li data-t="n4" data-html="1"></li>
+      <li data-t="n5" data-html="1"></li>
     </ul>
   </div>
 </section>
 
 <section>
-  <h2>Кому це видно</h2>
-  <p>Гру тримають кілька служб. Кожна бачить тільки свій шматок.</p>
+  <h2 data-t="h2d"></h2>
+  <p data-t="dp"></p>
   <div class="scroll">
   <table class="third">
-    <thead><tr><th>Хто</th><th>Що бачить</th></tr></thead>
+    <thead><tr><th data-t="th1"></th><th data-t="th2"></th></tr></thead>
     <tbody>
-      <tr><td>Supabase</td><td>Зберігає базу гри: бункери, гармати, бої, рахунки</td></tr>
-      <tr><td>Vercel</td><td>Віддає сторінки гри; бачить звичайні записи веб-сервера</td></tr>
-      <tr><td>OpenStreetMap</td><td>Віддає плитки карти — а отже бачить, який клапоть карти ти дивишся</td></tr>
-      <tr><td>Google Play</td><td>Проводить оплату. Гра отримує лише «сплачено», без даних картки</td></tr>
-      <tr><td>Інші гравці</td><td>Твої бункери й гармати на карті, назву землі, повідомлення в клані</td></tr>
+      <tr><td data-t="r1a"></td><td data-t="r1b"></td></tr>
+      <tr><td data-t="r2a"></td><td data-t="r2b"></td></tr>
+      <tr><td data-t="r3a"></td><td data-t="r3b"></td></tr>
+      <tr><td data-t="r4a"></td><td data-t="r4b"></td></tr>
+      <tr><td data-t="r5a"></td><td data-t="r5b"></td></tr>
     </tbody>
   </table>
   </div>
 </section>
 
 <section>
-  <h2>Скільки це живе</h2>
-  <p><b>Бункери й гармати</b> — поки стоять. Знесені лишаються в історії бою.</p>
-  <p><b>Мітка «поруч»</b> — не довше години, потім стирається сама.</p>
-  <p><b>Записи про бої й гроші</b> — поки існує гравець; старі події прибираються раз на добу.</p>
-  <p><b>Знімки</b> — у твоєму телефоні, доки не видалиш гру або не почистиш її дані.</p>
+  <h2 data-t="h2e"></h2>
+  <p data-t="e1" data-html="1"></p>
+  <p data-t="e2" data-html="1"></p>
+  <p data-t="e3" data-html="1"></p>
+  <p data-t="e4" data-html="1"></p>
 </section>
 
 <section>
-  <h2>Як усе прибрати</h2>
+  <h2 data-t="h2f"></h2>
   <div class="box">
-    <p><b>З телефона.</b> Видали гру або почисть дані сайту в браузері — зникнуть знімки, збережена карта й номер гравця.</p>
-    <p><b>З сервера.</b> Напиши на пошту нижче й додай свій номер гравця — його видно в «Профілі». Приберемо рахунок, бункери, гармати й усі записи протягом тридцяти днів і відпишемо, коли зробимо.</p>
-    <p><b>Сповіщення</b> вимикаються в самій грі, кнопкою в «Профілі».</p>
+    <p data-t="f1" data-html="1"></p>
+    <p data-t="f2" data-html="1"></p>
+    <p data-t="f3" data-html="1"></p>
   </div>
 </section>
 
 <section>
-  <h2>Діти</h2>
-  <p>Гра не для дітей. Вона про те, щоб ходити містом ногами й платити справжні гроші за предмети, тож підходить людям від шістнадцяти. Свідомо дані дітей ми не збираємо; якщо виявиться, що обліковий запис завів підліток молодший, він буде видалений.</p>
+  <h2 data-t="h2g"></h2>
+  <p data-t="gp"></p>
 </section>
 
 <section>
-  <h2>Якщо щось зміниться</h2>
-  <p>Коли зміниться те, що гра збирає, тут з'явиться нова дата вгорі, а в самій грі — повідомлення. Мовчки переписувати цю сторінку ми не будемо.</p>
+  <h2 data-t="h2h"></h2>
+  <p data-t="hp"></p>
 </section>
 
 <footer>
-  <p>Питання про дані й видалення: <a href="mailto:filipovigor768@gmail.com">filipovigor768@gmail.com</a></p>
-  <p>Gate Territory · OpenGate · <a href="start.html">про гру</a> · <a href="index.html">відкрити гру</a></p>
+  <p><span data-t="ft1"></span> <a href="mailto:filipovigor768@gmail.com">filipovigor768@gmail.com</a></p>
+  <p>Gate Territory · OpenGate · <a href="start.html" data-t="ft2"></a> · <a href="index.html" data-t="ft3"></a></p>
 </footer>
 
 </div>
+<script>
+/* ══ Восемь языков ═══════════════════════════════════════════════
+   Те же, что в самой игре. Выбор запоминается в телефоне.
+   ─────────────────────────────────────────────────────────────── */
+var L = {"uk":{"title":"Gate Territory — що гра знає про тебе","desc":"Політика конфіденційності Gate Territory: які дані гра збирає, навіщо, кому передає і як усе видалити.","back":"← Gate Territory","h1":"Що гра знає про тебе","sub":"Це гра про те, де ти стоїш. Без місцезнаходження вона не працює зовсім — тому чесно розкажемо, що саме береться, навіщо і що з цим стається далі.","when":"Чинна з 12 вересня 2026 · Gate Territory · OpenGate","h2a":"Коротко","lead":"Гра бере координати там, де ти сам щось робиш: ставиш точку, ставиш гармату, ведеш бій. Імені, телефону й пошти вона не питає взагалі.","p2":"Знімок, який ти робиш під час постановки бункера, <strong>залишається в телефоні</strong>. На сервер іде тільки його відбиток — рядок із 64 знаків, з якого картинку не відновити. Це не обіцянка на словах: у базі зараз п'ятдесят точок і жодного знімка.","h2b":"Що збирається","i1t":"Точні координати","i1h":"Коли ти сам щось ставиш","i1p":"Координати бункера й гармати зберігаються назавжди й видно їх усім на карті — у цьому й полягає гра. Під час бою координати передаються, поки бій іде, щоб гармати точки могли стріляти у відповідь.","i2t":"Приблизні координати","i2h":"Лічильник «гравців поруч»","i2p":"Раз на десять хвилин іде округлена точка — до трьох знаків після коми, це приблизно сто десять метрів. Вона живе не довше години й стирається сама. Точного місця ця мітка не зберігає ніколи.","i3t":"Номер гравця","i3h":"Рядок 0x… і більше нічого","i3p":"Гра створює випадковий номер на самому телефоні. Це не ім'я, не пошта й не телефон — просто мітка, щоб знати, чиї бункери.","i4t":"Відбиток знімка","i4h":"Сам знімок не йде нікуди","i4p":"Фото лежить у пам'яті телефона, у сховищі гри. На сервер іде лише відбиток — щоб той самий знімок не можна було підсунути для двох різних точок.","i5t":"Відомості про телефон","i5h":"Проти підробки координат","i5p":"У мить постановки точки записується: назва браузера (перші 120 знаків), мова, кількість ядер, обсяг пам'яті, швидкість руху й кроки. Тільки для того, щоб відрізнити людину, яка справді дійшла, від підробленого GPS.","i6t":"Сповіщення","i6h":"Лише якщо ти їх увімкнув","i6p":"Браузер видає адресу доставки, гра зберігає її разом із мовою й тихими годинами. Вимкнув — запис прибирається.","i7t":"Клан","i7h":"Повідомлення в клановому чаті","i7p":"Текст і номер того, хто написав. Бачать тільки свої в клані.","i8t":"Покупки","i8h":"Рух грошей на ігровому рахунку","i8p":"Що куплено, коли й на скільки. Самої оплати гра не бачить: нею займається магазин застосунків, і дані картки до гри не потрапляють ніколи.","h2c":"Чого немає","n1":"<strong>Немає</strong> імені, прізвища, пошти й номера телефона — гра їх не питає.","n2":"<strong>Немає</strong> доступу до контактів, галереї, дзвінків і повідомлень.","n3":"<strong>Немає</strong> стеження у фоні. Поки гра закрита, координати не беруться взагалі.","n4":"<strong>Немає</strong> рекламних стежок і чужих лічильників.","n5":"<strong>Немає</strong> продажу даних. Нікому й ніколи.","h2d":"Кому це видно","dp":"Гру тримають кілька служб. Кожна бачить тільки свій шматок.","th1":"Хто","th2":"Що бачить","r1a":"Supabase","r1b":"Зберігає базу гри: бункери, гармати, бої, рахунки","r2a":"Vercel","r2b":"Віддає сторінки гри; бачить звичайні записи веб-сервера","r3a":"OpenStreetMap","r3b":"Віддає плитки карти — а отже бачить, який клапоть карти ти дивишся","r4a":"Google Play","r4b":"Проводить оплату. Гра отримує лише «сплачено», без даних картки","r5a":"Інші гравці","r5b":"Твої бункери й гармати на карті, назву землі, повідомлення в клані","h2e":"Скільки це живе","e1":"<b>Бункери й гармати</b> — поки стоять. Знесені лишаються в історії бою.","e2":"<b>Мітка «поруч»</b> — не довше години, потім стирається сама.","e3":"<b>Записи про бої й гроші</b> — поки існує гравець; старі події прибираються раз на добу.","e4":"<b>Знімки</b> — у твоєму телефоні, доки не видалиш гру або не почистиш її дані.","h2f":"Як усе прибрати","f1":"<b>З телефона.</b> Видали гру або почисть дані сайту в браузері — зникнуть знімки, збережена карта й номер гравця.","f2":"<b>З сервера.</b> Напиши на пошту нижче й додай свій номер гравця — його видно в «Профілі». Приберемо рахунок, бункери, гармати й усі записи протягом тридцяти днів і відпишемо, коли зробимо.","f3":"<b>Сповіщення</b> вимикаються в самій грі, кнопкою в «Профілі».","h2g":"Діти","gp":"Гра не для дітей. Вона про те, щоб ходити містом ногами й платити справжні гроші за предмети, тож підходить людям від шістнадцяти. Свідомо дані дітей ми не збираємо; якщо виявиться, що обліковий запис завів підліток молодший, він буде видалений.","h2h":"Якщо щось зміниться","hp":"Коли зміниться те, що гра збирає, тут з'явиться нова дата вгорі, а в самій грі — повідомлення. Мовчки переписувати цю сторінку ми не будемо.","ft1":"Питання про дані й видалення:","ft2":"про гру","ft3":"відкрити гру"},"en":{"title":"Gate Territory — what the game knows about you","desc":"Gate Territory privacy policy: what the game collects, why, who else sees it, and how to have it all deleted.","back":"← Gate Territory","h1":"What the game knows about you","sub":"This is a game about where you are standing. Without your location it does not work at all — so here is the honest account of what is taken, what for, and what happens to it next.","when":"In force from 12 September 2026 · Gate Territory · OpenGate","h2a":"In short","lead":"The game takes your coordinates where you yourself do something: plant a point, place a gun, fight a battle. It never asks for your name, phone number or email.","p2":"The photo you take while planting a bunker <strong>stays on your phone</strong>. Only its fingerprint goes to the server — a 64-character string the picture cannot be rebuilt from. This is not a promise on paper: the database right now holds fifty points and not a single photo.","h2b":"What is collected","i1t":"Exact coordinates","i1h":"When you plant something yourself","i1p":"The coordinates of a bunker or a gun are kept for good and everyone sees them on the map — that is the whole game. During a battle your coordinates are passed while the fight lasts, so the point's guns can shoot back.","i2t":"Rough coordinates","i2h":"The “players nearby” counter","i2p":"Once every ten minutes a rounded point is sent — three decimal places, about a hundred and ten metres. It lives no longer than an hour and erases itself. This marker never stores your exact place.","i3t":"Player number","i3h":"A 0x… string and nothing more","i3p":"The game makes up a random number on the phone itself. It is not a name, not an email, not a phone number — just a tag, so it is known whose bunkers those are.","i4t":"Photo fingerprint","i4h":"The photo itself goes nowhere","i4p":"The picture sits in the phone's memory, in the game's own storage. Only a fingerprint goes to the server — so that one and the same photo cannot be slipped in for two different points.","i5t":"Phone details","i5h":"Against faked coordinates","i5p":"At the moment a point is planted the game records: the browser name (first 120 characters), language, number of cores, amount of memory, movement speed and step count. Only to tell a person who really walked there from a faked GPS.","i6t":"Notifications","i6h":"Only if you switched them on","i6p":"The browser issues a delivery address; the game stores it along with your language and quiet hours. Switch them off and the record is removed.","i7t":"Clan","i7h":"Messages in the clan chat","i7p":"The text and the number of whoever wrote it. Only your own clan sees them.","i8t":"Purchases","i8h":"Money moving on the game account","i8p":"What was bought, when and for how much. The game never sees the payment itself: the app store handles that, and card details never reach the game.","h2c":"What there is none of","n1":"<strong>No</strong> name, surname, email or phone number — the game does not ask for them.","n2":"<strong>No</strong> access to contacts, gallery, calls or messages.","n3":"<strong>No</strong> tracking in the background. While the game is closed, no coordinates are taken at all.","n4":"<strong>No</strong> advertising trackers and no third-party counters.","n5":"<strong>No</strong> selling of data. To no one, ever.","h2d":"Who can see this","dp":"A few services keep the game running. Each of them sees only its own piece.","th1":"Who","th2":"What they see","r1a":"Supabase","r1b":"Stores the game database: bunkers, guns, battles, accounts","r2a":"Vercel","r2b":"Serves the game's pages; sees ordinary web-server records","r3a":"OpenStreetMap","r3b":"Serves the map tiles — and so sees which patch of map you are looking at","r4a":"Google Play","r4b":"Handles payment. The game receives only “paid”, with no card details","r5a":"Other players","r5b":"Your bunkers and guns on the map, the name of your land, your clan messages","h2e":"How long it lives","e1":"<b>Bunkers and guns</b> — for as long as they stand. Destroyed ones stay in the battle history.","e2":"<b>The “nearby” marker</b> — no longer than an hour, then it erases itself.","e3":"<b>Battle and money records</b> — as long as the player exists; old events are cleared once a day.","e4":"<b>Photos</b> — on your phone, until you delete the game or clear its data.","h2f":"How to have it all removed","f1":"<b>From the phone.</b> Delete the game or clear the site data in your browser — the photos, the saved map and the player number all go.","f2":"<b>From the server.</b> Write to the address below and include your player number — it is shown in “Profile”. We will remove the account, bunkers, guns and all records within thirty days and write back when it is done.","f3":"<b>Notifications</b> are switched off inside the game itself, with the button in “Profile”.","h2g":"Children","gp":"The game is not for children. It is about walking the city on your own feet and paying real money for items, so it suits people of sixteen and up. We do not knowingly collect children's data; if an account turns out to belong to someone younger, it will be deleted.","h2h":"If something changes","hp":"When what the game collects changes, a new date will appear at the top of this page and a notice will appear inside the game. We will not rewrite this page quietly.","ft1":"Questions about data and deletion:","ft2":"about the game","ft3":"open the game"},"ru":{"title":"Gate Territory — что игра знает о тебе","desc":"Политика конфиденциальности Gate Territory: какие данные игра собирает, зачем, кому передаёт и как всё удалить.","back":"← Gate Territory","h1":"Что игра знает о тебе","sub":"Это игра о том, где ты стоишь. Без местоположения она не работает вовсе — поэтому честно расскажем, что именно берётся, зачем и что с этим происходит дальше.","when":"Действует с 12 сентября 2026 · Gate Territory · OpenGate","h2a":"Коротко","lead":"Игра берёт координаты там, где ты сам что-то делаешь: ставишь точку, ставишь пушку, ведёшь бой. Имени, телефона и почты она не спрашивает вообще.","p2":"Снимок, который ты делаешь при постановке бункера, <strong>остаётся в телефоне</strong>. На сервер уходит только его отпечаток — строка из 64 знаков, из которой картинку не восстановить. Это не обещание на словах: в базе сейчас пятьдесят точек и ни одного снимка.","h2b":"Что собирается","i1t":"Точные координаты","i1h":"Когда ты сам что-то ставишь","i1p":"Координаты бункера и пушки хранятся навсегда, и видны они всем на карте — в этом и состоит игра. Во время боя координаты передаются, пока бой идёт, чтобы пушки точки могли стрелять в ответ.","i2t":"Приблизительные координаты","i2h":"Счётчик «игроков рядом»","i2p":"Раз в десять минут уходит округлённая точка — до трёх знаков после запятой, это примерно сто десять метров. Она живёт не дольше часа и стирается сама. Точного места эта метка не хранит никогда.","i3t":"Номер игрока","i3h":"Строка 0x… и больше ничего","i3p":"Игра создаёт случайный номер на самом телефоне. Это не имя, не почта и не телефон — просто метка, чтобы знать, чьи бункеры.","i4t":"Отпечаток снимка","i4h":"Сам снимок не уходит никуда","i4p":"Фото лежит в памяти телефона, в хранилище игры. На сервер уходит только отпечаток — чтобы один и тот же снимок нельзя было подсунуть для двух разных точек.","i5t":"Сведения о телефоне","i5h":"Против поддельных координат","i5p":"В момент постановки точки записывается: название браузера (первые 120 знаков), язык, число ядер, объём памяти, скорость движения и шаги. Только для того, чтобы отличить человека, который действительно дошёл, от поддельного GPS.","i6t":"Уведомления","i6h":"Только если ты их включил","i6p":"Браузер выдаёт адрес доставки, игра хранит его вместе с языком и тихими часами. Выключил — запись убирается.","i7t":"Клан","i7h":"Сообщения в клановом чате","i7p":"Текст и номер того, кто написал. Видят только свои в клане.","i8t":"Покупки","i8h":"Движение денег на игровом счёте","i8p":"Что куплено, когда и на сколько. Самой оплаты игра не видит: ею занимается магазин приложений, и данные карты в игру не попадают никогда.","h2c":"Чего нет","n1":"<strong>Нет</strong> имени, фамилии, почты и номера телефона — игра их не спрашивает.","n2":"<strong>Нет</strong> доступа к контактам, галерее, звонкам и сообщениям.","n3":"<strong>Нет</strong> слежки в фоне. Пока игра закрыта, координаты не берутся вовсе.","n4":"<strong>Нет</strong> рекламных следилок и чужих счётчиков.","n5":"<strong>Нет</strong> продажи данных. Никому и никогда.","h2d":"Кому это видно","dp":"Игру держат несколько служб. Каждая видит только свой кусок.","th1":"Кто","th2":"Что видит","r1a":"Supabase","r1b":"Хранит базу игры: бункеры, пушки, бои, счета","r2a":"Vercel","r2b":"Отдаёт страницы игры; видит обычные записи веб-сервера","r3a":"OpenStreetMap","r3b":"Отдаёт плитки карты — а значит видит, какой клочок карты ты смотришь","r4a":"Google Play","r4b":"Проводит оплату. Игра получает только «оплачено», без данных карты","r5a":"Другие игроки","r5b":"Твои бункеры и пушки на карте, название земли, сообщения в клане","h2e":"Сколько это живёт","e1":"<b>Бункеры и пушки</b> — пока стоят. Снесённые остаются в истории боя.","e2":"<b>Метка «рядом»</b> — не дольше часа, потом стирается сама.","e3":"<b>Записи о боях и деньгах</b> — пока существует игрок; старые события убираются раз в сутки.","e4":"<b>Снимки</b> — в твоём телефоне, пока не удалишь игру или не почистишь её данные.","h2f":"Как всё убрать","f1":"<b>С телефона.</b> Удали игру или почисти данные сайта в браузере — исчезнут снимки, сохранённая карта и номер игрока.","f2":"<b>С сервера.</b> Напиши на почту ниже и добавь свой номер игрока — он виден в «Профиле». Уберём счёт, бункеры, пушки и все записи в течение тридцати дней и отпишем, когда сделаем.","f3":"<b>Уведомления</b> выключаются в самой игре, кнопкой в «Профиле».","h2g":"Дети","gp":"Игра не для детей. Она о том, чтобы ходить по городу ногами и платить настоящие деньги за предметы, так что подходит людям от шестнадцати. Сознательно данные детей мы не собираем; если окажется, что учётную запись завёл подросток младше, она будет удалена.","h2h":"Если что-то изменится","hp":"Когда изменится то, что игра собирает, здесь появится новая дата вверху, а в самой игре — сообщение. Молча переписывать эту страницу мы не будем.","ft1":"Вопросы о данных и удалении:","ft2":"об игре","ft3":"открыть игру"},"pl":{"title":"Gate Territory — co gra o tobie wie","desc":"Polityka prywatności Gate Territory: jakie dane gra zbiera, po co, komu je przekazuje i jak wszystko usunąć.","back":"← Gate Territory","h1":"Co gra o tobie wie","sub":"To gra o tym, gdzie stoisz. Bez lokalizacji nie działa wcale — dlatego uczciwie mówimy, co dokładnie jest pobierane, po co i co się z tym dzieje dalej.","when":"Obowiązuje od 12 września 2026 · Gate Territory · OpenGate","h2a":"Krótko","lead":"Gra pobiera współrzędne tam, gdzie sam coś robisz: stawiasz punkt, stawiasz działo, prowadzisz bitwę. O imię, telefon i e-mail nie pyta w ogóle.","p2":"Zdjęcie, które robisz przy stawianiu bunkra, <strong>zostaje w telefonie</strong>. Na serwer idzie tylko jego odcisk — ciąg 64 znaków, z którego obrazu nie da się odtworzyć. To nie obietnica na słowo: w bazie jest teraz pięćdziesiąt punktów i ani jednego zdjęcia.","h2b":"Co jest zbierane","i1t":"Dokładne współrzędne","i1h":"Gdy sam coś stawiasz","i1p":"Współrzędne bunkra i działa są przechowywane na stałe i widzą je wszyscy na mapie — na tym polega gra. Podczas bitwy współrzędne są przekazywane, dopóki walka trwa, żeby działa punktu mogły odpowiadać ogniem.","i2t":"Przybliżone współrzędne","i2h":"Licznik „graczy w pobliżu”","i2p":"Raz na dziesięć minut idzie zaokrąglony punkt — do trzech miejsc po przecinku, czyli około stu dziesięciu metrów. Żyje nie dłużej niż godzinę i kasuje się sam. Dokładnego miejsca ten znacznik nie przechowuje nigdy.","i3t":"Numer gracza","i3h":"Ciąg 0x… i nic więcej","i3p":"Gra tworzy losowy numer w samym telefonie. To nie imię, nie e-mail i nie telefon — po prostu znacznik, żeby wiedzieć, czyje to bunkry.","i4t":"Odcisk zdjęcia","i4h":"Samo zdjęcie nigdzie nie idzie","i4p":"Fotografia leży w pamięci telefonu, w schowku gry. Na serwer idzie tylko odcisk — żeby tego samego zdjęcia nie dało się podstawić dla dwóch różnych punktów.","i5t":"Dane o telefonie","i5h":"Przeciw podrobionym współrzędnym","i5p":"W chwili stawiania punktu zapisywane są: nazwa przeglądarki (pierwsze 120 znaków), język, liczba rdzeni, ilość pamięci, prędkość ruchu i kroki. Tylko po to, żeby odróżnić człowieka, który naprawdę doszedł, od podrobionego GPS-u.","i6t":"Powiadomienia","i6h":"Tylko jeśli je włączyłeś","i6p":"Przeglądarka wydaje adres doręczenia, gra przechowuje go razem z językiem i godzinami ciszy. Wyłączyłeś — wpis znika.","i7t":"Klan","i7h":"Wiadomości na czacie klanu","i7p":"Treść i numer tego, kto napisał. Widzą tylko swoi w klanie.","i8t":"Zakupy","i8h":"Ruch pieniędzy na koncie w grze","i8p":"Co kupione, kiedy i za ile. Samej płatności gra nie widzi: zajmuje się nią sklep z aplikacjami, a dane karty do gry nie trafiają nigdy.","h2c":"Czego nie ma","n1":"<strong>Nie ma</strong> imienia, nazwiska, e-maila ani numeru telefonu — gra o nie nie pyta.","n2":"<strong>Nie ma</strong> dostępu do kontaktów, galerii, połączeń i wiadomości.","n3":"<strong>Nie ma</strong> śledzenia w tle. Dopóki gra jest zamknięta, współrzędne nie są pobierane wcale.","n4":"<strong>Nie ma</strong> reklamowych śledzików ani obcych liczników.","n5":"<strong>Nie ma</strong> sprzedaży danych. Nikomu i nigdy.","h2d":"Kto to widzi","dp":"Grę utrzymuje kilka usług. Każda widzi tylko swój kawałek.","th1":"Kto","th2":"Co widzi","r1a":"Supabase","r1b":"Przechowuje bazę gry: bunkry, działa, bitwy, konta","r2a":"Vercel","r2b":"Wydaje strony gry; widzi zwykłe zapisy serwera WWW","r3a":"OpenStreetMap","r3b":"Wydaje kafelki mapy — a więc widzi, na który skrawek mapy patrzysz","r4a":"Google Play","r4b":"Przeprowadza płatność. Gra dostaje tylko „zapłacone”, bez danych karty","r5a":"Inni gracze","r5b":"Twoje bunkry i działa na mapie, nazwę ziemi, wiadomości w klanie","h2e":"Jak długo to żyje","e1":"<b>Bunkry i działa</b> — dopóki stoją. Zburzone zostają w historii bitew.","e2":"<b>Znacznik „w pobliżu”</b> — nie dłużej niż godzinę, potem kasuje się sam.","e3":"<b>Zapisy o bitwach i pieniądzach</b> — dopóki istnieje gracz; stare zdarzenia są sprzątane raz na dobę.","e4":"<b>Zdjęcia</b> — w twoim telefonie, dopóki nie usuniesz gry albo nie wyczyścisz jej danych.","h2f":"Jak wszystko usunąć","f1":"<b>Z telefonu.</b> Usuń grę albo wyczyść dane strony w przeglądarce — znikną zdjęcia, zapisana mapa i numer gracza.","f2":"<b>Z serwera.</b> Napisz na adres poniżej i dodaj swój numer gracza — widać go w „Profilu”. Usuniemy konto, bunkry, działa i wszystkie zapisy w ciągu trzydziestu dni i odpiszemy, gdy będzie zrobione.","f3":"<b>Powiadomienia</b> wyłącza się w samej grze, przyciskiem w „Profilu”.","h2g":"Dzieci","gp":"Gra nie jest dla dzieci. Chodzi w niej o to, żeby chodzić po mieście własnymi nogami i płacić prawdziwe pieniądze za przedmioty, więc nadaje się dla osób od szesnastu lat. Świadomie danych dzieci nie zbieramy; jeśli okaże się, że konto założył ktoś młodszy, zostanie ono usunięte.","h2h":"Jeśli coś się zmieni","hp":"Gdy zmieni się to, co gra zbiera, na górze pojawi się nowa data, a w samej grze — komunikat. Po cichu tej strony przepisywać nie będziemy.","ft1":"Pytania o dane i usunięcie:","ft2":"o grze","ft3":"otwórz grę"},"de":{"title":"Gate Territory — was das Spiel über dich weiß","desc":"Datenschutzerklärung von Gate Territory: welche Daten das Spiel erhebt, wozu, wer sie sonst sieht und wie man alles löschen lässt.","back":"← Gate Territory","h1":"Was das Spiel über dich weiß","sub":"Das ist ein Spiel darüber, wo du stehst. Ohne Standort funktioniert es überhaupt nicht — deshalb sagen wir ehrlich, was genau genommen wird, wozu und was damit weiter geschieht.","when":"Gültig ab 12. September 2026 · Gate Territory · OpenGate","h2a":"Kurz gesagt","lead":"Das Spiel nimmt deine Koordinaten dort, wo du selbst etwas tust: einen Punkt setzen, ein Geschütz aufstellen, einen Kampf führen. Nach Name, Telefonnummer und E-Mail fragt es überhaupt nicht.","p2":"Das Foto, das du beim Setzen eines Bunkers machst, <strong>bleibt auf dem Handy</strong>. Zum Server geht nur sein Fingerabdruck — eine Zeichenkette aus 64 Zeichen, aus der sich das Bild nicht wiederherstellen lässt. Das ist kein Versprechen auf dem Papier: in der Datenbank liegen gerade fünfzig Punkte und kein einziges Foto.","h2b":"Was erhoben wird","i1t":"Genaue Koordinaten","i1h":"Wenn du selbst etwas setzt","i1p":"Die Koordinaten eines Bunkers und eines Geschützes werden dauerhaft gespeichert und sind für alle auf der Karte sichtbar — darin besteht das Spiel. Während eines Kampfes werden die Koordinaten übertragen, solange der Kampf läuft, damit die Geschütze des Punktes zurückschießen können.","i2t":"Ungefähre Koordinaten","i2h":"Der Zähler „Spieler in der Nähe“","i2p":"Alle zehn Minuten geht ein gerundeter Punkt hinaus — auf drei Nachkommastellen, das sind etwa hundertzehn Meter. Er lebt nicht länger als eine Stunde und löscht sich selbst. Den genauen Ort speichert diese Marke nie.","i3t":"Spielernummer","i3h":"Eine Zeichenkette 0x… und sonst nichts","i3p":"Das Spiel erzeugt eine zufällige Nummer auf dem Handy selbst. Das ist kein Name, keine E-Mail und keine Telefonnummer — nur eine Marke, damit klar ist, wessen Bunker das sind.","i4t":"Fingerabdruck des Fotos","i4h":"Das Foto selbst geht nirgendwohin","i4p":"Das Bild liegt im Speicher des Handys, im Ablageort des Spiels. Zum Server geht nur der Fingerabdruck — damit dasselbe Foto nicht für zwei verschiedene Punkte untergeschoben werden kann.","i5t":"Angaben zum Handy","i5h":"Gegen gefälschte Koordinaten","i5p":"Im Moment des Setzens wird festgehalten: Browsername (die ersten 120 Zeichen), Sprache, Anzahl der Kerne, Größe des Speichers, Bewegungsgeschwindigkeit und Schritte. Nur um einen Menschen, der wirklich hingelaufen ist, von einem gefälschten GPS zu unterscheiden.","i6t":"Benachrichtigungen","i6h":"Nur wenn du sie eingeschaltet hast","i6p":"Der Browser gibt eine Zustelladresse aus, das Spiel bewahrt sie zusammen mit Sprache und Ruhezeiten auf. Schaltest du sie ab, wird der Eintrag entfernt.","i7t":"Clan","i7h":"Nachrichten im Clan-Chat","i7p":"Der Text und die Nummer dessen, der geschrieben hat. Sichtbar nur für die eigenen Leute im Clan.","i8t":"Käufe","i8h":"Geldbewegungen auf dem Spielkonto","i8p":"Was gekauft wurde, wann und für wie viel. Die Zahlung selbst sieht das Spiel nicht: darum kümmert sich der App-Store, und Kartendaten gelangen nie ins Spiel.","h2c":"Was es nicht gibt","n1":"<strong>Kein</strong> Vorname, kein Nachname, keine E-Mail, keine Telefonnummer — das Spiel fragt nicht danach.","n2":"<strong>Kein</strong> Zugriff auf Kontakte, Galerie, Anrufe und Nachrichten.","n3":"<strong>Keine</strong> Verfolgung im Hintergrund. Solange das Spiel geschlossen ist, werden überhaupt keine Koordinaten genommen.","n4":"<strong>Keine</strong> Werbe-Tracker und keine fremden Zähler.","n5":"<strong>Kein</strong> Verkauf von Daten. An niemanden und niemals.","h2d":"Wer das sieht","dp":"Das Spiel wird von mehreren Diensten getragen. Jeder sieht nur sein eigenes Stück.","th1":"Wer","th2":"Was er sieht","r1a":"Supabase","r1b":"Speichert die Spieldatenbank: Bunker, Geschütze, Kämpfe, Konten","r2a":"Vercel","r2b":"Liefert die Seiten des Spiels aus; sieht gewöhnliche Webserver-Einträge","r3a":"OpenStreetMap","r3b":"Liefert die Kartenkacheln — sieht also, welchen Kartenausschnitt du betrachtest","r4a":"Google Play","r4b":"Wickelt die Zahlung ab. Das Spiel erhält nur „bezahlt“, ohne Kartendaten","r5a":"Andere Spieler","r5b":"Deine Bunker und Geschütze auf der Karte, den Namen des Landes, Nachrichten im Clan","h2e":"Wie lange das lebt","e1":"<b>Bunker und Geschütze</b> — solange sie stehen. Zerstörte bleiben in der Kampfgeschichte.","e2":"<b>Die Marke „in der Nähe“</b> — nicht länger als eine Stunde, dann löscht sie sich selbst.","e3":"<b>Einträge über Kämpfe und Geld</b> — solange der Spieler existiert; alte Ereignisse werden einmal täglich aufgeräumt.","e4":"<b>Fotos</b> — auf deinem Handy, bis du das Spiel löschst oder seine Daten bereinigst.","h2f":"Wie man alles entfernt","f1":"<b>Vom Handy.</b> Lösche das Spiel oder bereinige die Website-Daten im Browser — Fotos, gespeicherte Karte und Spielernummer verschwinden.","f2":"<b>Vom Server.</b> Schreib an die Adresse unten und nenne deine Spielernummer — sie steht im „Profil“. Wir entfernen Konto, Bunker, Geschütze und alle Einträge binnen dreißig Tagen und schreiben zurück, wenn es erledigt ist.","f3":"<b>Benachrichtigungen</b> schaltet man im Spiel selbst ab, mit der Taste im „Profil“.","h2g":"Kinder","gp":"Das Spiel ist nichts für Kinder. Es geht darum, mit den eigenen Füßen durch die Stadt zu laufen und echtes Geld für Gegenstände zu zahlen, also passt es für Menschen ab sechzehn. Wissentlich erheben wir keine Daten von Kindern; stellt sich heraus, dass ein Konto jemandem Jüngeren gehört, wird es gelöscht.","h2h":"Wenn sich etwas ändert","hp":"Ändert sich, was das Spiel erhebt, erscheint hier oben ein neues Datum und im Spiel selbst eine Mitteilung. Still und heimlich schreiben wir diese Seite nicht um.","ft1":"Fragen zu Daten und Löschung:","ft2":"über das Spiel","ft3":"Spiel öffnen"},"es":{"title":"Gate Territory — qué sabe el juego sobre ti","desc":"Política de privacidad de Gate Territory: qué datos recoge el juego, para qué, quién más los ve y cómo borrarlo todo.","back":"← Gate Territory","h1":"Qué sabe el juego sobre ti","sub":"Este es un juego sobre dónde estás parado. Sin la ubicación no funciona en absoluto, así que te contamos con honestidad qué se toma exactamente, para qué y qué pasa después con ello.","when":"En vigor desde el 12 de septiembre de 2026 · Gate Territory · OpenGate","h2a":"En resumen","lead":"El juego toma tus coordenadas allí donde tú mismo haces algo: plantas un punto, colocas un cañón, libras un combate. Nombre, teléfono y correo no los pide en absoluto.","p2":"La foto que haces al plantar un búnker <strong>se queda en el teléfono</strong>. Al servidor solo va su huella: una cadena de 64 caracteres de la que no se puede reconstruir la imagen. No es una promesa de palabra: en la base de datos hay ahora cincuenta puntos y ni una sola foto.","h2b":"Qué se recoge","i1t":"Coordenadas exactas","i1h":"Cuando tú mismo plantas algo","i1p":"Las coordenadas de un búnker y de un cañón se guardan para siempre y las ve todo el mundo en el mapa: en eso consiste el juego. Durante un combate las coordenadas se transmiten mientras dura la pelea, para que los cañones del punto puedan responder al fuego.","i2t":"Coordenadas aproximadas","i2h":"El contador de «jugadores cerca»","i2p":"Cada diez minutos sale un punto redondeado, a tres decimales, unos ciento diez metros. Vive no más de una hora y se borra solo. Esta marca nunca guarda el lugar exacto.","i3t":"Número de jugador","i3h":"Una cadena 0x… y nada más","i3p":"El juego crea un número al azar en el propio teléfono. No es un nombre, ni un correo, ni un teléfono: solo una marca para saber de quién son los búnkeres.","i4t":"Huella de la foto","i4h":"La foto en sí no va a ninguna parte","i4p":"La imagen queda en la memoria del teléfono, en el almacén del juego. Al servidor solo va la huella, para que una misma foto no pueda colarse en dos puntos distintos.","i5t":"Datos del teléfono","i5h":"Contra las coordenadas falsificadas","i5p":"En el momento de plantar un punto se anota: el nombre del navegador (los primeros 120 caracteres), el idioma, el número de núcleos, la cantidad de memoria, la velocidad de movimiento y los pasos. Solo para distinguir a una persona que de verdad llegó andando de un GPS falsificado.","i6t":"Avisos","i6h":"Solo si los has activado","i6p":"El navegador entrega una dirección de envío y el juego la guarda junto con el idioma y las horas de silencio. Si los apagas, el registro se elimina.","i7t":"Clan","i7h":"Mensajes en el chat del clan","i7p":"El texto y el número de quien escribió. Solo los ven los del propio clan.","i8t":"Compras","i8h":"Movimiento de dinero en la cuenta del juego","i8p":"Qué se compró, cuándo y por cuánto. El pago en sí el juego no lo ve: de eso se encarga la tienda de aplicaciones, y los datos de la tarjeta nunca llegan al juego.","h2c":"Qué no hay","n1":"<strong>No hay</strong> nombre, apellidos, correo ni número de teléfono: el juego no los pide.","n2":"<strong>No hay</strong> acceso a contactos, galería, llamadas ni mensajes.","n3":"<strong>No hay</strong> seguimiento en segundo plano. Mientras el juego está cerrado no se toman coordenadas en absoluto.","n4":"<strong>No hay</strong> rastreadores publicitarios ni contadores ajenos.","n5":"<strong>No hay</strong> venta de datos. A nadie y nunca.","h2d":"Quién lo ve","dp":"Varios servicios sostienen el juego. Cada uno ve solo su trozo.","th1":"Quién","th2":"Qué ve","r1a":"Supabase","r1b":"Guarda la base del juego: búnkeres, cañones, combates, cuentas","r2a":"Vercel","r2b":"Sirve las páginas del juego; ve los registros normales de un servidor web","r3a":"OpenStreetMap","r3b":"Sirve las teselas del mapa, así que ve qué trozo de mapa estás mirando","r4a":"Google Play","r4b":"Realiza el pago. El juego recibe solo «pagado», sin datos de la tarjeta","r5a":"Otros jugadores","r5b":"Tus búnkeres y cañones en el mapa, el nombre de la tierra, los mensajes del clan","h2e":"Cuánto vive esto","e1":"<b>Búnkeres y cañones</b>: mientras siguen en pie. Los derribados quedan en el historial de combate.","e2":"<b>La marca de «cerca»</b>: no más de una hora, luego se borra sola.","e3":"<b>Los registros de combates y dinero</b>: mientras exista el jugador; los sucesos viejos se limpian una vez al día.","e4":"<b>Las fotos</b>: en tu teléfono, hasta que borres el juego o limpies sus datos.","h2f":"Cómo quitarlo todo","f1":"<b>Del teléfono.</b> Borra el juego o limpia los datos del sitio en el navegador: desaparecen las fotos, el mapa guardado y el número de jugador.","f2":"<b>Del servidor.</b> Escribe al correo de abajo e incluye tu número de jugador: se ve en «Perfil». Quitaremos la cuenta, los búnkeres, los cañones y todos los registros en un plazo de treinta días y te responderemos cuando esté hecho.","f3":"<b>Los avisos</b> se apagan dentro del propio juego, con el botón de «Perfil».","h2g":"Menores","gp":"El juego no es para niños. Va de recorrer la ciudad con los propios pies y pagar dinero real por objetos, así que es apto para personas a partir de dieciséis años. No recogemos datos de menores a sabiendas; si resulta que una cuenta pertenece a alguien más joven, será eliminada.","h2h":"Si algo cambia","hp":"Cuando cambie lo que el juego recoge, arriba aparecerá una fecha nueva y dentro del juego, un aviso. No reescribiremos esta página en silencio.","ft1":"Preguntas sobre datos y borrado:","ft2":"sobre el juego","ft3":"abrir el juego"},"tr":{"title":"Gate Territory — oyun senin hakkında ne biliyor","desc":"Gate Territory gizlilik politikası: oyun hangi verileri topluyor, ne için, kime veriyor ve hepsi nasıl silinir.","back":"← Gate Territory","h1":"Oyun senin hakkında ne biliyor","sub":"Bu, nerede durduğunla ilgili bir oyun. Konum olmadan hiç çalışmaz — o yüzden tam olarak neyin alındığını, ne için alındığını ve sonra ne olduğunu dürüstçe anlatıyoruz.","when":"12 Eylül 2026 tarihinden itibaren geçerli · Gate Territory · OpenGate","h2a":"Kısaca","lead":"Oyun, senin kendi elinle bir şey yaptığın yerde koordinat alır: nokta koyarsın, top kurarsın, savaş yürütürsün. İsim, telefon ve e-posta hiç sormaz.","p2":"Sığınak kurarken çektiğin fotoğraf <strong>telefonda kalır</strong>. Sunucuya yalnızca izi gider — 64 karakterlik bir dizi, ondan resim geri getirilemez. Bu sözde bir vaat değil: veritabanında şu an elli nokta var ve tek bir fotoğraf yok.","h2b":"Ne toplanıyor","i1t":"Kesin koordinatlar","i1h":"Kendin bir şey kurduğunda","i1p":"Sığınağın ve topun koordinatları kalıcı olarak saklanır ve haritada herkes görür — oyunun özü budur. Savaş sırasında koordinatlar, çatışma sürdüğü sürece iletilir ki noktanın topları karşılık verebilsin.","i2t":"Yaklaşık koordinatlar","i2h":"«Yakındaki oyuncular» sayacı","i2p":"On dakikada bir yuvarlanmış bir nokta gider — virgülden sonra üç basamak, yaklaşık yüz on metre. Bir saatten uzun yaşamaz ve kendiliğinden silinir. Bu işaret kesin yeri asla saklamaz.","i3t":"Oyuncu numarası","i3h":"0x… dizisi ve başka hiçbir şey","i3p":"Oyun rastgele bir numarayı telefonun kendisinde oluşturur. Bu bir isim, e-posta ya da telefon değil — sadece sığınakların kime ait olduğunu bilmek için bir işaret.","i4t":"Fotoğrafın izi","i4h":"Fotoğrafın kendisi hiçbir yere gitmez","i4p":"Resim telefonun belleğinde, oyunun kendi deposunda durur. Sunucuya yalnızca iz gider — aynı fotoğraf iki ayrı nokta için sürülemesin diye.","i5t":"Telefon bilgileri","i5h":"Sahte koordinatlara karşı","i5p":"Nokta kurulduğu anda şunlar kaydedilir: tarayıcı adı (ilk 120 karakter), dil, çekirdek sayısı, bellek miktarı, hareket hızı ve adımlar. Yalnızca oraya gerçekten yürüyen insanı sahte GPS'ten ayırmak için.","i6t":"Bildirimler","i6h":"Yalnızca sen açtıysan","i6p":"Tarayıcı bir teslim adresi verir, oyun bunu dil ve sessiz saatlerle birlikte saklar. Kapattığında kayıt silinir.","i7t":"Klan","i7h":"Klan sohbetindeki mesajlar","i7p":"Metin ve yazanın numarası. Yalnızca klandakiler görür.","i8t":"Satın almalar","i8h":"Oyun hesabındaki para hareketi","i8p":"Ne alındı, ne zaman ve ne kadara. Ödemenin kendisini oyun görmez: onunla uygulama mağazası ilgilenir ve kart bilgileri oyuna asla ulaşmaz.","h2c":"Ne yok","n1":"Ad, soyad, e-posta ve telefon numarası <strong>yok</strong> — oyun bunları sormuyor.","n2":"Rehbere, galeriye, aramalara ve mesajlara erişim <strong>yok</strong>.","n3":"Arka planda izleme <strong>yok</strong>. Oyun kapalıyken koordinat hiç alınmaz.","n4":"Reklam izleyicileri ve yabancı sayaçlar <strong>yok</strong>.","n5":"Veri satışı <strong>yok</strong>. Kimseye ve asla.","h2d":"Bunu kim görüyor","dp":"Oyunu birkaç hizmet ayakta tutuyor. Her biri yalnızca kendi parçasını görür.","th1":"Kim","th2":"Ne görüyor","r1a":"Supabase","r1b":"Oyun veritabanını tutar: sığınaklar, toplar, savaşlar, hesaplar","r2a":"Vercel","r2b":"Oyunun sayfalarını dağıtır; sıradan web sunucusu kayıtlarını görür","r3a":"OpenStreetMap","r3b":"Harita karolarını verir — yani haritanın hangi parçasına baktığını görür","r4a":"Google Play","r4b":"Ödemeyi yürütür. Oyun yalnızca «ödendi» bilgisini alır, kart bilgisi olmadan","r5a":"Diğer oyuncular","r5b":"Haritadaki sığınakların ve topların, toprağın adı, klandaki mesajların","h2e":"Bunlar ne kadar yaşıyor","e1":"<b>Sığınaklar ve toplar</b> — ayakta durdukları sürece. Yıkılanlar savaş geçmişinde kalır.","e2":"<b>«Yakında» işareti</b> — bir saatten uzun değil, sonra kendiliğinden silinir.","e3":"<b>Savaş ve para kayıtları</b> — oyuncu var oldukça; eski olaylar günde bir kez temizlenir.","e4":"<b>Fotoğraflar</b> — oyunu silene ya da verilerini temizleyene kadar senin telefonunda.","h2f":"Her şey nasıl silinir","f1":"<b>Telefondan.</b> Oyunu sil ya da tarayıcıda site verilerini temizle — fotoğraflar, kayıtlı harita ve oyuncu numarası gider.","f2":"<b>Sunucudan.</b> Aşağıdaki adrese yaz ve oyuncu numaranı ekle — «Profil»de görünür. Hesabı, sığınakları, topları ve bütün kayıtları otuz gün içinde sileriz ve bittiğinde sana yazarız.","f3":"<b>Bildirimler</b> oyunun içinden, «Profil»deki düğmeyle kapatılır.","h2g":"Çocuklar","gp":"Oyun çocuklar için değil. Şehirde kendi ayaklarınla yürümek ve eşyalar için gerçek para ödemek üzerine, dolayısıyla on altı yaşından büyükler için uygun. Bilerek çocuk verisi toplamıyoruz; bir hesabın daha küçük birine ait olduğu ortaya çıkarsa, o hesap silinir.","h2h":"Bir şey değişirse","hp":"Oyunun topladıkları değişirse yukarıda yeni bir tarih, oyunun içinde de bir bildirim görünür. Bu sayfayı sessizce yeniden yazmayacağız.","ft1":"Veri ve silme hakkında sorular:","ft2":"oyun hakkında","ft3":"oyunu aç"},"zh":{"title":"Gate Territory — 游戏知道你的什么","desc":"Gate Territory 隐私政策：游戏收集哪些数据、为什么收集、交给谁，以及如何全部删除。","back":"← Gate Territory","h1":"游戏知道你的什么","sub":"这是一款关于你站在哪里的游戏。没有位置它完全无法运行——所以我们如实说明：究竟取走了什么、为什么取，以及之后会怎样。","when":"自 2026 年 9 月 12 日起生效 · Gate Territory · OpenGate","h2a":"简单地说","lead":"只有在你亲手做事的地方，游戏才取坐标：放下一个点、架一门炮、打一场仗。姓名、电话和邮箱它根本不问。","p2":"你在建造地堡时拍的照片<strong>留在手机里</strong>。送到服务器的只有它的指纹——一串 64 个字符，无法由此还原出图片。这不是口头承诺：数据库里现在有五十个点，一张照片也没有。","h2b":"收集什么","i1t":"精确坐标","i1h":"当你亲手放置时","i1p":"地堡和火炮的坐标会永久保存，并且地图上人人可见——游戏的意义正在于此。战斗进行期间会传送坐标，好让据点的火炮能够还击。","i2t":"大致坐标","i2h":"“附近的玩家”计数","i2p":"每十分钟发送一个取整后的点——保留小数点后三位，大约一百一十米。它存活不超过一小时，然后自行清除。这个标记从不保存确切位置。","i3t":"玩家编号","i3h":"一串 0x… 此外别无他物","i3p":"游戏在手机本机上生成一个随机编号。它不是姓名、不是邮箱、也不是电话——只是一个标记，用来知道地堡是谁的。","i4t":"照片指纹","i4h":"照片本身哪儿也不去","i4p":"图片存在手机的内存里，在游戏自己的存储中。送到服务器的只有指纹——这样同一张照片就不能被拿去顶两个不同的点。","i5t":"手机信息","i5h":"用来对付伪造坐标","i5p":"放置据点的那一刻会记下：浏览器名称（前 120 个字符）、语言、核心数、内存大小、移动速度和步数。仅仅用来区分真的走到那里的人和伪造的 GPS。","i6t":"通知","i6h":"只有你开启了才会有","i6p":"浏览器会给出一个投递地址，游戏把它和语言、免打扰时段一起保存。关掉之后，这条记录就被清除。","i7t":"战团","i7h":"战团聊天中的消息","i7p":"文字和发言者的编号。只有自己战团里的人看得到。","i8t":"购买","i8h":"游戏账户上的资金往来","i8p":"买了什么、什么时候、花了多少。付款本身游戏看不到：那由应用商店处理，银行卡信息永远不会进入游戏。","h2c":"没有什么","n1":"<strong>没有</strong>姓名、姓氏、邮箱和电话号码——游戏不会问。","n2":"<strong>没有</strong>对通讯录、相册、通话和短信的访问权限。","n3":"<strong>没有</strong>后台跟踪。游戏关闭期间完全不取坐标。","n4":"<strong>没有</strong>广告跟踪器和第三方计数器。","n5":"<strong>没有</strong>数据买卖。给谁都不卖，永远不卖。","h2d":"谁能看到","dp":"游戏靠几项服务撑着。每一项只看到属于自己的那一块。","th1":"谁","th2":"看到什么","r1a":"Supabase","r1b":"保存游戏数据库：地堡、火炮、战斗、账户","r2a":"Vercel","r2b":"分发游戏页面；看到普通的网站服务器记录","r3a":"OpenStreetMap","r3b":"提供地图瓦片——因而看得到你正在看地图的哪一块","r4a":"Google Play","r4b":"处理付款。游戏只收到“已付款”，不含银行卡信息","r5a":"其他玩家","r5b":"地图上你的地堡和火炮、土地的名字、战团里的消息","h2e":"这些能存多久","e1":"<b>地堡和火炮</b>——只要还立着。被拆掉的会留在战斗记录里。","e2":"<b>“附近”标记</b>——不超过一小时，之后自行清除。","e3":"<b>战斗和资金记录</b>——只要玩家还在；旧的事件每天清理一次。","e4":"<b>照片</b>——留在你的手机里，直到你删除游戏或清除它的数据。","h2f":"怎样全部清除","f1":"<b>从手机上。</b>删除游戏，或在浏览器里清除本站数据——照片、保存的地图和玩家编号都会消失。","f2":"<b>从服务器上。</b>写信到下面的邮箱，并附上你的玩家编号——它显示在“个人资料”里。我们会在三十天内清除账户、地堡、火炮和全部记录，完成后回信告知。","f3":"<b>通知</b>在游戏内关闭，用“个人资料”里的按钮。","h2g":"儿童","gp":"这款游戏不适合儿童。它讲的是用自己的双脚走遍城市、用真钱购买物品，因此适合十六岁以上的人。我们不会有意收集儿童数据；如果发现某个账户属于更小的人，该账户将被删除。","h2h":"如果有所变动","hp":"当游戏收集的内容发生变化时，本页顶部会出现新的日期，游戏内也会有提示。我们不会悄悄改写这个页面。","ft1":"关于数据和删除的问题：","ft2":"关于游戏","ft3":"打开游戏"}};
+
+var lang = 'en';
+function pickLang(){
+  var saved = null;
+  try{ saved = localStorage.getItem('ogt-site-lang'); }catch(e){}
+  if(saved && L[saved]) return saved;
+  var list = (navigator.languages && navigator.languages.length)
+             ? navigator.languages : [navigator.language || 'en'];
+  for(var i = 0; i < list.length; i++){
+    var c = String(list[i] || '').slice(0,2).toLowerCase();
+    if(L[c]) return c;
+  }
+  return 'en';
+}
+
+function paint(){
+  var d = L[lang] || L.en;
+  document.documentElement.lang = lang;
+  document.title = d.title;
+  var m = document.querySelector('meta[name="description"]');
+  if(m) m.setAttribute('content', d.desc);
+  var nodes = document.querySelectorAll('[data-t]');
+  for(var i = 0; i < nodes.length; i++){
+    var el = nodes[i], k = el.getAttribute('data-t');
+    var v = d[k] !== undefined ? d[k] : L.en[k];
+    if(v === undefined) continue;
+    if(el.getAttribute('data-html')) el.innerHTML = v;
+    else el.textContent = v;
+  }
+  var sel = document.getElementById('lang');
+  if(sel) sel.value = lang;
+}
+
+lang = pickLang();
+paint();
+
+document.getElementById('lang').addEventListener('change', function(e){
+  lang = e.target.value;
+  try{ localStorage.setItem('ogt-site-lang', lang); }catch(_){}
+  paint();
+});
+</script>
 </body>
 </html>
