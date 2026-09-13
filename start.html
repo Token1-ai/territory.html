@@ -194,6 +194,13 @@ p:last-child{margin-bottom:0;}
 .how li:last-child{margin-bottom:0;}
 @media (min-width:620px){ .how{grid-template-columns:1fr 1fr;} }
 
+/* ── кнопка на политику ──────────────────────────────── */
+.privacy-lead{color:var(--soft);font-size:15.5px;margin-bottom:16px;}
+.privacy-btn{
+  border-color:var(--gold-dim);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+
 /* ── о чём игра ──────────────────────────────────────── */
 .about p{font-size:17px;}
 .about .lead{font-size:18.5px;font-weight:500;color:var(--ink);}
@@ -328,10 +335,15 @@ footer p{margin:0 0 8px;max-width:none;}
   </div>
 </section>
 
+<section>
+  <h2>Дані</h2>
+  <p class="privacy-lead">Гра бере твоє місцезнаходження — без нього вона не працює зовсім. Ось що саме береться, навіщо, кому видно й як усе прибрати.</p>
+  <a class="btn ghost privacy-btn" href="privacy.html">Що гра знає про тебе →</a>
+</section>
+
 <footer>
-  <p>Грі потрібне точне місцезнаходження — без нього вона не працює зовсім: уся гра про те, де ти стоїш.</p>
   <p class="warn">Дивись під ноги, а не в телефон. Не грай за кермом.</p>
-  <p>Gate Territory · OpenGate · <a href="privacy.html">що гра знає про тебе</a> · <a href="index.html">відкрити гру</a></p>
+  <p>Gate Territory · OpenGate · <a href="index.html">відкрити гру</a></p>
 </footer>
 
 </div>
