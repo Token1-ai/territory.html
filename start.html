@@ -10,7 +10,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta property="og:title" content="Gate Territory">
-<meta property="og:description" content="Захопи землю, на якій стоїш. Став бункери, тримай місто.">
+<meta property="og:description" content="Захопи землю, на якій стоїш. Постав бункер, тримай місто.">
 <meta property="og:image" content="share-1200x630.jpg">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,14 +20,11 @@
 :root{
   --ground:#0B0D07;
   --panel:#14170E;
-  --panel-2:#1B1F14;
   --ink:#EDEBDE;
   --soft:#8E9179;
   --faint:#63664F;
   --gold:#E0A32E;
   --gold-dim:#8A6415;
-  --rust:#B23A2E;
-  --moss:#7E9B6E;
   --line:#262A1A;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
@@ -48,15 +45,26 @@ body{
 .wrap{max-width:760px;margin:0 auto;}
 a{color:var(--gold);}
 
+/* ── выбор языка ─────────────────────────────────────── */
+.lang{
+  display:flex;justify-content:flex-end;
+  padding-block:14px 0;margin-bottom:-6px;
+}
+.lang select{
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  color:var(--ink);background:var(--panel);
+  border:1px solid var(--line);border-radius:9px;
+  padding:8px 30px 8px 12px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23E0A32E' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;
+}
+.lang select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
 /* ── шапка ───────────────────────────────────────────── */
-.hero{padding-block:40px 0;}
-.badge{
-  display:flex;gap:16px;align-items:center;margin-bottom:22px;
-}
-.badge img{
-  width:82px;height:82px;flex:none;border-radius:18px;
-  background:#000;
-}
+.hero{padding-block:26px 0;}
+.badge{display:flex;gap:16px;align-items:center;margin-bottom:22px;}
+.badge img{width:82px;height:82px;flex:none;border-radius:18px;background:#000;}
 .badge h1{
   font-family:'Archivo',system-ui,sans-serif;
   font-weight:800;font-size:clamp(26px,6.4vw,38px);
@@ -67,22 +75,17 @@ a{color:var(--gold);}
   font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;
   text-transform:uppercase;color:var(--gold);margin:0;
 }
-.pitch{
-  font-size:19.5px;line-height:1.45;margin:0 0 26px;max-width:30ch;
-  font-weight:500;
-}
+.pitch{font-size:19.5px;line-height:1.45;margin:0 0 26px;max-width:32ch;font-weight:500;}
 .pitch b{color:var(--gold);font-weight:600;}
 
-/* ── кнопка ──────────────────────────────────────────── */
+/* ── кнопки ──────────────────────────────────────────── */
 .get{display:grid;gap:10px;margin-bottom:14px;}
 .btn{
   font-family:'Archivo',system-ui,sans-serif;
   font-weight:700;font-size:17px;letter-spacing:.01em;
-  border:none;border-radius:12px;
-  padding:17px 20px;width:100%;
+  border:none;border-radius:12px;padding:17px 20px;width:100%;
   background:var(--gold);color:#100D03;
-  cursor:pointer;text-align:center;text-decoration:none;
-  display:block;
+  cursor:pointer;text-align:center;text-decoration:none;display:block;
 }
 .btn:active{transform:translateY(1px);}
 .btn.ghost{
@@ -90,55 +93,35 @@ a{color:var(--gold);}
   border:1px solid var(--line);font-weight:600;font-size:15.5px;padding:14px 20px;
 }
 .btn:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
-.getnote{
-  font-family:var(--mono);font-size:12px;line-height:1.5;
-  color:var(--soft);margin:0 0 30px;
-}
+.getnote{font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--soft);margin:0 0 30px;}
 
 /* ── полоска фактов ──────────────────────────────────── */
 .facts{
-  display:flex;flex-wrap:wrap;gap:0;
+  display:flex;flex-wrap:wrap;
   border:1px solid var(--line);border-radius:12px;
   overflow:hidden;margin-bottom:38px;
 }
-.facts div{
-  flex:1 1 33.333%;min-width:104px;
-  padding:13px 14px;
-  border-right:1px solid var(--line);
-}
+.facts div{flex:1 1 33.333%;min-width:104px;padding:13px 14px;border-right:1px solid var(--line);}
 .facts div:last-child{border-right:none;}
 .facts dt{
   font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;
   text-transform:uppercase;color:var(--faint);margin:0 0 3px;
 }
-.facts dd{
-  margin:0;font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;
-}
+.facts dd{margin:0;font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;}
 
 /* ── снимки ──────────────────────────────────────────── */
 .shots{
-  display:flex;gap:12px;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
-  padding-bottom:10px;
-  margin:0 -18px 8px;
-  padding-left:18px;padding-right:18px;
+  display:flex;gap:12px;overflow-x:auto;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  padding-bottom:10px;margin:0 -18px 8px;padding-left:18px;padding-right:18px;
 }
 .shots figure{margin:0;flex:none;scroll-snap-align:center;width:238px;}
 .shots img{
   width:100%;height:auto;display:block;
-  border:1px solid var(--line);border-radius:14px;
-  background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;background:var(--panel);
 }
-.shots figcaption{
-  font-family:var(--mono);font-size:11px;color:var(--soft);
-  margin-top:8px;line-height:1.45;
-}
-.shots-note{
-  font-family:var(--mono);font-size:11px;color:var(--faint);
-  margin:0 0 40px;
-}
+.shots figcaption{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:8px;line-height:1.45;}
+.shots-note{font-family:var(--mono);font-size:11px;color:var(--faint);margin:0 0 40px;}
 
 /* ── разделы ─────────────────────────────────────────── */
 section{margin-bottom:40px;}
@@ -146,70 +129,40 @@ h2{
   font-family:'Archivo',system-ui,sans-serif;
   font-weight:600;font-size:12.5px;letter-spacing:.15em;
   text-transform:uppercase;color:var(--faint);
-  border-bottom:1px solid var(--line);
-  padding-bottom:9px;margin:0 0 20px;
+  border-bottom:1px solid var(--line);padding-bottom:9px;margin:0 0 20px;
 }
 p{margin:0 0 15px;max-width:62ch;}
 p:last-child{margin-bottom:0;}
 
-/* ── что внутри ──────────────────────────────────────── */
 .inside{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
 .inside div{background:var(--panel);padding:16px 18px;}
-.inside h3{
-  font-family:'Archivo',sans-serif;font-weight:600;font-size:16.5px;
-  margin:0 0 5px;
-}
+.inside h3{font-family:'Archivo',sans-serif;font-weight:600;font-size:16.5px;margin:0 0 5px;}
 .inside p{color:var(--soft);font-size:15.5px;margin:0;}
 @media (min-width:620px){ .inside{grid-template-columns:1fr 1fr;} }
 
-/* ── что нового ──────────────────────────────────────── */
-.news{
-  background:var(--panel);border-left:3px solid var(--gold);
-  padding:18px 20px;border-radius:0 10px 10px 0;
-}
-.news .ver{
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--gold);margin:0 0 10px;
-}
+.news{background:var(--panel);border-left:3px solid var(--gold);padding:18px 20px;border-radius:0 10px 10px 0;}
+.news .ver{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:0 0 10px;}
 .news ul{margin:0;padding-left:17px;color:var(--soft);}
 .news li{margin-bottom:6px;font-size:15.5px;}
 .news li:last-child{margin-bottom:0;}
 .news b{color:var(--ink);font-weight:600;}
 
-/* ── как поставить ───────────────────────────────────── */
 .how{display:grid;gap:14px;}
-.how article{
-  border:1px solid var(--line);border-radius:12px;padding:17px 19px;
-}
-.how h3{
-  font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;
-  margin:0 0 9px;display:flex;gap:9px;align-items:baseline;
-}
-.how h3 span{
-  font-family:var(--mono);font-weight:400;font-size:11px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
-}
+.how article{border:1px solid var(--line);border-radius:12px;padding:17px 19px;}
+.how h3{font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;margin:0 0 9px;display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;}
+.how h3 span{font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
 .how ol{margin:0;padding-left:19px;color:var(--soft);font-size:15.5px;}
 .how li{margin-bottom:5px;}
 .how li:last-child{margin-bottom:0;}
 @media (min-width:620px){ .how{grid-template-columns:1fr 1fr;} }
 
-/* ── кнопка на политику ──────────────────────────────── */
 .privacy-lead{color:var(--soft);font-size:15.5px;margin-bottom:16px;}
-.privacy-btn{
-  border-color:var(--gold-dim);color:var(--gold);
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
+.privacy-btn{border-color:var(--gold-dim);color:var(--gold);display:flex;align-items:center;justify-content:center;gap:8px;}
 
-/* ── о чём игра ──────────────────────────────────────── */
 .about p{font-size:17px;}
 .about .lead{font-size:18.5px;font-weight:500;color:var(--ink);}
 
-/* ── низ ─────────────────────────────────────────────── */
-footer{
-  border-top:1px solid var(--line);padding-top:22px;
-  font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--faint);
-}
+footer{border-top:1px solid var(--line);padding-top:22px;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--faint);}
 footer p{margin:0 0 8px;max-width:none;}
 .warn{color:var(--soft);}
 
@@ -219,136 +172,569 @@ footer p{margin:0 0 8px;max-width:none;}
 <body>
 <div class="wrap">
 
+<div class="lang">
+  <select id="lang" aria-label="Language">
+    <option value="uk">Українська</option>
+    <option value="en">English</option>
+    <option value="ru">Русский</option>
+    <option value="pl">Polski</option>
+    <option value="de">Deutsch</option>
+    <option value="es">Español</option>
+    <option value="tr">Türkçe</option>
+    <option value="zh">中文</option>
+  </select>
+</div>
+
 <header class="hero">
   <div class="badge">
-    <img src="icon-192.png" width="82" height="82" alt="Значок гри Gate Territory">
+    <img src="icon-192.png" width="82" height="82" alt="Gate Territory">
     <div>
       <h1>Gate Territory</h1>
-      <p class="by">OpenGate · гра про справжню землю</p>
+      <p class="by" data-t="by"></p>
     </div>
   </div>
 
-  <p class="pitch">Захопи землю, на якій <b>справді стоїш</b>. Постав бункер, обнеси гарматами, тримай своє місто.</p>
+  <p class="pitch" data-t="pitch" data-html="1"></p>
 
   <div class="get">
-    <button class="btn" id="install" type="button">Встановити на телефон</button>
-    <a class="btn ghost" href="index.html">Спочатку просто пограти в браузері</a>
+    <button class="btn" id="install" type="button" data-t="btnInstall"></button>
+    <a class="btn ghost" href="index.html" data-t="btnPlay"></a>
   </div>
-  <p class="getnote" id="getnote">Безкоштовно. Місця на телефоні — близько 6 МБ.</p>
+  <p class="getnote" id="getnote" data-t="note"></p>
 
   <dl class="facts">
-    <div><dt>Ціна</dt><dd>Безкоштовно</dd></div>
-    <div><dt>Розмір</dt><dd>≈ 6 МБ</dd></div>
-    <div><dt>Мов</dt><dd>8</dd></div>
-    <div><dt>Версія</dt><dd id="ver">91</dd></div>
-    <div><dt>Без мережі</dt><dd>Працює</dd></div>
-    <div><dt>Потрібно</dt><dd>GPS</dd></div>
+    <div><dt data-t="fPrice"></dt><dd data-t="vPrice"></dd></div>
+    <div><dt data-t="fSize"></dt><dd data-t="vSize"></dd></div>
+    <div><dt data-t="fLang"></dt><dd>8</dd></div>
+    <div><dt data-t="fVer"></dt><dd id="ver">91</dd></div>
+    <div><dt data-t="fOff"></dt><dd data-t="vOff"></dd></div>
+    <div><dt data-t="fNeed"></dt><dd>GPS</dd></div>
   </dl>
 </header>
 
 <div class="shots">
   <figure>
-    <img src="shot-siege.jpg" width="540" height="1045" loading="lazy" alt="Облога чужої точки: червоні кола обстрілу, гармати, відлік часу">
-    <figcaption>Облога. Вийди з кола — або втратиш десять секунд.</figcaption>
+    <img src="shot-siege.jpg" width="540" height="1045" loading="lazy" alt="">
+    <figcaption data-t="cap1"></figcaption>
   </figure>
   <figure>
-    <img src="shot-plant.jpg" width="540" height="1045" loading="lazy" alt="Екран постановки бункера з прицілом і точністю сигналу">
-    <figcaption>Приціл загоряється, коли супутники дали точність.</figcaption>
+    <img src="shot-plant.jpg" width="540" height="1045" loading="lazy" alt="">
+    <figcaption data-t="cap2"></figcaption>
   </figure>
   <figure>
-    <img src="shot-cannon.jpg" width="540" height="1045" loading="lazy" alt="Постановка гармати: гра показує, скільки метрів іще пройти">
-    <figcaption>Гра каже не «не можна», а скільки метрів пройти.</figcaption>
+    <img src="shot-cannon.jpg" width="540" height="1045" loading="lazy" alt="">
+    <figcaption data-t="cap3"></figcaption>
   </figure>
 </div>
-<p class="shots-note">Знімки з живої гри, Лодзь.</p>
+<p class="shots-note" data-t="capNote"></p>
 
 <section class="about">
-  <h2>Про що це</h2>
-  <p class="lead">Карта — твоє місто. Не вигадане, а те саме, де ти ходиш на роботу.</p>
-  <p>Став бункер там, де стоїш ногами — земляний безкоштовний, один на день. Навколо нього лягає коло твоєї землі. Обстав його гарматами, з'єднай кілька точок у кільце — і район твій.</p>
-  <p>Чужу точку можна взяти штурмом. Для цього треба дійти до неї ногами: підійти на вісімдесят метрів і почати бій. Її гармати стрілятимуть у відповідь — по тобі справжньому, по твоїх координатах. Гра попередить за п'ятнадцять секунд і покаже коло; вийти з нього встигаєш спокійним кроком.</p>
-  <p>Половина ціни кожної покупки залишається всередині бункера. Хто його знесе — той це і забере.</p>
+  <h2 data-t="hAbout"></h2>
+  <p class="lead" data-t="ab0"></p>
+  <p data-t="ab1"></p>
+  <p data-t="ab2"></p>
+  <p data-t="ab3"></p>
 </section>
 
 <section>
-  <h2>Що всередині</h2>
+  <h2 data-t="hInside"></h2>
   <div class="inside">
-    <div>
-      <h3>Бункери й гармати</h3>
-      <p>Чотири рівні міцності, три види гармат. Сім гармат на точку — межа.</p>
-    </div>
-    <div>
-      <h3>Піхота</h3>
-      <p>Загін іде на точку сам, зупиняється на відстані пострілу й відкриває вогонь. Хто вижив — повертається в рюкзак.</p>
-    </div>
-    <div>
-      <h3>Дрон і далека ракета</h3>
-      <p>Дрон б'є з кілометра, ракета — з двох. Летить тридцять секунд, і її видно на карті обом.</p>
-    </div>
-    <div>
-      <h3>Клани</h3>
-      <p>Свої, з якими не воюєш і ділиш здобич. Свій чат.</p>
-    </div>
-    <div>
-      <h3>Сфера над новою точкою</h3>
-      <p>Дві години недоторканності, і видно, скільки їх лишилось. У новачка — дві доби.</p>
-    </div>
-    <div>
-      <h3>Вісім мов</h3>
-      <p>Українська, російська, польська, англійська, німецька, іспанська, турецька, китайська.</p>
-    </div>
+    <div><h3 data-t="i1t"></h3><p data-t="i1p"></p></div>
+    <div><h3 data-t="i2t"></h3><p data-t="i2p"></p></div>
+    <div><h3 data-t="i3t"></h3><p data-t="i3p"></p></div>
+    <div><h3 data-t="i4t"></h3><p data-t="i4p"></p></div>
+    <div><h3 data-t="i5t"></h3><p data-t="i5p"></p></div>
+    <div><h3 data-t="i6t"></h3><p data-t="i6p"></p></div>
   </div>
 </section>
 
 <section>
-  <h2>Що нового</h2>
+  <h2 data-t="hNews"></h2>
   <div class="news">
-    <p class="ver">Версія 91</p>
+    <p class="ver" data-t="newsVer"></p>
     <ul>
-      <li><b>Карта качає те, що показує.</b> Раніше точки бралися тільки навколо тебе — чужі бункери за п'ять кілометрів не з'являлися ніколи.</li>
-      <li><b>Сфера над свіжою точкою</b> тепер пише, скільки їй лишилось, і видно її всім.</li>
-      <li><b>Мова міняється цілком.</b> Підказка й рядок зв'язку більше не лишаються від попередньої.</li>
-      <li><b>Поповнення від $2</b> — поріг написано прямо у вікні.</li>
+      <li data-t="n1" data-html="1"></li>
+      <li data-t="n2" data-html="1"></li>
+      <li data-t="n3" data-html="1"></li>
+      <li data-t="n4" data-html="1"></li>
     </ul>
   </div>
 </section>
 
 <section>
-  <h2>Як поставити</h2>
+  <h2 data-t="hHow"></h2>
   <div class="how">
     <article>
-      <h3>Android <span>Chrome</span></h3>
+      <h3>Android <span data-t="hwAndTag"></span></h3>
       <ol>
-        <li>Натисни «Встановити на телефон» угорі.</li>
-        <li>Якщо кнопка мовчить — меню браузера (три крапки) → «Встановити застосунок».</li>
-        <li>Значок стане на екран. Далі гра відкривається з нього, без адресного рядка.</li>
+        <li data-t="hwA1"></li>
+        <li data-t="hwA2"></li>
+        <li data-t="hwA3"></li>
       </ol>
     </article>
     <article>
-      <h3>iPhone <span>тільки Safari</span></h3>
+      <h3>iPhone <span data-t="hwIosTag"></span></h3>
       <ol>
-        <li>Відкрий цю сторінку в Safari — інші браузери на iPhone так не вміють.</li>
-        <li>Кнопка «Поділитися» внизу.</li>
-        <li>«На екран «Додому»».</li>
+        <li data-t="hwI1"></li>
+        <li data-t="hwI2"></li>
+        <li data-t="hwI3"></li>
       </ol>
     </article>
   </div>
 </section>
 
 <section>
-  <h2>Дані</h2>
-  <p class="privacy-lead">Гра бере твоє місцезнаходження — без нього вона не працює зовсім. Ось що саме береться, навіщо, кому видно й як усе прибрати.</p>
-  <a class="btn ghost privacy-btn" href="privacy.html">Що гра знає про тебе →</a>
+  <h2 data-t="hData"></h2>
+  <p class="privacy-lead" data-t="dataLead"></p>
+  <a class="btn ghost privacy-btn" href="privacy.html" data-t="dataBtn"></a>
 </section>
 
 <footer>
-  <p class="warn">Дивись під ноги, а не в телефон. Не грай за кермом.</p>
-  <p>Gate Territory · OpenGate · <a href="index.html">відкрити гру</a></p>
+  <p class="warn" data-t="fWarn"></p>
+  <p>Gate Territory · OpenGate · <a href="index.html" data-t="fOpen"></a></p>
 </footer>
 
 </div>
 
 <script>
+// ── Слова страницы. Те же восемь языков, что и в игре. ────────────
+var L = {
+uk:{
+ title:'Gate Territory — захопи землю, на якій стоїш',
+ desc:'Гра про справжню землю. Став бункери там, де ходиш, тримай місто, бийся за чужі точки.',
+ by:'OpenGate · гра про справжню землю',
+ pitch:'Захопи землю, на якій <b>справді стоїш</b>. Постав бункер, обнеси гарматами, тримай своє місто.',
+ btnInstall:'Встановити на телефон', btnPlay:'Спочатку просто пограти в браузері',
+ note:'Безкоштовно. Місця на телефоні — близько 6 МБ.',
+ fPrice:'Ціна', vPrice:'Безкоштовно', fSize:'Розмір', vSize:'≈ 6 МБ', fLang:'Мов',
+ fVer:'Версія', fOff:'Без мережі', vOff:'Працює', fNeed:'Потрібно',
+ cap1:'Облога. Вийди з кола — або втратиш десять секунд.',
+ cap2:'Приціл загоряється, коли супутники дали точність.',
+ cap3:'Гра каже не «не можна», а скільки метрів пройти.',
+ capNote:'Знімки з живої гри, Лодзь.',
+ hAbout:'Про що це',
+ ab0:'Карта — твоє місто. Не вигадане, а те саме, де ти ходиш на роботу.',
+ ab1:'Постав бункер там, де стоїш ногами — земляний безкоштовний, один на день. Навколо нього лягає коло твоєї землі. Обстав його гарматами, з’єднай кілька точок у кільце — і район твій.',
+ ab2:'Чужу точку можна взяти штурмом. Для цього треба дійти до неї ногами: підійти на вісімдесят метрів і почати бій. Її гармати стрілятимуть у відповідь — по тобі справжньому, по твоїх координатах. Гра попередить за п’ятнадцять секунд і покаже коло; вийти з нього встигаєш спокійним кроком.',
+ ab3:'Половина ціни кожної покупки залишається всередині бункера. Хто його знесе — той це і забере.',
+ hInside:'Що всередині',
+ i1t:'Бункери й гармати', i1p:'Чотири рівні міцності, три види гармат. Сім гармат на точку — межа.',
+ i2t:'Піхота', i2p:'Загін іде на точку сам, зупиняється на відстані пострілу й відкриває вогонь. Хто вижив — повертається в рюкзак.',
+ i3t:'Дрон і далека ракета', i3p:'Дрон б’є з кілометра, ракета — з двох. Летить тридцять секунд, і її видно на карті обом.',
+ i4t:'Клани', i4p:'Свої, з якими не воюєш і ділиш здобич. Свій чат.',
+ i5t:'Сфера над новою точкою', i5p:'Дві години недоторканності, і видно, скільки їх лишилось. У новачка — дві доби.',
+ i6t:'Вісім мов', i6p:'Українська, російська, польська, англійська, німецька, іспанська, турецька, китайська.',
+ hNews:'Що нового', newsVer:'Версія 91',
+ n1:'<b>Карта качає те, що показує.</b> Раніше точки бралися тільки навколо тебе — чужі бункери за п’ять кілометрів не з’являлися ніколи.',
+ n2:'<b>Сфера над свіжою точкою</b> тепер пише, скільки їй лишилось, і видно її всім.',
+ n3:'<b>Мова міняється цілком.</b> Підказка й рядок зв’язку більше не лишаються від попередньої.',
+ n4:'<b>Поповнення від $2</b> — поріг написано прямо у вікні.',
+ hHow:'Як поставити',
+ hwAndTag:'Chrome', hwIosTag:'тільки Safari',
+ hwA1:'Натисни «Встановити на телефон» угорі.',
+ hwA2:'Якщо кнопка мовчить — меню браузера (три крапки) → «Встановити застосунок».',
+ hwA3:'Значок стане на екран. Далі гра відкривається з нього, без адресного рядка.',
+ hwI1:'Відкрий цю сторінку в Safari — інші браузери на iPhone так не вміють.',
+ hwI2:'Кнопка «Поділитися» внизу.',
+ hwI3:'«На екран «Додому»».',
+ hData:'Дані',
+ dataLead:'Гра бере твоє місцезнаходження — без нього вона не працює зовсім. Ось що саме береться, навіщо, кому видно й як усе прибрати.',
+ dataBtn:'Що гра знає про тебе →',
+ fWarn:'Дивись під ноги, а не в телефон. Не грай за кермом.',
+ fOpen:'відкрити гру',
+ jsHave:'Гра вже стоїть на цьому телефоні.', jsOpen:'Відкрити гру',
+ jsDone:'Готово. Значок уже на екрані.',
+ jsIos:'На iPhone: «Поділитися» → «На екран «Додому»». Apple інакше не дозволяє.',
+ jsIosHow:'Відкрий цю сторінку в Safari, потім «Поділитися» → «На екран «Додому»».',
+ jsAndHow:'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.'
+},
+en:{
+ title:'Gate Territory — claim the ground you stand on',
+ desc:'A game about real ground. Plant bunkers where you walk, hold your city, fight for other people’s points.',
+ by:'OpenGate · a game about real ground',
+ pitch:'Claim the ground you <b>actually stand on</b>. Plant a bunker, ring it with cannons, hold your city.',
+ btnInstall:'Install on your phone', btnPlay:'Or just play in the browser first',
+ note:'Free. About 6 MB on your phone.',
+ fPrice:'Price', vPrice:'Free', fSize:'Size', vSize:'≈ 6 MB', fLang:'Languages',
+ fVer:'Version', fOff:'Offline', vOff:'Works', fNeed:'Needs',
+ cap1:'Under siege. Step out of the circle, or lose ten seconds.',
+ cap2:'The ring locks once the satellites are accurate enough.',
+ cap3:'It doesn’t say “no” — it says how many metres to walk.',
+ capNote:'Screenshots from the live game, Łódź.',
+ hAbout:'What this is',
+ ab0:'The map is your city. Not an invented one — the streets you walk to work.',
+ ab1:'Plant a bunker where your feet are. An earth one is free, one a day. A ring of your ground falls around it. Set cannons around it, link a few points into a loop, and the district is yours.',
+ ab2:'Someone else’s point can be stormed. For that you have to walk there: get within eighty metres and start the fight. Its cannons fire back — at the real you, at your coordinates. The game warns you fifteen seconds ahead and draws the circle; a calm walk is enough to leave it.',
+ ab3:'Half the price of every purchase stays inside the bunker. Whoever brings it down takes that money.',
+ hInside:'What’s inside',
+ i1t:'Bunkers and cannons', i1p:'Four levels of toughness, three kinds of cannon. Seven cannons per point is the limit.',
+ i2t:'Infantry', i2p:'The squad walks to the point on its own, stops within firing range and opens up. Whoever survives goes back in your backpack.',
+ i3t:'Drone and long rocket', i3p:'The drone strikes from a kilometre, the rocket from two. It flies for thirty seconds and both sides see it on the map.',
+ i4t:'Clans', i4p:'The people you don’t fight and share the loot with. Your own chat.',
+ i5t:'Sphere over a new point', i5p:'Two hours untouchable, and you can see how much is left. A newcomer gets two days.',
+ i6t:'Eight languages', i6p:'Ukrainian, Russian, Polish, English, German, Spanish, Turkish, Chinese.',
+ hNews:'What’s new', newsVer:'Version 91',
+ n1:'<b>The map now loads what it shows.</b> Points used to be fetched only around you — someone’s bunker five kilometres away never appeared at all.',
+ n2:'<b>The sphere over a fresh point</b> now says how long it has left, and everyone can see it.',
+ n3:'<b>The language switches completely.</b> The hint and the status line no longer stay in the previous one.',
+ n4:'<b>Top up from $2</b> — the minimum is written right in the window.',
+ hHow:'How to install',
+ hwAndTag:'Chrome', hwIosTag:'Safari only',
+ hwA1:'Tap “Install on your phone” above.',
+ hwA2:'If the button stays quiet — browser menu (three dots) → “Install app”.',
+ hwA3:'The icon lands on your home screen. After that the game opens from it, with no address bar.',
+ hwI1:'Open this page in Safari — other browsers on iPhone cannot do this.',
+ hwI2:'The Share button at the bottom.',
+ hwI3:'“Add to Home Screen”.',
+ hData:'Data',
+ dataLead:'The game takes your location — without it there is no game at all. Here is exactly what is taken, what for, who sees it and how to erase all of it.',
+ dataBtn:'What the game knows about you →',
+ fWarn:'Watch the road, not the phone. Never play while driving.',
+ fOpen:'open the game',
+ jsHave:'The game is already installed on this phone.', jsOpen:'Open the game',
+ jsDone:'Done. The icon is on your home screen.',
+ jsIos:'On iPhone: Share → “Add to Home Screen”. Apple allows no other way.',
+ jsIosHow:'Open this page in Safari, then Share → “Add to Home Screen”.',
+ jsAndHow:'Browser menu (three dots at the top) → “Install app”. If it isn’t there, play for a minute and look again.'
+},
+ru:{
+ title:'Gate Territory — захвати землю, на которой стоишь',
+ desc:'Игра про настоящую землю. Ставь бункеры там, где ходишь, держи город, бейся за чужие точки.',
+ by:'OpenGate · игра про настоящую землю',
+ pitch:'Захвати землю, на которой <b>правда стоишь</b>. Поставь бункер, обставь пушками, держи свой город.',
+ btnInstall:'Установить на телефон', btnPlay:'Сначала просто поиграть в браузере',
+ note:'Бесплатно. Места на телефоне — около 6 МБ.',
+ fPrice:'Цена', vPrice:'Бесплатно', fSize:'Размер', vSize:'≈ 6 МБ', fLang:'Языков',
+ fVer:'Версия', fOff:'Без сети', vOff:'Работает', fNeed:'Нужно',
+ cap1:'Осада. Выйди из круга — или потеряешь десять секунд.',
+ cap2:'Прицел загорается, когда спутники дали точность.',
+ cap3:'Игра говорит не «нельзя», а сколько метров пройти.',
+ capNote:'Снимки из живой игры, Лодзь.',
+ hAbout:'О чём это',
+ ab0:'Карта — твой город. Не выдуманный, а тот самый, где ты ходишь на работу.',
+ ab1:'Поставь бункер там, где стоишь ногами — земляной бесплатный, один в день. Вокруг него ложится круг твоей земли. Обставь его пушками, соедини несколько точек в кольцо — и район твой.',
+ ab2:'Чужую точку можно взять штурмом. Для этого надо дойти до неё ногами: подойти на восемьдесят метров и начать бой. Её пушки будут стрелять в ответ — по тебе настоящему, по твоим координатам. Игра предупредит за пятнадцать секунд и покажет круг; выйти из него успеваешь спокойным шагом.',
+ ab3:'Половина цены каждой покупки остаётся внутри бункера. Кто его снесёт — тот это и заберёт.',
+ hInside:'Что внутри',
+ i1t:'Бункеры и пушки', i1p:'Четыре уровня прочности, три вида пушек. Семь пушек на точку — предел.',
+ i2t:'Пехота', i2p:'Отряд идёт на точку сам, останавливается на расстоянии выстрела и открывает огонь. Кто выжил — возвращается в рюкзак.',
+ i3t:'Дрон и дальняя ракета', i3p:'Дрон бьёт с километра, ракета — с двух. Летит тридцать секунд, и её видно на карте обоим.',
+ i4t:'Кланы', i4p:'Свои, с которыми не воюешь и делишь добычу. Свой чат.',
+ i5t:'Сфера над новой точкой', i5p:'Два часа неприкосновенности, и видно, сколько их осталось. У новичка — двое суток.',
+ i6t:'Восемь языков', i6p:'Украинский, русский, польский, английский, немецкий, испанский, турецкий, китайский.',
+ hNews:'Что нового', newsVer:'Версия 91',
+ n1:'<b>Карта качает то, что показывает.</b> Раньше точки брались только вокруг тебя — чужие бункеры за пять километров не появлялись никогда.',
+ n2:'<b>Сфера над свежей точкой</b> теперь пишет, сколько ей осталось, и видна она всем.',
+ n3:'<b>Язык меняется целиком.</b> Подсказка и строка связи больше не остаются от прежнего.',
+ n4:'<b>Пополнение от $2</b> — порог написан прямо в окне.',
+ hHow:'Как поставить',
+ hwAndTag:'Chrome', hwIosTag:'только Safari',
+ hwA1:'Нажми «Установить на телефон» вверху.',
+ hwA2:'Если кнопка молчит — меню браузера (три точки) → «Установить приложение».',
+ hwA3:'Значок встанет на экран. Дальше игра открывается с него, без адресной строки.',
+ hwI1:'Открой эту страницу в Safari — другие браузеры на iPhone так не умеют.',
+ hwI2:'Кнопка «Поделиться» внизу.',
+ hwI3:'«На экран «Домой»».',
+ hData:'Данные',
+ dataLead:'Игра берёт твоё местоположение — без него она не работает совсем. Вот что именно берётся, зачем, кому видно и как всё убрать.',
+ dataBtn:'Что игра знает о тебе →',
+ fWarn:'Смотри под ноги, а не в телефон. Не играй за рулём.',
+ fOpen:'открыть игру',
+ jsHave:'Игра уже стоит на этом телефоне.', jsOpen:'Открыть игру',
+ jsDone:'Готово. Значок уже на экране.',
+ jsIos:'На iPhone: «Поделиться» → «На экран «Домой»». Apple иначе не разрешает.',
+ jsIosHow:'Открой эту страницу в Safari, потом «Поделиться» → «На экран «Домой»».',
+ jsAndHow:'Меню браузера (три точки вверху) → «Установить приложение». Если пункта нет — поиграй минуту и загляни ещё раз.'
+},
+pl:{
+ title:'Gate Territory — zajmij ziemię, na której stoisz',
+ desc:'Gra o prawdziwej ziemi. Stawiaj bunkry tam, gdzie chodzisz, trzymaj miasto, walcz o cudze punkty.',
+ by:'OpenGate · gra o prawdziwej ziemi',
+ pitch:'Zajmij ziemię, na której <b>naprawdę stoisz</b>. Postaw bunkier, obstaw działami, trzymaj swoje miasto.',
+ btnInstall:'Zainstaluj na telefonie', btnPlay:'Najpierw po prostu zagraj w przeglądarce',
+ note:'Za darmo. Na telefonie zajmuje około 6 MB.',
+ fPrice:'Cena', vPrice:'Za darmo', fSize:'Rozmiar', vSize:'≈ 6 MB', fLang:'Języków',
+ fVer:'Wersja', fOff:'Bez sieci', vOff:'Działa', fNeed:'Wymaga',
+ cap1:'Oblężenie. Wyjdź z kręgu albo stracisz dziesięć sekund.',
+ cap2:'Celownik zapala się, gdy satelity dadzą dokładność.',
+ cap3:'Gra nie mówi „nie można”, tylko ile metrów przejść.',
+ capNote:'Zrzuty z żywej gry, Łódź.',
+ hAbout:'O co tu chodzi',
+ ab0:'Mapa to twoje miasto. Nie wymyślone — to samo, którym chodzisz do pracy.',
+ ab1:'Postaw bunkier tam, gdzie stoisz nogami. Ziemny jest darmowy, jeden dziennie. Wokół niego kładzie się krąg twojej ziemi. Obstaw go działami, połącz kilka punktów w pierścień — i dzielnica jest twoja.',
+ ab2:'Cudzy punkt można wziąć szturmem. Trzeba do niego dojść nogami: podejść na osiemdziesiąt metrów i zacząć walkę. Jego działa odpowiedzą ogniem — po tobie prawdziwym, po twoich współrzędnych. Gra ostrzeże piętnaście sekund wcześniej i pokaże krąg; spokojny krok wystarczy, żeby z niego wyjść.',
+ ab3:'Połowa ceny każdego zakupu zostaje w środku bunkra. Kto go zburzy, ten to zabierze.',
+ hInside:'Co jest w środku',
+ i1t:'Bunkry i działa', i1p:'Cztery poziomy wytrzymałości, trzy rodzaje dział. Siedem dział na punkt to granica.',
+ i2t:'Piechota', i2p:'Oddział sam idzie na punkt, zatrzymuje się na odległość strzału i otwiera ogień. Kto przeżyje, wraca do plecaka.',
+ i3t:'Dron i daleka rakieta', i3p:'Dron bije z kilometra, rakieta z dwóch. Leci trzydzieści sekund i widać ją na mapie po obu stronach.',
+ i4t:'Klany', i4p:'Swoi, z którymi nie walczysz i dzielisz łupy. Własny czat.',
+ i5t:'Sfera nad nowym punktem', i5p:'Dwie godziny nietykalności i widać, ile zostało. Nowicjusz ma dwie doby.',
+ i6t:'Osiem języków', i6p:'Ukraiński, rosyjski, polski, angielski, niemiecki, hiszpański, turecki, chiński.',
+ hNews:'Co nowego', newsVer:'Wersja 91',
+ n1:'<b>Mapa pobiera to, co pokazuje.</b> Wcześniej punkty brały się tylko wokół ciebie — cudzy bunkier pięć kilometrów dalej nie pojawiał się nigdy.',
+ n2:'<b>Sfera nad świeżym punktem</b> pisze teraz, ile jej zostało, i widzą ją wszyscy.',
+ n3:'<b>Język zmienia się w całości.</b> Podpowiedź i pasek połączenia nie zostają już w poprzednim.',
+ n4:'<b>Doładowanie od 2 $</b> — próg napisany wprost w oknie.',
+ hHow:'Jak zainstalować',
+ hwAndTag:'Chrome', hwIosTag:'tylko Safari',
+ hwA1:'Naciśnij „Zainstaluj na telefonie” u góry.',
+ hwA2:'Jeśli przycisk milczy — menu przeglądarki (trzy kropki) → „Zainstaluj aplikację”.',
+ hwA3:'Ikona stanie na ekranie. Dalej gra otwiera się z niej, bez paska adresu.',
+ hwI1:'Otwórz tę stronę w Safari — inne przeglądarki na iPhonie tego nie potrafią.',
+ hwI2:'Przycisk „Udostępnij” na dole.',
+ hwI3:'„Do ekranu początkowego”.',
+ hData:'Dane',
+ dataLead:'Gra bierze twoje położenie — bez niego nie działa wcale. Oto co dokładnie jest brane, po co, kto to widzi i jak wszystko usunąć.',
+ dataBtn:'Co gra o tobie wie →',
+ fWarn:'Patrz pod nogi, a nie w telefon. Nie graj za kierownicą.',
+ fOpen:'otwórz grę',
+ jsHave:'Gra jest już zainstalowana na tym telefonie.', jsOpen:'Otwórz grę',
+ jsDone:'Gotowe. Ikona jest już na ekranie.',
+ jsIos:'Na iPhonie: „Udostępnij” → „Do ekranu początkowego”. Apple inaczej nie pozwala.',
+ jsIosHow:'Otwórz tę stronę w Safari, potem „Udostępnij” → „Do ekranu początkowego”.',
+ jsAndHow:'Menu przeglądarki (trzy kropki u góry) → „Zainstaluj aplikację”. Jeśli nie ma tej pozycji, pograj minutę i zajrzyj jeszcze raz.'
+},
+de:{
+ title:'Gate Territory — nimm den Boden, auf dem du stehst',
+ desc:'Ein Spiel über echten Boden. Setze Bunker dort, wo du gehst, halte deine Stadt, kämpfe um fremde Punkte.',
+ by:'OpenGate · ein Spiel über echten Boden',
+ pitch:'Nimm den Boden, auf dem du <b>wirklich stehst</b>. Setze einen Bunker, umstelle ihn mit Geschützen, halte deine Stadt.',
+ btnInstall:'Auf dem Handy installieren', btnPlay:'Erst einmal im Browser spielen',
+ note:'Kostenlos. Belegt etwa 6 MB auf dem Handy.',
+ fPrice:'Preis', vPrice:'Kostenlos', fSize:'Größe', vSize:'≈ 6 MB', fLang:'Sprachen',
+ fVer:'Version', fOff:'Ohne Netz', vOff:'Läuft', fNeed:'Braucht',
+ cap1:'Belagerung. Verlass den Kreis, sonst kostet es zehn Sekunden.',
+ cap2:'Das Fadenkreuz rastet ein, sobald die Satelliten genau genug sind.',
+ cap3:'Das Spiel sagt nicht „geht nicht“, sondern wie viele Meter noch.',
+ capNote:'Aufnahmen aus dem laufenden Spiel, Łódź.',
+ hAbout:'Worum es geht',
+ ab0:'Die Karte ist deine Stadt. Keine erfundene — die, durch die du zur Arbeit gehst.',
+ ab1:'Setze einen Bunker dorthin, wo deine Füße stehen. Der Erdbunker ist kostenlos, einer pro Tag. Um ihn herum legt sich der Ring deines Bodens. Stelle Geschütze dazu, verbinde mehrere Punkte zu einer Schleife — und das Viertel gehört dir.',
+ ab2:'Einen fremden Punkt kann man stürmen. Dafür musst du zu Fuß hin: auf achtzig Meter herankommen und den Kampf beginnen. Seine Geschütze schießen zurück — auf dich selbst, auf deine Koordinaten. Das Spiel warnt fünfzehn Sekunden vorher und zeigt den Kreis; ein ruhiger Schritt reicht, um herauszukommen.',
+ ab3:'Die Hälfte jedes Kaufpreises bleibt im Bunker. Wer ihn niederreißt, nimmt dieses Geld mit.',
+ hInside:'Was drin ist',
+ i1t:'Bunker und Geschütze', i1p:'Vier Stufen Härte, drei Arten Geschütze. Sieben Geschütze je Punkt sind die Grenze.',
+ i2t:'Infanterie', i2p:'Der Trupp geht allein zum Punkt, bleibt auf Schussweite stehen und eröffnet das Feuer. Wer überlebt, kehrt in den Rucksack zurück.',
+ i3t:'Drohne und Ferngeschoss', i3p:'Die Drohne schlägt aus einem Kilometer zu, die Rakete aus zweien. Sie fliegt dreißig Sekunden und ist für beide Seiten auf der Karte sichtbar.',
+ i4t:'Clans', i4p:'Die Deinen, gegen die du nicht kämpfst und mit denen du die Beute teilst. Eigener Chat.',
+ i5t:'Kuppel über neuem Punkt', i5p:'Zwei Stunden unantastbar, und man sieht, wie viel davon bleibt. Neulinge bekommen zwei Tage.',
+ i6t:'Acht Sprachen', i6p:'Ukrainisch, Russisch, Polnisch, Englisch, Deutsch, Spanisch, Türkisch, Chinesisch.',
+ hNews:'Was neu ist', newsVer:'Version 91',
+ n1:'<b>Die Karte lädt, was sie zeigt.</b> Früher wurden Punkte nur um dich herum geholt — ein fremder Bunker fünf Kilometer weiter tauchte nie auf.',
+ n2:'<b>Die Kuppel über einem frischen Punkt</b> zeigt jetzt die Restzeit, und alle sehen sie.',
+ n3:'<b>Die Sprache wechselt vollständig.</b> Hinweis und Statuszeile bleiben nicht mehr in der alten stehen.',
+ n4:'<b>Aufladen ab 2 $</b> — die Untergrenze steht direkt im Fenster.',
+ hHow:'So wird installiert',
+ hwAndTag:'Chrome', hwIosTag:'nur Safari',
+ hwA1:'Oben auf „Auf dem Handy installieren“ tippen.',
+ hwA2:'Bleibt die Schaltfläche stumm — Browsermenü (drei Punkte) → „App installieren“.',
+ hwA3:'Das Symbol landet auf dem Startbildschirm. Danach öffnet das Spiel von dort, ohne Adressleiste.',
+ hwI1:'Öffne diese Seite in Safari — andere Browser auf dem iPhone können das nicht.',
+ hwI2:'Die Teilen-Schaltfläche unten.',
+ hwI3:'„Zum Home-Bildschirm“.',
+ hData:'Daten',
+ dataLead:'Das Spiel nimmt deinen Standort — ohne ihn gibt es kein Spiel. Hier steht, was genau genommen wird, wofür, wer es sieht und wie du alles löschst.',
+ dataBtn:'Was das Spiel über dich weiß →',
+ fWarn:'Schau auf den Weg, nicht aufs Handy. Nicht am Steuer spielen.',
+ fOpen:'Spiel öffnen',
+ jsHave:'Das Spiel ist auf diesem Handy bereits installiert.', jsOpen:'Spiel öffnen',
+ jsDone:'Fertig. Das Symbol ist auf dem Startbildschirm.',
+ jsIos:'Auf dem iPhone: Teilen → „Zum Home-Bildschirm“. Apple erlaubt es nicht anders.',
+ jsIosHow:'Öffne diese Seite in Safari, dann Teilen → „Zum Home-Bildschirm“.',
+ jsAndHow:'Browsermenü (drei Punkte oben) → „App installieren“. Fehlt der Eintrag, spiele eine Minute und schau noch einmal.'
+},
+es:{
+ title:'Gate Territory — reclama el suelo que pisas',
+ desc:'Un juego sobre suelo real. Planta búnkeres donde caminas, defiende tu ciudad, pelea por los puntos de otros.',
+ by:'OpenGate · un juego sobre suelo real',
+ pitch:'Reclama el suelo que <b>de verdad pisas</b>. Planta un búnker, rodéalo de cañones, defiende tu ciudad.',
+ btnInstall:'Instalar en el móvil', btnPlay:'Primero juega en el navegador',
+ note:'Gratis. Ocupa unos 6 MB en el móvil.',
+ fPrice:'Precio', vPrice:'Gratis', fSize:'Tamaño', vSize:'≈ 6 MB', fLang:'Idiomas',
+ fVer:'Versión', fOff:'Sin red', vOff:'Funciona', fNeed:'Necesita',
+ cap1:'Asedio. Sal del círculo o pierdes diez segundos.',
+ cap2:'La mira se enciende cuando los satélites dan precisión.',
+ cap3:'El juego no dice «no puedes», dice cuántos metros faltan.',
+ capNote:'Capturas del juego en vivo, Łódź.',
+ hAbout:'De qué va',
+ ab0:'El mapa es tu ciudad. No una inventada: la misma por la que vas al trabajo.',
+ ab1:'Planta un búnker donde estén tus pies. El de tierra es gratis, uno al día. A su alrededor cae el círculo de tu terreno. Rodéalo de cañones, une varios puntos en un anillo y el barrio es tuyo.',
+ ab2:'El punto de otro se puede tomar por asalto. Para eso hay que llegar caminando: acercarse a ochenta metros y empezar el combate. Sus cañones responden — contra ti de verdad, contra tus coordenadas. El juego avisa quince segundos antes y dibuja el círculo; un paso tranquilo basta para salir.',
+ ab3:'La mitad del precio de cada compra se queda dentro del búnker. Quien lo derribe se lleva ese dinero.',
+ hInside:'Qué hay dentro',
+ i1t:'Búnkeres y cañones', i1p:'Cuatro niveles de resistencia, tres tipos de cañón. Siete cañones por punto es el límite.',
+ i2t:'Infantería', i2p:'El escuadrón va solo hasta el punto, se detiene a distancia de tiro y abre fuego. El que sobrevive vuelve a tu mochila.',
+ i3t:'Dron y cohete largo', i3p:'El dron golpea desde un kilómetro; el cohete, desde dos. Vuela treinta segundos y los dos bandos lo ven en el mapa.',
+ i4t:'Clanes', i4p:'Los tuyos, con quienes no peleas y repartes el botín. Chat propio.',
+ i5t:'Esfera sobre un punto nuevo', i5p:'Dos horas intocable, y se ve cuánto queda. Un recién llegado tiene dos días.',
+ i6t:'Ocho idiomas', i6p:'Ucraniano, ruso, polaco, inglés, alemán, español, turco, chino.',
+ hNews:'Novedades', newsVer:'Versión 91',
+ n1:'<b>El mapa descarga lo que muestra.</b> Antes los puntos solo se tomaban a tu alrededor: un búnker ajeno a cinco kilómetros no aparecía nunca.',
+ n2:'<b>La esfera sobre un punto nuevo</b> ahora dice cuánto le queda, y la ven todos.',
+ n3:'<b>El idioma cambia por completo.</b> El aviso y la línea de conexión ya no se quedan en el anterior.',
+ n4:'<b>Recarga desde 2 $</b> — el mínimo está escrito en la propia ventana.',
+ hHow:'Cómo instalarlo',
+ hwAndTag:'Chrome', hwIosTag:'solo Safari',
+ hwA1:'Pulsa «Instalar en el móvil» arriba.',
+ hwA2:'Si el botón no responde: menú del navegador (tres puntos) → «Instalar aplicación».',
+ hwA3:'El icono queda en la pantalla. Después el juego se abre desde ahí, sin barra de direcciones.',
+ hwI1:'Abre esta página en Safari: los demás navegadores del iPhone no pueden hacerlo.',
+ hwI2:'El botón Compartir, abajo.',
+ hwI3:'«Añadir a pantalla de inicio».',
+ hData:'Datos',
+ dataLead:'El juego toma tu ubicación: sin ella no hay juego. Aquí está qué se toma exactamente, para qué, quién lo ve y cómo borrarlo todo.',
+ dataBtn:'Qué sabe el juego de ti →',
+ fWarn:'Mira el camino, no el móvil. No juegues al volante.',
+ fOpen:'abrir el juego',
+ jsHave:'El juego ya está instalado en este móvil.', jsOpen:'Abrir el juego',
+ jsDone:'Listo. El icono ya está en la pantalla.',
+ jsIos:'En iPhone: Compartir → «Añadir a pantalla de inicio». Apple no permite otra forma.',
+ jsIosHow:'Abre esta página en Safari y luego Compartir → «Añadir a pantalla de inicio».',
+ jsAndHow:'Menú del navegador (tres puntos arriba) → «Instalar aplicación». Si no aparece, juega un minuto y vuelve a mirar.'
+},
+tr:{
+ title:'Gate Territory — bastığın toprağı ele geçir',
+ desc:'Gerçek toprak üzerine bir oyun. Yürüdüğün yere sığınak kur, şehrini tut, başkalarının noktaları için savaş.',
+ by:'OpenGate · gerçek toprak üzerine bir oyun',
+ pitch:'<b>Gerçekten bastığın</b> toprağı ele geçir. Sığınak kur, toplarla çevir, şehrini tut.',
+ btnInstall:'Telefona kur', btnPlay:'Önce tarayıcıda oyna',
+ note:'Ücretsiz. Telefonda yaklaşık 6 MB yer kaplar.',
+ fPrice:'Fiyat', vPrice:'Ücretsiz', fSize:'Boyut', vSize:'≈ 6 MB', fLang:'Dil',
+ fVer:'Sürüm', fOff:'Çevrimdışı', vOff:'Çalışır', fNeed:'Gerekli',
+ cap1:'Kuşatma. Çemberden çık, yoksa on saniye kaybedersin.',
+ cap2:'Uydular yeterince keskinleşince nişan kilitlenir.',
+ cap3:'Oyun «olmaz» demiyor, kaç metre yürüyeceğini söylüyor.',
+ capNote:'Canlı oyundan görüntüler, Łódź.',
+ hAbout:'Bu ne',
+ ab0:'Harita senin şehrin. Uydurma değil — her gün işe yürüdüğün sokaklar.',
+ ab1:'Ayağının bastığı yere sığınak kur. Toprak olanı bedava, günde bir tane. Çevresine toprağının çemberi düşer. Toplarla çevir, birkaç noktayı halkaya bağla — mahalle senindir.',
+ ab2:'Başkasının noktası basılabilir. Bunun için oraya yürüyerek gitmen gerekir: seksen metreye yaklaş ve savaşı başlat. Noktanın topları karşılık verir — gerçek sana, senin koordinatlarına. Oyun on beş saniye önceden uyarır ve çemberi gösterir; sakin bir adım çıkmaya yeter.',
+ ab3:'Her satın almanın yarısı sığınağın içinde kalır. Sığınağı yıkan o parayı alır.',
+ hInside:'İçinde ne var',
+ i1t:'Sığınaklar ve toplar', i1p:'Dört dayanıklılık seviyesi, üç tür top. Nokta başına yedi top sınırdır.',
+ i2t:'Piyade', i2p:'Takım noktaya kendi yürür, atış menzilinde durur ve ateş açar. Sağ kalan sırt çantana döner.',
+ i3t:'İnsansız hava aracı ve uzun füze', i3p:'Dron bir kilometreden, füze iki kilometreden vurur. Otuz saniye uçar ve haritada iki taraf da görür.',
+ i4t:'Klanlar', i4p:'Savaşmadığın ve ganimeti paylaştığın kendi insanların. Kendi sohbetiniz.',
+ i5t:'Yeni nokta üstündeki küre', i5p:'İki saat dokunulmazlık, ve ne kadar kaldığı görünür. Yeni gelene iki gün.',
+ i6t:'Sekiz dil', i6p:'Ukraynaca, Rusça, Lehçe, İngilizce, Almanca, İspanyolca, Türkçe, Çince.',
+ hNews:'Yenilikler', newsVer:'Sürüm 91',
+ n1:'<b>Harita gösterdiğini indiriyor.</b> Eskiden noktalar yalnız senin çevrenden alınırdı — beş kilometre ötedeki başkasının sığınağı hiç görünmezdi.',
+ n2:'<b>Yeni noktanın üstündeki küre</b> artık ne kadar kaldığını yazıyor ve herkes görüyor.',
+ n3:'<b>Dil bütünüyle değişiyor.</b> İpucu ve bağlantı satırı artık eskisinde kalmıyor.',
+ n4:'<b>2 $ ve üzeri yükleme</b> — alt sınır doğrudan pencerede yazıyor.',
+ hHow:'Nasıl kurulur',
+ hwAndTag:'Chrome', hwIosTag:'yalnız Safari',
+ hwA1:'Yukarıdaki «Telefona kur» düğmesine bas.',
+ hwA2:'Düğme sessizse — tarayıcı menüsü (üç nokta) → «Uygulamayı yükle».',
+ hwA3:'Simge ana ekrana gelir. Sonrası oradan açılır, adres çubuğu olmadan.',
+ hwI1:'Bu sayfayı Safari’de aç — iPhone’daki diğer tarayıcılar bunu yapamaz.',
+ hwI2:'Alttaki Paylaş düğmesi.',
+ hwI3:'«Ana Ekrana Ekle».',
+ hData:'Veriler',
+ dataLead:'Oyun konumunu alır — onsuz oyun diye bir şey yok. İşte tam olarak ne alınıyor, ne için, kim görüyor ve hepsi nasıl silinir.',
+ dataBtn:'Oyun senin hakkında ne biliyor →',
+ fWarn:'Yola bak, telefona değil. Direksiyonda oynama.',
+ fOpen:'oyunu aç',
+ jsHave:'Oyun bu telefonda zaten kurulu.', jsOpen:'Oyunu aç',
+ jsDone:'Tamam. Simge ana ekranda.',
+ jsIos:'iPhone’da: Paylaş → «Ana Ekrana Ekle». Apple başka yol bırakmıyor.',
+ jsIosHow:'Bu sayfayı Safari’de aç, sonra Paylaş → «Ana Ekrana Ekle».',
+ jsAndHow:'Tarayıcı menüsü (üstteki üç nokta) → «Uygulamayı yükle». Seçenek yoksa bir dakika oyna ve tekrar bak.'
+},
+zh:{
+ title:'Gate Territory — 占领你脚下的土地',
+ desc:'一款关于真实土地的游戏。在你走过的地方建掩体，守住你的城市，去打别人的据点。',
+ by:'OpenGate · 关于真实土地的游戏',
+ pitch:'占领你<b>真正站着</b>的土地。建一座掩体，用火炮围起来，守住你的城市。',
+ btnInstall:'安装到手机', btnPlay:'先在浏览器里玩玩',
+ note:'免费。手机上约占 6 MB。',
+ fPrice:'价格', vPrice:'免费', fSize:'大小', vSize:'≈ 6 MB', fLang:'语言',
+ fVer:'版本', fOff:'离线', vOff:'可用', fNeed:'需要',
+ cap1:'被围攻。走出圆圈，否则损失十秒。',
+ cap2:'卫星足够精确时，准星才会锁定。',
+ cap3:'游戏不说“不行”，而是告诉你还差几米。',
+ capNote:'实机截图，罗兹。',
+ hAbout:'这是什么',
+ ab0:'地图就是你的城市。不是虚构的，就是你每天上班走的那条路。',
+ ab1:'在你双脚所站的地方建掩体。土质掩体免费，每天一座。它周围会落下属于你的圆圈。在旁边架上火炮，把几个据点连成一环，这个街区就是你的。',
+ ab2:'别人的据点可以强攻。但你必须走过去：靠近到八十米以内才能开战。它的火炮会还击——打的是真正的你，打的是你的坐标。游戏会提前十五秒预警并画出圆圈；从容走几步就能离开。',
+ ab3:'每笔消费的一半会留在掩体里。谁把它打掉，这笔钱就归谁。',
+ hInside:'里面有什么',
+ i1t:'掩体与火炮', i1p:'四级坚固度，三种火炮。每个据点最多七门炮。',
+ i2t:'步兵', i2p:'小队自己走向据点，在射程处停下开火。活下来的回到你的背包。',
+ i3t:'无人机与远程火箭', i3p:'无人机可从一公里外打击，火箭是两公里。飞行三十秒，双方都能在地图上看到。',
+ i4t:'家族', i4p:'不互相开战、共分战利品的自己人。有自己的聊天。',
+ i5t:'新据点上的护罩', i5p:'两小时不可侵犯，并且能看到还剩多久。新手是两天。',
+ i6t:'八种语言', i6p:'乌克兰语、俄语、波兰语、英语、德语、西班牙语、土耳其语、中文。',
+ hNews:'更新内容', newsVer:'版本 91',
+ n1:'<b>地图会加载它显示的内容。</b>以前只取你身边的据点——五公里外别人的掩体永远不会出现。',
+ n2:'<b>新据点上的护罩</b>现在会写出剩余时间，而且所有人都看得到。',
+ n3:'<b>语言会整体切换。</b>提示和连接状态行不再停留在上一种语言。',
+ n4:'<b>充值起步 2 美元</b>——下限直接写在窗口里。',
+ hHow:'如何安装',
+ hwAndTag:'Chrome', hwIosTag:'仅限 Safari',
+ hwA1:'点击上方的“安装到手机”。',
+ hwA2:'如果按钮没反应——浏览器菜单（三个点）→“安装应用”。',
+ hwA3:'图标会出现在主屏幕上。以后从图标打开，没有地址栏。',
+ hwI1:'请在 Safari 中打开本页——iPhone 上的其他浏览器做不到。',
+ hwI2:'底部的“分享”按钮。',
+ hwI3:'“添加到主屏幕”。',
+ hData:'数据',
+ dataLead:'游戏需要你的位置——没有它就没有这个游戏。这里写清楚了到底取什么、为什么取、谁能看到，以及如何全部删除。',
+ dataBtn:'游戏知道你什么 →',
+ fWarn:'看路，别看手机。开车时不要玩。',
+ fOpen:'打开游戏',
+ jsHave:'这台手机上已经安装了游戏。', jsOpen:'打开游戏',
+ jsDone:'完成。图标已在主屏幕上。',
+ jsIos:'在 iPhone 上：分享 →“添加到主屏幕”。苹果不允许其他方式。',
+ jsIosHow:'请在 Safari 中打开本页，然后 分享 →“添加到主屏幕”。',
+ jsAndHow:'浏览器菜单（顶部三个点）→“安装应用”。如果没有这一项，先玩一分钟再看看。'
+}
+};
+
+// Какой язык показывать: что человек выбрал, иначе язык телефона,
+// иначе английский — он есть у всех.
+var lang = 'en';
+function pickLang(){
+  var saved = null;
+  try{ saved = localStorage.getItem('ogt-site-lang'); }catch(e){}
+  if(saved && L[saved]) return saved;
+  var list = (navigator.languages && navigator.languages.length)
+             ? navigator.languages : [navigator.language || 'en'];
+  for(var i = 0; i < list.length; i++){
+    var c = String(list[i] || '').slice(0,2).toLowerCase();
+    if(L[c]) return c;
+  }
+  return 'en';
+}
+
+function paint(){
+  var d = L[lang] || L.en;
+  document.documentElement.lang = lang;
+  document.title = d.title;
+  var m = document.querySelector('meta[name="description"]');
+  if(m) m.setAttribute('content', d.desc);
+  var nodes = document.querySelectorAll('[data-t]');
+  for(var i = 0; i < nodes.length; i++){
+    var el = nodes[i], k = el.getAttribute('data-t');
+    if(d[k] === undefined) continue;
+    if(el.getAttribute('data-html')) el.innerHTML = d[k];
+    else el.textContent = d[k];
+  }
+  var sel = document.getElementById('lang');
+  if(sel) sel.value = lang;
+  repaintInstall();
+}
+
+lang = pickLang();
+
+document.getElementById('lang').addEventListener('change', function(e){
+  lang = e.target.value;
+  try{ localStorage.setItem('ogt-site-lang', lang); }catch(_){}
+  paint();
+});
+
 // Работник нужен и здесь: без него браузер не предложит установку тому,
 // кто пришёл сразу на эту страницу, а не в игру.
 if('serviceWorker' in navigator){
@@ -357,68 +743,72 @@ if('serviceWorker' in navigator){
   });
 }
 
-// Номер издания берём из того же файла, что и игра, — чтобы на странице
-// не висело вчерашнее число, когда выложена свежая сборка.
+// Номер издания берём из того же файла, что и игра.
 fetch('version.json', { cache:'no-store' })
   .then(function(r){ return r.json(); })
-  .then(function(d){
-    if(d && d.v) document.getElementById('ver').textContent = d.v;
-  })
+  .then(function(d){ if(d && d.v) document.getElementById('ver').textContent = d.v; })
   .catch(function(){});
 
-(function(){
-  var btn  = document.getElementById('install');
+var wait = null, installed = false;
+var iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+function standalone(){
+  try{
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+    if(window.navigator && window.navigator.standalone === true) return true;
+  }catch(e){}
+  return false;
+}
+
+// Какую подпись показывать под кнопкой. Держим не сам текст, а ключ —
+// тогда при смене языка подпись меняется вместе со страницей, а не
+// остаётся на прежнем языке.
+var noteKey = null, noteWarn = false;
+
+// Перерисовать кнопку и подпись под текущий язык и текущее состояние.
+function repaintInstall(){
+  var d = L[lang] || L.en;
+  var btn = document.getElementById('install');
   var note = document.getElementById('getnote');
-  var ua   = navigator.userAgent || '';
-  var iOS  = /iPhone|iPad|iPod/i.test(ua);
-  var wait = null;                       // отложенное предложение Chrome
-
-  function standalone(){
-    try{
-      if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
-      if(window.navigator && window.navigator.standalone === true) return true;
-    }catch(e){}
-    return false;
+  if(!btn || !note) return;
+  var k = noteKey;
+  if(installed || standalone()){
+    btn.textContent = d.jsOpen;
+    if(!k) k = installed ? 'jsDone' : 'jsHave';
+  } else {
+    btn.textContent = d.btnInstall;
+    if(!k) k = iOS ? 'jsIos' : 'note';
   }
+  note.textContent = d[k] !== undefined ? d[k] : (L.en[k] || '');
+  note.style.color = noteWarn ? '#E0A32E' : '';
+}
 
-  if(standalone()){
-    btn.textContent = 'Відкрити гру';
-    btn.onclick = function(){ location.href = 'index.html'; };
-    note.textContent = 'Гра вже стоїть на цьому телефоні.';
+function setNote(k, warn){ noteKey = k; noteWarn = !!warn; repaintInstall(); }
+
+paint();
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  wait = e;
+  setNote('note', false);
+});
+
+window.addEventListener('appinstalled', function(){
+  installed = true;
+  setNote(null, false);
+});
+
+document.getElementById('install').addEventListener('click', function(){
+  if(installed || standalone()){ location.href = 'index.html'; return; }
+  if(wait){
+    wait.prompt();
+    wait.userChoice.then(function(){ wait = null; });
     return;
   }
-
-  if(iOS){
-    note.textContent = 'На iPhone: «Поділитися» → «На екран «Додому»». Apple інакше не дозволяє.';
-  }
-
-  window.addEventListener('beforeinstallprompt', function(e){
-    e.preventDefault();
-    wait = e;
-    note.textContent = 'Безкоштовно. Місця на телефоні — близько 6 МБ.';
-  });
-
-  window.addEventListener('appinstalled', function(){
-    btn.textContent = 'Відкрити гру';
-    btn.onclick = function(){ location.href = 'index.html'; };
-    note.textContent = 'Готово. Значок уже на екрані.';
-  });
-
-  btn.addEventListener('click', function(){
-    if(wait){
-      wait.prompt();
-      wait.userChoice.then(function(){ wait = null; });
-      return;
-    }
-    // Предложения нет: или iPhone, или браузер ещё не решил, что мы
-    // достойны. Говорим руками, а не молчим.
-    note.textContent = iOS
-      ? 'Відкрий цю сторінку в Safari, потім «Поділитися» → «На екран «Додому»».'
-      : 'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.';
-    note.style.color = '#E0A32E';
-    document.querySelector('.how').scrollIntoView({ behavior:'smooth', block:'start' });
-  });
-})();
+  setNote(iOS ? 'jsIosHow' : 'jsAndHow', true);
+  var how = document.querySelector('.how');
+  if(how) how.scrollIntoView({ behavior:'smooth', block:'start' });
+});
 </script>
 </body>
 </html>
