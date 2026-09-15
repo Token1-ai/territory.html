@@ -1,13 +1,22 @@
 {
   "name": "Gate Territory",
   "short_name": "Gate Territory",
-  "description": "Claim ground where you stand. Build bunkers, hold your city.",
+  "description": "Claim the ground you actually stand on. Plant bunkers where you walk, ring them with cannons, hold your city.",
+  "lang": "en",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#12140F",
   "theme_color": "#12140F",
+  "categories": [
+    "games",
+    "navigation"
+  ],
   "icons": [
     {
       "src": "icon-512-mask.png",
@@ -36,9 +45,32 @@
   ],
   "screenshots": [
     {
-      "src": "splash-1080.webp",
-      "sizes": "1080x1080",
-      "type": "image/webp"
+      "src": "shot-plant.jpg",
+      "sizes": "540x1045",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Stand where you want the bunker. The sight lights up when the signal is good enough."
+    },
+    {
+      "src": "shot-siege.jpg",
+      "sizes": "540x1045",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Under siege: step out of the circle, or lose ten seconds."
+    },
+    {
+      "src": "shot-cannon.jpg",
+      "sizes": "540x1045",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "It never just says no. It says how many metres are left to walk."
+    },
+    {
+      "src": "shot-wide.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Gate Territory — a game about real ground"
     }
   ]
 }
