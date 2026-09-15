@@ -166,6 +166,56 @@ footer{border-top:1px solid var(--line);padding-top:22px;font-family:var(--mono)
 footer p{margin:0 0 8px;max-width:none;}
 .warn{color:var(--soft);}
 
+/* ── соседняя игра: боковой столбик ──────────────────────
+   На телефоне это карточка в потоке, на широком экране —
+   липкий столбик справа, который едет рядом со страницей.
+   Ширину держим одинаковой (≤340), чтобы обложка нигде
+   не раздувалась на пол-экрана.                          */
+.adrail{
+  --void:#A970FF;
+  display:block;text-decoration:none;color:inherit;
+  width:100%;max-width:340px;margin:0 auto 38px;
+  background:var(--panel);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  transition:border-color .18s ease, transform .18s ease;
+}
+.adrail:hover{border-color:var(--void);transform:translateY(-2px);}
+.adrail:focus-visible{outline:2px solid var(--void);outline-offset:3px;}
+.adrail .mark{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);
+  padding:12px 15px 10px;
+}
+.adrail picture,.adrail img{display:block;width:100%;height:auto;}
+.adrail img{background:#120A1E;aspect-ratio:1/1;object-fit:cover;}
+.adrail .body{padding:15px 15px 17px;}
+.adrail h3{
+  font-family:'Archivo',system-ui,sans-serif;font-weight:800;
+  font-size:21px;letter-spacing:.005em;margin:0 0 7px;color:var(--ink);
+}
+.adrail .body p{color:var(--soft);font-size:14.5px;line-height:1.5;margin:0 0 14px;max-width:none;}
+.adrail .go{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--void);border-radius:10px;padding:11px 13px;
+  font-family:'Archivo',system-ui,sans-serif;font-weight:700;font-size:14.5px;
+  color:#DCC6FF;transition:background .18s ease,color .18s ease;
+}
+.adrail:hover .go{background:var(--void);color:#140A24;}
+
+@media (min-width:1180px){
+  .wrap{
+    max-width:1116px;   /* 760 текста + 56 зазор + 300 столбик */
+    display:grid;grid-template-columns:minmax(0,760px) 300px;
+    gap:56px;align-items:start;
+  }
+  .wrap > *{grid-column:1;}
+  .wrap > .adrail{
+    grid-column:2;grid-row:1 / span 40;
+    position:sticky;top:22px;align-self:start;
+    max-width:none;margin:0;
+  }
+}
+
 @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important;} }
 </style>
 </head>
@@ -227,6 +277,17 @@ footer p{margin:0 0 8px;max-width:none;}
   </figure>
 </div>
 <p class="shots-note" data-t="capNote"></p>
+
+<a class="adrail" href="https://voldcraft-story.vercel.app/" target="_blank" rel="noopener">
+  <p class="mark" data-t="adMark"></p>
+  <img src="voidcraft.webp" width="640" height="640" loading="lazy" decoding="async"
+       alt="VOIDCRAFT — build, survive, explore">
+  <div class="body">
+    <h3>VOIDCRAFT</h3>
+    <p data-t="adText"></p>
+    <span class="go"><span data-t="adGo"></span> →</span>
+  </div>
+</a>
 
 <section class="about">
   <h2 data-t="hAbout"></h2>
@@ -346,7 +407,10 @@ uk:{
  jsDone:'Готово. Значок уже на екрані.',
  jsIos:'На iPhone: «Поділитися» → «На екран «Додому»». Apple інакше не дозволяє.',
  jsIosHow:'Відкрий цю сторінку в Safari, потім «Поділитися» → «На екран «Додому»».',
- jsAndHow:'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.'
+ jsAndHow:'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.',
+ adMark:'ще одна наша гра',
+ adText:'Вісім летючих островів і 163 види блоків. Будуй що завгодно, а вночі з темряви виходить нежить. Без завдань і без таймерів.',
+ adGo:'Відкрити VOIDCRAFT'
 },
 en:{
  title:'Gate Territory — claim the ground you stand on',
@@ -395,7 +459,10 @@ en:{
  jsDone:'Done. The icon is on your home screen.',
  jsIos:'On iPhone: Share → “Add to Home Screen”. Apple allows no other way.',
  jsIosHow:'Open this page in Safari, then Share → “Add to Home Screen”.',
- jsAndHow:'Browser menu (three dots at the top) → “Install app”. If it isn’t there, play for a minute and look again.'
+ jsAndHow:'Browser menu (three dots at the top) → “Install app”. If it isn’t there, play for a minute and look again.',
+ adMark:'another game of ours',
+ adText:'Eight floating islands and 163 kinds of block. Build whatever you like — and at night the undead come out of the dark. No quests, no timers.',
+ adGo:'Open VOIDCRAFT'
 },
 ru:{
  title:'Gate Territory — захвати землю, на которой стоишь',
@@ -444,7 +511,10 @@ ru:{
  jsDone:'Готово. Значок уже на экране.',
  jsIos:'На iPhone: «Поделиться» → «На экран «Домой»». Apple иначе не разрешает.',
  jsIosHow:'Открой эту страницу в Safari, потом «Поделиться» → «На экран «Домой»».',
- jsAndHow:'Меню браузера (три точки вверху) → «Установить приложение». Если пункта нет — поиграй минуту и загляни ещё раз.'
+ jsAndHow:'Меню браузера (три точки вверху) → «Установить приложение». Если пункта нет — поиграй минуту и загляни ещё раз.',
+ adMark:'ещё одна наша игра',
+ adText:'Восемь летающих островов и 163 вида блоков. Строй что угодно, а ночью из темноты выходит нежить. Без заданий и без таймеров.',
+ adGo:'Открыть VOIDCRAFT'
 },
 pl:{
  title:'Gate Territory — zajmij ziemię, na której stoisz',
@@ -493,7 +563,10 @@ pl:{
  jsDone:'Gotowe. Ikona jest już na ekranie.',
  jsIos:'Na iPhonie: „Udostępnij” → „Do ekranu początkowego”. Apple inaczej nie pozwala.',
  jsIosHow:'Otwórz tę stronę w Safari, potem „Udostępnij” → „Do ekranu początkowego”.',
- jsAndHow:'Menu przeglądarki (trzy kropki u góry) → „Zainstaluj aplikację”. Jeśli nie ma tej pozycji, pograj minutę i zajrzyj jeszcze raz.'
+ jsAndHow:'Menu przeglądarki (trzy kropki u góry) → „Zainstaluj aplikację”. Jeśli nie ma tej pozycji, pograj minutę i zajrzyj jeszcze raz.',
+ adMark:'jeszcze jedna nasza gra',
+ adText:'Osiem latających wysp i 163 rodzaje bloków. Buduj, co chcesz, a nocą z ciemności wychodzą nieumarli. Bez zadań i bez timerów.',
+ adGo:'Otwórz VOIDCRAFT'
 },
 de:{
  title:'Gate Territory — nimm den Boden, auf dem du stehst',
@@ -542,7 +615,10 @@ de:{
  jsDone:'Fertig. Das Symbol ist auf dem Startbildschirm.',
  jsIos:'Auf dem iPhone: Teilen → „Zum Home-Bildschirm“. Apple erlaubt es nicht anders.',
  jsIosHow:'Öffne diese Seite in Safari, dann Teilen → „Zum Home-Bildschirm“.',
- jsAndHow:'Browsermenü (drei Punkte oben) → „App installieren“. Fehlt der Eintrag, spiele eine Minute und schau noch einmal.'
+ jsAndHow:'Browsermenü (drei Punkte oben) → „App installieren“. Fehlt der Eintrag, spiele eine Minute und schau noch einmal.',
+ adMark:'noch ein Spiel von uns',
+ adText:'Acht fliegende Inseln und 163 Arten von Blöcken. Bau, was du willst — nachts kommen die Untoten aus dem Dunkel. Keine Aufträge, keine Timer.',
+ adGo:'VOIDCRAFT öffnen'
 },
 es:{
  title:'Gate Territory — reclama el suelo que pisas',
@@ -591,7 +667,10 @@ es:{
  jsDone:'Listo. El icono ya está en la pantalla.',
  jsIos:'En iPhone: Compartir → «Añadir a pantalla de inicio». Apple no permite otra forma.',
  jsIosHow:'Abre esta página en Safari y luego Compartir → «Añadir a pantalla de inicio».',
- jsAndHow:'Menú del navegador (tres puntos arriba) → «Instalar aplicación». Si no aparece, juega un minuto y vuelve a mirar.'
+ jsAndHow:'Menú del navegador (tres puntos arriba) → «Instalar aplicación». Si no aparece, juega un minuto y vuelve a mirar.',
+ adMark:'otro juego nuestro',
+ adText:'Ocho islas flotantes y 163 tipos de bloque. Construye lo que quieras; de noche los muertos salen de la oscuridad. Sin misiones y sin temporizadores.',
+ adGo:'Abrir VOIDCRAFT'
 },
 tr:{
  title:'Gate Territory — bastığın toprağı ele geçir',
@@ -640,7 +719,10 @@ tr:{
  jsDone:'Tamam. Simge ana ekranda.',
  jsIos:'iPhone’da: Paylaş → «Ana Ekrana Ekle». Apple başka yol bırakmıyor.',
  jsIosHow:'Bu sayfayı Safari’de aç, sonra Paylaş → «Ana Ekrana Ekle».',
- jsAndHow:'Tarayıcı menüsü (üstteki üç nokta) → «Uygulamayı yükle». Seçenek yoksa bir dakika oyna ve tekrar bak.'
+ jsAndHow:'Tarayıcı menüsü (üstteki üç nokta) → «Uygulamayı yükle». Seçenek yoksa bir dakika oyna ve tekrar bak.',
+ adMark:'bizden bir oyun daha',
+ adText:'Sekiz uçan ada ve 163 çeşit blok. Ne istersen inşa et; geceleri karanlıktan ölüler çıkar. Görev yok, sayaç yok.',
+ adGo:'VOIDCRAFT’ı aç'
 },
 zh:{
  title:'Gate Territory — 占领你脚下的土地',
@@ -689,7 +771,10 @@ zh:{
  jsDone:'完成。图标已在主屏幕上。',
  jsIos:'在 iPhone 上：分享 →“添加到主屏幕”。苹果不允许其他方式。',
  jsIosHow:'请在 Safari 中打开本页，然后 分享 →“添加到主屏幕”。',
- jsAndHow:'浏览器菜单（顶部三个点）→“安装应用”。如果没有这一项，先玩一分钟再看看。'
+ jsAndHow:'浏览器菜单（顶部三个点）→“安装应用”。如果没有这一项，先玩一分钟再看看。',
+ adMark:'我们的另一款游戏',
+ adText:'八座浮空岛，163 种方块。想建什么就建什么；入夜后亡灵从黑暗里走出来。没有任务，也没有倒计时。',
+ adGo:'打开 VOIDCRAFT'
 }
 };
 
