@@ -8,9 +8,6 @@
   "orientation": "portrait",
   "background_color": "#12140F",
   "theme_color": "#12140F",
-  "categories": [
-    "games"
-  ],
   "icons": [
     {
       "src": "icon-512-mask.png",
