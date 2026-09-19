@@ -17,6 +17,13 @@
     "games",
     "navigation"
   ],
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://territory.opengate.bond/manifest.json"
+    }
+  ],
   "icons": [
     {
       "src": "icon-512-mask.png",

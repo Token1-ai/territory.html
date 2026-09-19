@@ -251,12 +251,13 @@ footer p{margin:0 0 8px;max-width:none;}
     <a class="btn ghost" href="index.html" data-t="btnPlay"></a>
   </div>
   <p class="getnote" id="getnote" data-t="note"></p>
+  <button class="btn ghost" id="escape" type="button" style="display:none;width:100%;margin:-18px 0 30px"></button>
 
   <dl class="facts">
     <div><dt data-t="fPrice"></dt><dd data-t="vPrice"></dd></div>
     <div><dt data-t="fSize"></dt><dd data-t="vSize"></dd></div>
     <div><dt data-t="fLang"></dt><dd>8</dd></div>
-    <div><dt data-t="fVer"></dt><dd id="ver">91</dd></div>
+    <div><dt data-t="fVer"></dt><dd id="ver">94</dd></div>
     <div><dt data-t="fOff"></dt><dd data-t="vOff"></dd></div>
     <div><dt data-t="fNeed"></dt><dd>GPS</dd></div>
   </dl>
@@ -408,6 +409,15 @@ uk:{
  jsIos:'На iPhone: «Поділитися» → «На екран «Додому»». Apple інакше не дозволяє.',
  jsIosHow:'Відкрий цю сторінку в Safari, потім «Поділитися» → «На екран «Додому»».',
  jsAndHow:'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.',
+ hChrome:'Меню ⋮ (три крапки вгорі праворуч) → «Додати на головний екран» → «Встановити». У старіших Chrome пункт зветься «Встановити застосунок».',
+ hSamsung:'Меню ☰ (три смужки внизу) → «Додати сторінку» → «Головний екран».',
+ hFirefox:'Меню ⋮ (три крапки) → «Додати на головний екран».',
+ hOpera:'Меню ⋮ → «Додати на» → «Головний екран».',
+ hEdge:'Меню ⋯ (внизу) → «Додати на телефон».',
+ hOther:'Цей браузер не вміє ставити ігри на екран. Відкрий сторінку в Chrome — звідти все в один дотик.',
+ inApp:'Гра відкрита всередині іншого застосунку (Telegram, Instagram і подібні). Звідси встановити не можна.',
+ btnChrome:'Відкрити в Chrome',
+ btnSafari:'Відкрити в Safari',
  adMark:'ще одна наша гра',
  adText:'Вісім летючих островів і 163 види блоків. Будуй що завгодно, а вночі з темряви виходить нежить. Без завдань і без таймерів.',
  adGo:'Відкрити VOIDCRAFT'
@@ -460,6 +470,15 @@ en:{
  jsIos:'On iPhone: Share → “Add to Home Screen”. Apple allows no other way.',
  jsIosHow:'Open this page in Safari, then Share → “Add to Home Screen”.',
  jsAndHow:'Browser menu (three dots at the top) → “Install app”. If it isn’t there, play for a minute and look again.',
+ hChrome:'Menu ⋮ (three dots, top right) → “Add to Home screen” → “Install”. Older Chrome calls it “Install app”.',
+ hSamsung:'Menu ☰ (three lines at the bottom) → “Add page to” → “Home screen”.',
+ hFirefox:'Menu ⋮ (three dots) → “Add to Home screen”.',
+ hOpera:'Menu ⋮ → “Add to” → “Home screen”.',
+ hEdge:'Menu ⋯ (at the bottom) → “Add to phone”.',
+ hOther:'This browser can’t put games on the home screen. Open the page in Chrome — one tap from there.',
+ inApp:'The game is open inside another app (Telegram, Instagram and such). You can’t install from here.',
+ btnChrome:'Open in Chrome',
+ btnSafari:'Open in Safari',
  adMark:'another game of ours',
  adText:'Eight floating islands and 163 kinds of block. Build whatever you like — and at night the undead come out of the dark. No quests, no timers.',
  adGo:'Open VOIDCRAFT'
@@ -512,6 +531,15 @@ ru:{
  jsIos:'На iPhone: «Поделиться» → «На экран «Домой»». Apple иначе не разрешает.',
  jsIosHow:'Открой эту страницу в Safari, потом «Поделиться» → «На экран «Домой»».',
  jsAndHow:'Меню браузера (три точки вверху) → «Установить приложение». Если пункта нет — поиграй минуту и загляни ещё раз.',
+ hChrome:'Меню ⋮ (три точки вверху справа) → «Добавить на главный экран» → «Установить». В старых Chrome пункт называется «Установить приложение».',
+ hSamsung:'Меню ☰ (три полоски внизу) → «Добавить страницу» → «Главный экран».',
+ hFirefox:'Меню ⋮ (три точки) → «Добавить на главный экран».',
+ hOpera:'Меню ⋮ → «Добавить на» → «Главный экран».',
+ hEdge:'Меню ⋯ (внизу) → «Добавить на телефон».',
+ hOther:'Этот браузер не умеет ставить игры на экран. Открой страницу в Chrome — оттуда всё в одно нажатие.',
+ inApp:'Игра открыта внутри другого приложения (Telegram, Instagram и такие). Отсюда установить нельзя.',
+ btnChrome:'Открыть в Chrome',
+ btnSafari:'Открыть в Safari',
  adMark:'ещё одна наша игра',
  adText:'Восемь летающих островов и 163 вида блоков. Строй что угодно, а ночью из темноты выходит нежить. Без заданий и без таймеров.',
  adGo:'Открыть VOIDCRAFT'
@@ -564,6 +592,15 @@ pl:{
  jsIos:'Na iPhonie: „Udostępnij” → „Do ekranu początkowego”. Apple inaczej nie pozwala.',
  jsIosHow:'Otwórz tę stronę w Safari, potem „Udostępnij” → „Do ekranu początkowego”.',
  jsAndHow:'Menu przeglądarki (trzy kropki u góry) → „Zainstaluj aplikację”. Jeśli nie ma tej pozycji, pograj minutę i zajrzyj jeszcze raz.',
+ hChrome:'Menu ⋮ (trzy kropki, prawy górny róg) → „Dodaj do ekranu głównego” → „Zainstaluj”. W starszym Chrome pozycja nazywa się „Zainstaluj aplikację”.',
+ hSamsung:'Menu ☰ (trzy kreski na dole) → „Dodaj stronę do” → „Ekran główny”.',
+ hFirefox:'Menu ⋮ (trzy kropki) → „Dodaj do ekranu głównego”.',
+ hOpera:'Menu ⋮ → „Dodaj do” → „Ekran główny”.',
+ hEdge:'Menu ⋯ (na dole) → „Dodaj do telefonu”.',
+ hOther:'Ta przeglądarka nie potrafi dodać gry na ekran główny. Otwórz stronę w Chrome — tam wystarczy jedno dotknięcie.',
+ inApp:'Gra jest otwarta wewnątrz innej aplikacji (Telegram, Instagram itp.). Stąd nie da się zainstalować.',
+ btnChrome:'Otwórz w Chrome',
+ btnSafari:'Otwórz w Safari',
  adMark:'jeszcze jedna nasza gra',
  adText:'Osiem latających wysp i 163 rodzaje bloków. Buduj, co chcesz, a nocą z ciemności wychodzą nieumarli. Bez zadań i bez timerów.',
  adGo:'Otwórz VOIDCRAFT'
@@ -616,6 +653,15 @@ de:{
  jsIos:'Auf dem iPhone: Teilen → „Zum Home-Bildschirm“. Apple erlaubt es nicht anders.',
  jsIosHow:'Öffne diese Seite in Safari, dann Teilen → „Zum Home-Bildschirm“.',
  jsAndHow:'Browsermenü (drei Punkte oben) → „App installieren“. Fehlt der Eintrag, spiele eine Minute und schau noch einmal.',
+ hChrome:'Menü ⋮ (drei Punkte oben rechts) → „Zum Startbildschirm hinzufügen“ → „Installieren“. Ältere Chrome-Versionen nennen es „App installieren“.',
+ hSamsung:'Menü ☰ (drei Striche unten) → „Seite hinzufügen zu“ → „Startbildschirm“.',
+ hFirefox:'Menü ⋮ (drei Punkte) → „Zum Startbildschirm hinzufügen“.',
+ hOpera:'Menü ⋮ → „Hinzufügen zu“ → „Startbildschirm“.',
+ hEdge:'Menü ⋯ (unten) → „Zum Telefon hinzufügen“.',
+ hOther:'Dieser Browser kann keine Spiele auf den Startbildschirm legen. Öffne die Seite in Chrome — dort genügt ein Tippen.',
+ inApp:'Das Spiel läuft in einer anderen App (Telegram, Instagram und ähnliche). Von hier aus lässt es sich nicht installieren.',
+ btnChrome:'In Chrome öffnen',
+ btnSafari:'In Safari öffnen',
  adMark:'noch ein Spiel von uns',
  adText:'Acht fliegende Inseln und 163 Arten von Blöcken. Bau, was du willst — nachts kommen die Untoten aus dem Dunkel. Keine Aufträge, keine Timer.',
  adGo:'VOIDCRAFT öffnen'
@@ -668,6 +714,15 @@ es:{
  jsIos:'En iPhone: Compartir → «Añadir a pantalla de inicio». Apple no permite otra forma.',
  jsIosHow:'Abre esta página en Safari y luego Compartir → «Añadir a pantalla de inicio».',
  jsAndHow:'Menú del navegador (tres puntos arriba) → «Instalar aplicación». Si no aparece, juega un minuto y vuelve a mirar.',
+ hChrome:'Menú ⋮ (tres puntos, arriba a la derecha) → «Añadir a pantalla de inicio» → «Instalar». En Chrome antiguos se llama «Instalar aplicación».',
+ hSamsung:'Menú ☰ (tres rayas abajo) → «Añadir página a» → «Pantalla de inicio».',
+ hFirefox:'Menú ⋮ (tres puntos) → «Añadir a pantalla de inicio».',
+ hOpera:'Menú ⋮ → «Añadir a» → «Pantalla de inicio».',
+ hEdge:'Menú ⋯ (abajo) → «Añadir al teléfono».',
+ hOther:'Este navegador no puede poner juegos en la pantalla de inicio. Abre la página en Chrome: allí basta un toque.',
+ inApp:'El juego está abierto dentro de otra aplicación (Telegram, Instagram y similares). Desde aquí no se puede instalar.',
+ btnChrome:'Abrir en Chrome',
+ btnSafari:'Abrir en Safari',
  adMark:'otro juego nuestro',
  adText:'Ocho islas flotantes y 163 tipos de bloque. Construye lo que quieras; de noche los muertos salen de la oscuridad. Sin misiones y sin temporizadores.',
  adGo:'Abrir VOIDCRAFT'
@@ -720,6 +775,15 @@ tr:{
  jsIos:'iPhone’da: Paylaş → «Ana Ekrana Ekle». Apple başka yol bırakmıyor.',
  jsIosHow:'Bu sayfayı Safari’de aç, sonra Paylaş → «Ana Ekrana Ekle».',
  jsAndHow:'Tarayıcı menüsü (üstteki üç nokta) → «Uygulamayı yükle». Seçenek yoksa bir dakika oyna ve tekrar bak.',
+ hChrome:'Menü ⋮ (sağ üstteki üç nokta) → «Ana ekrana ekle» → «Yükle». Eski Chrome sürümlerinde «Uygulamayı yükle» yazar.',
+ hSamsung:'Menü ☰ (alttaki üç çizgi) → «Sayfayı şuraya ekle» → «Ana ekran».',
+ hFirefox:'Menü ⋮ (üç nokta) → «Ana ekrana ekle».',
+ hOpera:'Menü ⋮ → «Şuraya ekle» → «Ana ekran».',
+ hEdge:'Menü ⋯ (altta) → «Telefona ekle».',
+ hOther:'Bu tarayıcı oyunu ana ekrana koyamıyor. Sayfayı Chrome’da aç — orada tek dokunuş yeter.',
+ inApp:'Oyun başka bir uygulamanın içinde açık (Telegram, Instagram gibi). Buradan kurulamaz.',
+ btnChrome:'Chrome’da aç',
+ btnSafari:'Safari’de aç',
  adMark:'bizden bir oyun daha',
  adText:'Sekiz uçan ada ve 163 çeşit blok. Ne istersen inşa et; geceleri karanlıktan ölüler çıkar. Görev yok, sayaç yok.',
  adGo:'VOIDCRAFT’ı aç'
@@ -772,6 +836,15 @@ zh:{
  jsIos:'在 iPhone 上：分享 →“添加到主屏幕”。苹果不允许其他方式。',
  jsIosHow:'请在 Safari 中打开本页，然后 分享 →“添加到主屏幕”。',
  jsAndHow:'浏览器菜单（顶部三个点）→“安装应用”。如果没有这一项，先玩一分钟再看看。',
+ hChrome:'菜单 ⋮（右上角三个点）→“添加到主屏幕”→“安装”。旧版 Chrome 里叫“安装应用”。',
+ hSamsung:'菜单 ☰（底部三条横线）→“添加页面到”→“主屏幕”。',
+ hFirefox:'菜单 ⋮（三个点）→“添加到主屏幕”。',
+ hOpera:'菜单 ⋮ →“添加到”→“主屏幕”。',
+ hEdge:'菜单 ⋯（底部）→“添加到手机”。',
+ hOther:'这个浏览器无法把游戏放到主屏幕。请在 Chrome 中打开本页，那里一键即可。',
+ inApp:'游戏是在别的应用里打开的（Telegram、Instagram 之类）。从这里无法安装。',
+ btnChrome:'在 Chrome 中打开',
+ btnSafari:'在 Safari 中打开',
  adMark:'我们的另一款游戏',
  adText:'八座浮空岛，163 种方块。想建什么就建什么；入夜后亡灵从黑暗里走出来。没有任务，也没有倒计时。',
  adGo:'打开 VOIDCRAFT'
@@ -834,8 +907,44 @@ fetch('version.json', { cache:'no-store' })
   .then(function(d){ if(d && d.v) document.getElementById('ver').textContent = d.v; })
   .catch(function(){});
 
-var wait = null, installed = false;
-var iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+var wait = null, installed = false, already = false;
+var UA = navigator.userAgent || '';
+var iOS = /iPhone|iPad|iPod/i.test(UA) ||
+          (/Macintosh/.test(UA) && (navigator.maxTouchPoints || 0) > 1);
+
+// ЧЕМ ОТКРЫТО. Раньше страница знала только «айфон или нет», а всем
+// остальным показывала одну инструкцию про три точки. Но пункт меню у
+// каждого браузера свой, и человек в Firefox искал то, чего там нет.
+// Порядок проверок важен: почти все эти браузеры пишут в своей подписи
+// слово Chrome, поэтому настоящий Chrome проверяем последним.
+function brand(){
+  if(/FBAN|FBAV|FB_IAB|Instagram|Telegram|TikTok|Twitter|Line\/|VKAndroidApp|OKApp|Snapchat|MicroMessenger/i.test(UA)) return 'inapp';
+  if(iOS) return /CriOS|FxiOS|EdgiOS|OPT\//.test(UA) ? 'iosother' : 'safari';
+  if(/SamsungBrowser/i.test(UA)) return 'samsung';
+  if(/Firefox\//i.test(UA)) return 'firefox';
+  if(/\bOPR\//i.test(UA)) return 'opera';
+  if(/\bEdgA?\//i.test(UA)) return 'edge';
+  if(/Chrome\//i.test(UA)) return 'chrome';
+  return 'other';
+}
+
+var HOW = { chrome:'hChrome', samsung:'hSamsung', firefox:'hFirefox',
+            opera:'hOpera', edge:'hEdge', safari:'jsIos',
+            iosother:'jsIosHow', inapp:'inApp', other:'hOther' };
+
+// Из Telegram и подобных поставить нельзя вообще — там урезанный
+// браузер без такой возможности. Единственный выход — перепрыгнуть в
+// нормальный, и это делается одной ссылкой, без объяснений на три
+// абзаца.
+function escapeUrl(){
+  var u = location.href.replace(/^https?:\/\//, '');
+  if(iOS) return 'x-safari-https://' + u;
+  return 'intent://' + u + '#Intent;scheme=https;package=com.android.chrome;end';
+}
+function needEscape(){
+  var b = brand();
+  return b === 'inapp' || b === 'iosother' || b === 'other';
+}
 
 function standalone(){
   try{
@@ -848,7 +957,7 @@ function standalone(){
 // Какую подпись показывать под кнопкой. Держим не сам текст, а ключ —
 // тогда при смене языка подпись меняется вместе со страницей, а не
 // остаётся на прежнем языке.
-var noteKey = null, noteWarn = false;
+var noteKey = null, noteWarn = false, escapeShown = false;
 
 // Перерисовать кнопку и подпись под текущий язык и текущее состояние.
 function repaintInstall(){
@@ -857,7 +966,7 @@ function repaintInstall(){
   var note = document.getElementById('getnote');
   if(!btn || !note) return;
   var k = noteKey;
-  if(installed || standalone()){
+  if(installed || already || standalone()){
     btn.textContent = d.jsOpen;
     if(!k) k = installed ? 'jsDone' : 'jsHave';
   } else {
@@ -866,6 +975,13 @@ function repaintInstall(){
   }
   note.textContent = d[k] !== undefined ? d[k] : (L.en[k] || '');
   note.style.color = noteWarn ? '#E0A32E' : '';
+
+  var out = document.getElementById('escape');
+  if(out){
+    out.textContent = iOS ? d.btnSafari : d.btnChrome;
+    out.style.display = (escapeShown && !(installed || already || standalone()))
+                        ? 'block' : 'none';
+  }
 }
 
 function setNote(k, warn){ noteKey = k; noteWarn = !!warn; repaintInstall(); }
@@ -883,16 +999,39 @@ window.addEventListener('appinstalled', function(){
   setNote(null, false);
 });
 
+// Chrome умеет сказать, стоит ли уже эта игра на телефоне. Если стоит,
+// окна установки он не покажет никогда — и раньше человек в этом месте
+// упирался в инструкцию, которая ему не нужна. Теперь просто открываем.
+try{
+  if(navigator.getInstalledRelatedApps){
+    navigator.getInstalledRelatedApps().then(function(list){
+      if(list && list.length){ already = true; setNote(null, false); }
+    }).catch(function(){});
+  }
+}catch(_){}
+
 document.getElementById('install').addEventListener('click', function(){
-  if(installed || standalone()){ location.href = 'index.html'; return; }
+  if(installed || already || standalone()){ location.href = 'index.html'; return; }
   if(wait){
     wait.prompt();
     wait.userChoice.then(function(){ wait = null; });
     return;
   }
-  setNote(iOS ? 'jsIosHow' : 'jsAndHow', true);
-  var how = document.querySelector('.how');
-  if(how) how.scrollIntoView({ behavior:'smooth', block:'start' });
+  // Окна нет. Значит либо браузер так не умеет, либо Chrome уже
+  // спрашивал и человек отказался — он тогда молчит месяцами. В обоих
+  // случаях помогает не общая инструкция, а путь именно для этого
+  // браузера, а из Telegram — прыжок в нормальный.
+  escapeShown = needEscape();
+  setNote(HOW[brand()] || 'hOther', true);
+  if(!escapeShown){
+    var how = document.querySelector('.how');
+    if(how) how.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+});
+
+document.getElementById('escape').addEventListener('click', function(){
+  try{ location.href = escapeUrl(); }
+  catch(_){ location.href = location.href; }
 });
 </script>
 </body>
