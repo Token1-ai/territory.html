@@ -4670,8 +4670,10 @@ async function openTopUp(needCents){
   // — способ однажды подставить не то. Поэтому просто говорим порог.
   if(cardOn()){
     html += '<div class="pf-sec" style="margin-top:16px">' + esc(T('sh_orcard')) + '</div>'
-          + '<button class="btn-buy" style="width:100%;padding:12px" onclick="goCard()">'
-          +   esc(T('sh_card')) + '</button>'
+          + '<button class="btn-buy" onclick="goCard()" style="width:100%;padding:12px;'
+          +        'display:flex;align-items:center;justify-content:center;gap:10px">'
+          +   MARK_VISA + '<span>' + esc(T('sh_card')) + '</span>' + MARK_MC
+          + '</button>'
           + '<div class="mv-warn">' + esc(T('sh_cardnote', { n: money$(cardMinCents()) })) + '</div>';
   }
 
@@ -4693,6 +4695,29 @@ function minCents(){ return Number(money.min_cents) || 200; }
 // место. Пусто в настройках — кнопки просто нет.
 function cardOn(){ return /^https:\/\//.test(String(money.pay_url || '')); }
 function cardMinCents(){ return Number(money.card_min_cents) || 500; }
+
+// Значки платёжных систем по бокам кнопки. Рисуем прямо здесь, а не
+// картинками: картинку надо тянуть по сети, а она нужна ровно в тот
+// момент, когда связи может и не быть. Тут же — пара строк разметки,
+// весят ничего и работают без интернета.
+// pointer-events:none — чтобы палец по значку всё равно жал кнопку.
+const MARK_VISA =
+  '<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true" '
++ 'style="flex:none;pointer-events:none">'
++ '<rect width="34" height="22" rx="3" fill="#fff"/>'
++ '<text x="17" y="15.4" text-anchor="middle" fill="#1434CB" '
++ 'font-family="Arial,Helvetica,sans-serif" font-size="10.5" font-weight="700" '
++ 'font-style="italic" letter-spacing=".3">VISA</text></svg>';
+
+const MARK_MC =
+  '<svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true" '
++ 'style="flex:none;pointer-events:none">'
++ '<rect width="34" height="22" rx="3" fill="#fff"/>'
++ '<clipPath id="ogt-mc-l"><circle cx="13.6" cy="11" r="6.4"/></clipPath>'
++ '<circle cx="13.6" cy="11" r="6.4" fill="#EB001B"/>'
++ '<circle cx="20.4" cy="11" r="6.4" fill="#F79E1B"/>'
++ '<circle cx="20.4" cy="11" r="6.4" fill="#FF5F00" clip-path="url(#ogt-mc-l)"/>'
++ '</svg>';
 
 let _cardWatch = null;
 function goCard(){
@@ -6903,7 +6928,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 93;
+const APP_V = 94;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
