@@ -93,6 +93,15 @@ a{color:var(--gold);}
   border:1px solid var(--line);font-weight:600;font-size:15.5px;padding:14px 20px;
 }
 .btn:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+/* Метка телефона на кнопке: человек с первого взгляда видит, его это
+   кнопка или соседняя. Ставим рядом с надписью, мелко и тускло — она
+   подсказывает, а не кричит. */
+.btn.two{display:flex;align-items:center;justify-content:center;gap:9px;}
+.plat{
+  font-family:var(--mono);font-weight:400;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;opacity:.5;
+  white-space:nowrap;
+}
 .getnote{font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--soft);margin:0 0 30px;}
 
 /* ── полоска фактов ──────────────────────────────────── */
@@ -247,9 +256,11 @@ footer p{margin:0 0 8px;max-width:none;}
   <p class="pitch" data-t="pitch" data-html="1"></p>
 
   <div class="get">
-    <button class="btn" id="install" type="button" data-t="btnInstall"></button>
+    <a class="btn two" id="getapk" href="gate-territory.apk" download style="display:none"><span id="apktxt"></span><b class="plat">Android</b></a>
+    <button class="btn two" id="install" type="button"><span id="installtxt"></span><b class="plat" id="platpwa"></b></button>
     <a class="btn ghost" href="index.html" data-t="btnPlay"></a>
   </div>
+  <p class="getnote" id="apknote" style="display:none;margin-bottom:12px"></p>
   <p class="getnote" id="getnote" data-t="note"></p>
   <button class="btn ghost" id="escape" type="button" style="display:none;width:100%;margin:-18px 0 30px"></button>
 
@@ -366,7 +377,7 @@ uk:{
  desc:'Гра про справжню землю. Став бункери там, де ходиш, тримай місто, бийся за чужі точки.',
  by:'OpenGate · гра про справжню землю',
  pitch:'Захопи землю, на якій <b>справді стоїш</b>. Постав бункер, обнеси гарматами, тримай своє місто.',
- btnInstall:'Встановити на телефон', btnPlay:'Спочатку просто пограти в браузері',
+ btnInstall:'Додати на головний екран', btnPlay:'Спочатку просто пограти в браузері',
  note:'Безкоштовно. Місця на телефоні — близько 6 МБ.',
  fPrice:'Ціна', vPrice:'Безкоштовно', fSize:'Розмір', vSize:'≈ 6 МБ', fLang:'Мов',
  fVer:'Версія', fOff:'Без мережі', vOff:'Працює', fNeed:'Потрібно',
@@ -393,7 +404,7 @@ uk:{
  n4:'<b>Поповнення від $2</b> — поріг написано прямо у вікні.',
  hHow:'Як поставити',
  hwAndTag:'Chrome', hwIosTag:'тільки Safari',
- hwA1:'Натисни «Встановити на телефон» угорі.',
+ hwA1:'Натисни «Додати на головний екран» угорі.',
  hwA2:'Якщо кнопка мовчить — меню браузера (три крапки) → «Встановити застосунок».',
  hwA3:'Значок стане на екран. Далі гра відкривається з нього, без адресного рядка.',
  hwI1:'Відкрий цю сторінку в Safari — інші браузери на iPhone так не вміють.',
@@ -409,6 +420,8 @@ uk:{
  jsIos:'На iPhone: «Поділитися» → «На екран «Додому»». Apple інакше не дозволяє.',
  jsIosHow:'Відкрий цю сторінку в Safari, потім «Поділитися» → «На екран «Додому»».',
  jsAndHow:'Меню браузера (три крапки вгорі) → «Встановити застосунок». Якщо пункту немає — погортай гру хвилину й загляни ще раз.',
+ btnApk:'Встановити на телефон',
+ apkNote:'Файл для Android — ставиться як звичайна гра, значок опиниться серед застосунків. Телефон один раз спитає дозвіл на встановлення.',
  hChrome:'Меню ⋮ (три крапки вгорі праворуч) → «Додати на головний екран» → «Встановити». У старіших Chrome пункт зветься «Встановити застосунок».',
  hSamsung:'Меню ☰ (три смужки внизу) → «Додати сторінку» → «Головний екран».',
  hFirefox:'Меню ⋮ (три крапки) → «Додати на головний екран».',
@@ -427,7 +440,7 @@ en:{
  desc:'A game about real ground. Plant bunkers where you walk, hold your city, fight for other people’s points.',
  by:'OpenGate · a game about real ground',
  pitch:'Claim the ground you <b>actually stand on</b>. Plant a bunker, ring it with cannons, hold your city.',
- btnInstall:'Install on your phone', btnPlay:'Or just play in the browser first',
+ btnInstall:'Add to Home screen', btnPlay:'Or just play in the browser first',
  note:'Free. About 6 MB on your phone.',
  fPrice:'Price', vPrice:'Free', fSize:'Size', vSize:'≈ 6 MB', fLang:'Languages',
  fVer:'Version', fOff:'Offline', vOff:'Works', fNeed:'Needs',
@@ -454,7 +467,7 @@ en:{
  n4:'<b>Top up from $2</b> — the minimum is written right in the window.',
  hHow:'How to install',
  hwAndTag:'Chrome', hwIosTag:'Safari only',
- hwA1:'Tap “Install on your phone” above.',
+ hwA1:'Tap “Add to Home screen” above.',
  hwA2:'If the button stays quiet — browser menu (three dots) → “Install app”.',
  hwA3:'The icon lands on your home screen. After that the game opens from it, with no address bar.',
  hwI1:'Open this page in Safari — other browsers on iPhone cannot do this.',
@@ -470,6 +483,8 @@ en:{
  jsIos:'On iPhone: Share → “Add to Home Screen”. Apple allows no other way.',
  jsIosHow:'Open this page in Safari, then Share → “Add to Home Screen”.',
  jsAndHow:'Browser menu (three dots at the top) → “Install app”. If it isn’t there, play for a minute and look again.',
+ btnApk:'Install on your phone',
+ apkNote:'A file for Android — installs like an ordinary game, with an icon among your apps. Your phone will ask once for permission.',
  hChrome:'Menu ⋮ (three dots, top right) → “Add to Home screen” → “Install”. Older Chrome calls it “Install app”.',
  hSamsung:'Menu ☰ (three lines at the bottom) → “Add page to” → “Home screen”.',
  hFirefox:'Menu ⋮ (three dots) → “Add to Home screen”.',
@@ -488,7 +503,7 @@ ru:{
  desc:'Игра про настоящую землю. Ставь бункеры там, где ходишь, держи город, бейся за чужие точки.',
  by:'OpenGate · игра про настоящую землю',
  pitch:'Захвати землю, на которой <b>правда стоишь</b>. Поставь бункер, обставь пушками, держи свой город.',
- btnInstall:'Установить на телефон', btnPlay:'Сначала просто поиграть в браузере',
+ btnInstall:'Добавить на главный экран', btnPlay:'Сначала просто поиграть в браузере',
  note:'Бесплатно. Места на телефоне — около 6 МБ.',
  fPrice:'Цена', vPrice:'Бесплатно', fSize:'Размер', vSize:'≈ 6 МБ', fLang:'Языков',
  fVer:'Версия', fOff:'Без сети', vOff:'Работает', fNeed:'Нужно',
@@ -515,7 +530,7 @@ ru:{
  n4:'<b>Пополнение от $2</b> — порог написан прямо в окне.',
  hHow:'Как поставить',
  hwAndTag:'Chrome', hwIosTag:'только Safari',
- hwA1:'Нажми «Установить на телефон» вверху.',
+ hwA1:'Нажми «Добавить на главный экран» вверху.',
  hwA2:'Если кнопка молчит — меню браузера (три точки) → «Установить приложение».',
  hwA3:'Значок встанет на экран. Дальше игра открывается с него, без адресной строки.',
  hwI1:'Открой эту страницу в Safari — другие браузеры на iPhone так не умеют.',
@@ -531,6 +546,8 @@ ru:{
  jsIos:'На iPhone: «Поделиться» → «На экран «Домой»». Apple иначе не разрешает.',
  jsIosHow:'Открой эту страницу в Safari, потом «Поделиться» → «На экран «Домой»».',
  jsAndHow:'Меню браузера (три точки вверху) → «Установить приложение». Если пункта нет — поиграй минуту и загляни ещё раз.',
+ btnApk:'Установить на телефон',
+ apkNote:'Файл для Android — ставится как обычная игра, значок окажется среди приложений. Телефон один раз спросит разрешение на установку.',
  hChrome:'Меню ⋮ (три точки вверху справа) → «Добавить на главный экран» → «Установить». В старых Chrome пункт называется «Установить приложение».',
  hSamsung:'Меню ☰ (три полоски внизу) → «Добавить страницу» → «Главный экран».',
  hFirefox:'Меню ⋮ (три точки) → «Добавить на главный экран».',
@@ -549,7 +566,7 @@ pl:{
  desc:'Gra o prawdziwej ziemi. Stawiaj bunkry tam, gdzie chodzisz, trzymaj miasto, walcz o cudze punkty.',
  by:'OpenGate · gra o prawdziwej ziemi',
  pitch:'Zajmij ziemię, na której <b>naprawdę stoisz</b>. Postaw bunkier, obstaw działami, trzymaj swoje miasto.',
- btnInstall:'Zainstaluj na telefonie', btnPlay:'Najpierw po prostu zagraj w przeglądarce',
+ btnInstall:'Dodaj do ekranu głównego', btnPlay:'Najpierw po prostu zagraj w przeglądarce',
  note:'Za darmo. Na telefonie zajmuje około 6 MB.',
  fPrice:'Cena', vPrice:'Za darmo', fSize:'Rozmiar', vSize:'≈ 6 MB', fLang:'Języków',
  fVer:'Wersja', fOff:'Bez sieci', vOff:'Działa', fNeed:'Wymaga',
@@ -576,7 +593,7 @@ pl:{
  n4:'<b>Doładowanie od 2 $</b> — próg napisany wprost w oknie.',
  hHow:'Jak zainstalować',
  hwAndTag:'Chrome', hwIosTag:'tylko Safari',
- hwA1:'Naciśnij „Zainstaluj na telefonie” u góry.',
+ hwA1:'Naciśnij „Dodaj do ekranu głównego” u góry.',
  hwA2:'Jeśli przycisk milczy — menu przeglądarki (trzy kropki) → „Zainstaluj aplikację”.',
  hwA3:'Ikona stanie na ekranie. Dalej gra otwiera się z niej, bez paska adresu.',
  hwI1:'Otwórz tę stronę w Safari — inne przeglądarki na iPhonie tego nie potrafią.',
@@ -592,6 +609,8 @@ pl:{
  jsIos:'Na iPhonie: „Udostępnij” → „Do ekranu początkowego”. Apple inaczej nie pozwala.',
  jsIosHow:'Otwórz tę stronę w Safari, potem „Udostępnij” → „Do ekranu początkowego”.',
  jsAndHow:'Menu przeglądarki (trzy kropki u góry) → „Zainstaluj aplikację”. Jeśli nie ma tej pozycji, pograj minutę i zajrzyj jeszcze raz.',
+ btnApk:'Zainstaluj na telefonie',
+ apkNote:'Plik dla Androida — instaluje się jak zwykła gra, ikona trafi między aplikacje. Telefon raz zapyta o zgodę.',
  hChrome:'Menu ⋮ (trzy kropki, prawy górny róg) → „Dodaj do ekranu głównego” → „Zainstaluj”. W starszym Chrome pozycja nazywa się „Zainstaluj aplikację”.',
  hSamsung:'Menu ☰ (trzy kreski na dole) → „Dodaj stronę do” → „Ekran główny”.',
  hFirefox:'Menu ⋮ (trzy kropki) → „Dodaj do ekranu głównego”.',
@@ -610,7 +629,7 @@ de:{
  desc:'Ein Spiel über echten Boden. Setze Bunker dort, wo du gehst, halte deine Stadt, kämpfe um fremde Punkte.',
  by:'OpenGate · ein Spiel über echten Boden',
  pitch:'Nimm den Boden, auf dem du <b>wirklich stehst</b>. Setze einen Bunker, umstelle ihn mit Geschützen, halte deine Stadt.',
- btnInstall:'Auf dem Handy installieren', btnPlay:'Erst einmal im Browser spielen',
+ btnInstall:'Zum Startbildschirm hinzufügen', btnPlay:'Erst einmal im Browser spielen',
  note:'Kostenlos. Belegt etwa 6 MB auf dem Handy.',
  fPrice:'Preis', vPrice:'Kostenlos', fSize:'Größe', vSize:'≈ 6 MB', fLang:'Sprachen',
  fVer:'Version', fOff:'Ohne Netz', vOff:'Läuft', fNeed:'Braucht',
@@ -637,7 +656,7 @@ de:{
  n4:'<b>Aufladen ab 2 $</b> — die Untergrenze steht direkt im Fenster.',
  hHow:'So wird installiert',
  hwAndTag:'Chrome', hwIosTag:'nur Safari',
- hwA1:'Oben auf „Auf dem Handy installieren“ tippen.',
+ hwA1:'Oben auf „Zum Startbildschirm hinzufügen“ tippen.',
  hwA2:'Bleibt die Schaltfläche stumm — Browsermenü (drei Punkte) → „App installieren“.',
  hwA3:'Das Symbol landet auf dem Startbildschirm. Danach öffnet das Spiel von dort, ohne Adressleiste.',
  hwI1:'Öffne diese Seite in Safari — andere Browser auf dem iPhone können das nicht.',
@@ -653,6 +672,8 @@ de:{
  jsIos:'Auf dem iPhone: Teilen → „Zum Home-Bildschirm“. Apple erlaubt es nicht anders.',
  jsIosHow:'Öffne diese Seite in Safari, dann Teilen → „Zum Home-Bildschirm“.',
  jsAndHow:'Browsermenü (drei Punkte oben) → „App installieren“. Fehlt der Eintrag, spiele eine Minute und schau noch einmal.',
+ btnApk:'Auf dem Handy installieren',
+ apkNote:'Eine Datei für Android — installiert sich wie ein normales Spiel, mit Symbol zwischen den Apps. Das Handy fragt einmal nach Erlaubnis.',
  hChrome:'Menü ⋮ (drei Punkte oben rechts) → „Zum Startbildschirm hinzufügen“ → „Installieren“. Ältere Chrome-Versionen nennen es „App installieren“.',
  hSamsung:'Menü ☰ (drei Striche unten) → „Seite hinzufügen zu“ → „Startbildschirm“.',
  hFirefox:'Menü ⋮ (drei Punkte) → „Zum Startbildschirm hinzufügen“.',
@@ -671,7 +692,7 @@ es:{
  desc:'Un juego sobre suelo real. Planta búnkeres donde caminas, defiende tu ciudad, pelea por los puntos de otros.',
  by:'OpenGate · un juego sobre suelo real',
  pitch:'Reclama el suelo que <b>de verdad pisas</b>. Planta un búnker, rodéalo de cañones, defiende tu ciudad.',
- btnInstall:'Instalar en el móvil', btnPlay:'Primero juega en el navegador',
+ btnInstall:'Añadir a pantalla de inicio', btnPlay:'Primero juega en el navegador',
  note:'Gratis. Ocupa unos 6 MB en el móvil.',
  fPrice:'Precio', vPrice:'Gratis', fSize:'Tamaño', vSize:'≈ 6 MB', fLang:'Idiomas',
  fVer:'Versión', fOff:'Sin red', vOff:'Funciona', fNeed:'Necesita',
@@ -698,7 +719,7 @@ es:{
  n4:'<b>Recarga desde 2 $</b> — el mínimo está escrito en la propia ventana.',
  hHow:'Cómo instalarlo',
  hwAndTag:'Chrome', hwIosTag:'solo Safari',
- hwA1:'Pulsa «Instalar en el móvil» arriba.',
+ hwA1:'Pulsa «Añadir a pantalla de inicio» arriba.',
  hwA2:'Si el botón no responde: menú del navegador (tres puntos) → «Instalar aplicación».',
  hwA3:'El icono queda en la pantalla. Después el juego se abre desde ahí, sin barra de direcciones.',
  hwI1:'Abre esta página en Safari: los demás navegadores del iPhone no pueden hacerlo.',
@@ -714,6 +735,8 @@ es:{
  jsIos:'En iPhone: Compartir → «Añadir a pantalla de inicio». Apple no permite otra forma.',
  jsIosHow:'Abre esta página en Safari y luego Compartir → «Añadir a pantalla de inicio».',
  jsAndHow:'Menú del navegador (tres puntos arriba) → «Instalar aplicación». Si no aparece, juega un minuto y vuelve a mirar.',
+ btnApk:'Instalar en el móvil',
+ apkNote:'Un archivo para Android: se instala como un juego normal, con su icono entre las aplicaciones. El móvil pedirá permiso una vez.',
  hChrome:'Menú ⋮ (tres puntos, arriba a la derecha) → «Añadir a pantalla de inicio» → «Instalar». En Chrome antiguos se llama «Instalar aplicación».',
  hSamsung:'Menú ☰ (tres rayas abajo) → «Añadir página a» → «Pantalla de inicio».',
  hFirefox:'Menú ⋮ (tres puntos) → «Añadir a pantalla de inicio».',
@@ -732,7 +755,7 @@ tr:{
  desc:'Gerçek toprak üzerine bir oyun. Yürüdüğün yere sığınak kur, şehrini tut, başkalarının noktaları için savaş.',
  by:'OpenGate · gerçek toprak üzerine bir oyun',
  pitch:'<b>Gerçekten bastığın</b> toprağı ele geçir. Sığınak kur, toplarla çevir, şehrini tut.',
- btnInstall:'Telefona kur', btnPlay:'Önce tarayıcıda oyna',
+ btnInstall:'Ana ekrana ekle', btnPlay:'Önce tarayıcıda oyna',
  note:'Ücretsiz. Telefonda yaklaşık 6 MB yer kaplar.',
  fPrice:'Fiyat', vPrice:'Ücretsiz', fSize:'Boyut', vSize:'≈ 6 MB', fLang:'Dil',
  fVer:'Sürüm', fOff:'Çevrimdışı', vOff:'Çalışır', fNeed:'Gerekli',
@@ -759,7 +782,7 @@ tr:{
  n4:'<b>2 $ ve üzeri yükleme</b> — alt sınır doğrudan pencerede yazıyor.',
  hHow:'Nasıl kurulur',
  hwAndTag:'Chrome', hwIosTag:'yalnız Safari',
- hwA1:'Yukarıdaki «Telefona kur» düğmesine bas.',
+ hwA1:'Yukarıdaki «Ana ekrana ekle» düğmesine bas.',
  hwA2:'Düğme sessizse — tarayıcı menüsü (üç nokta) → «Uygulamayı yükle».',
  hwA3:'Simge ana ekrana gelir. Sonrası oradan açılır, adres çubuğu olmadan.',
  hwI1:'Bu sayfayı Safari’de aç — iPhone’daki diğer tarayıcılar bunu yapamaz.',
@@ -775,6 +798,8 @@ tr:{
  jsIos:'iPhone’da: Paylaş → «Ana Ekrana Ekle». Apple başka yol bırakmıyor.',
  jsIosHow:'Bu sayfayı Safari’de aç, sonra Paylaş → «Ana Ekrana Ekle».',
  jsAndHow:'Tarayıcı menüsü (üstteki üç nokta) → «Uygulamayı yükle». Seçenek yoksa bir dakika oyna ve tekrar bak.',
+ btnApk:'Telefona kur',
+ apkNote:'Android için dosya — sıradan bir oyun gibi kurulur, simgesi uygulamaların arasına gelir. Telefon bir kez izin ister.',
  hChrome:'Menü ⋮ (sağ üstteki üç nokta) → «Ana ekrana ekle» → «Yükle». Eski Chrome sürümlerinde «Uygulamayı yükle» yazar.',
  hSamsung:'Menü ☰ (alttaki üç çizgi) → «Sayfayı şuraya ekle» → «Ana ekran».',
  hFirefox:'Menü ⋮ (üç nokta) → «Ana ekrana ekle».',
@@ -793,7 +818,7 @@ zh:{
  desc:'一款关于真实土地的游戏。在你走过的地方建掩体，守住你的城市，去打别人的据点。',
  by:'OpenGate · 关于真实土地的游戏',
  pitch:'占领你<b>真正站着</b>的土地。建一座掩体，用火炮围起来，守住你的城市。',
- btnInstall:'安装到手机', btnPlay:'先在浏览器里玩玩',
+ btnInstall:'添加到主屏幕', btnPlay:'先在浏览器里玩玩',
  note:'免费。手机上约占 6 MB。',
  fPrice:'价格', vPrice:'免费', fSize:'大小', vSize:'≈ 6 MB', fLang:'语言',
  fVer:'版本', fOff:'离线', vOff:'可用', fNeed:'需要',
@@ -820,7 +845,7 @@ zh:{
  n4:'<b>充值起步 2 美元</b>——下限直接写在窗口里。',
  hHow:'如何安装',
  hwAndTag:'Chrome', hwIosTag:'仅限 Safari',
- hwA1:'点击上方的“安装到手机”。',
+ hwA1:'点击上方的“添加到主屏幕”。',
  hwA2:'如果按钮没反应——浏览器菜单（三个点）→“安装应用”。',
  hwA3:'图标会出现在主屏幕上。以后从图标打开，没有地址栏。',
  hwI1:'请在 Safari 中打开本页——iPhone 上的其他浏览器做不到。',
@@ -836,6 +861,8 @@ zh:{
  jsIos:'在 iPhone 上：分享 →“添加到主屏幕”。苹果不允许其他方式。',
  jsIosHow:'请在 Safari 中打开本页，然后 分享 →“添加到主屏幕”。',
  jsAndHow:'浏览器菜单（顶部三个点）→“安装应用”。如果没有这一项，先玩一分钟再看看。',
+ btnApk:'安装到手机',
+ apkNote:'Android 安装文件——像普通游戏一样安装，图标会出现在应用列表里。手机会问一次是否允许。',
  hChrome:'菜单 ⋮（右上角三个点）→“添加到主屏幕”→“安装”。旧版 Chrome 里叫“安装应用”。',
  hSamsung:'菜单 ☰（底部三条横线）→“添加页面到”→“主屏幕”。',
  hFirefox:'菜单 ⋮（三个点）→“添加到主屏幕”。',
@@ -957,14 +984,35 @@ function standalone(){
 // Какую подпись показывать под кнопкой. Держим не сам текст, а ключ —
 // тогда при смене языка подпись меняется вместе со страницей, а не
 // остаётся на прежнем языке.
-var noteKey = null, noteWarn = false, escapeShown = false;
+var noteKey = null, noteWarn = false, escapeShown = false, apkReady = false;
+
+// ФАЙЛ ИГРЫ ДЛЯ ANDROID.
+// Кнопку не рисуем «на всякий случай»: пока файла на сайте нет, она
+// вела бы в пустоту, а нет ничего хуже кнопки, которая обманывает.
+// Поэтому спрашиваем сайт, лежит ли файл, и показываем кнопку только
+// если лежит. Выложил файл — кнопка появилась сама, править страницу
+// не надо. Убрал — сама исчезла.
+// На iPhone не показываем вовсе: Apple ставить файлы не разрешает,
+// и кнопка была бы издевательством.
+function checkApk(){
+  if(iOS) return;
+  try{
+    fetch('gate-territory.apk', { method:'HEAD', cache:'no-store' })
+      .then(function(r){ if(r && r.ok){ apkReady = true; repaintInstall(); } })
+      .catch(function(){});
+  }catch(_){}
+}
 
 // Перерисовать кнопку и подпись под текущий язык и текущее состояние.
 function repaintInstall(){
   var d = L[lang] || L.en;
-  var btn = document.getElementById('install');
+  var btn = document.getElementById('installtxt');
   var note = document.getElementById('getnote');
   if(!btn || !note) return;
+  // Метку ставим только там, где она что-то различает. На Android рядом
+  // с кнопкой из файла вторая «ANDROID» ничего не объясняет, а шумит.
+  var плашка = document.getElementById('platpwa');
+  if(плашка) плашка.textContent = iOS ? 'iPhone' : (apkReady ? '' : 'Android');
   var k = noteKey;
   if(installed || already || standalone()){
     btn.textContent = d.jsOpen;
@@ -981,6 +1029,21 @@ function repaintInstall(){
     out.textContent = iOS ? d.btnSafari : d.btnChrome;
     out.style.display = (escapeShown && !(installed || already || standalone()))
                         ? 'block' : 'none';
+  }
+
+  // Главной — золотой — делаем ту кнопку, которая на этом телефоне
+  // действительно ставит игру. Есть файл: он и главный, а «добавить
+  // значок» уходит на второй план. Файла нет — главной остаётся она.
+  var apk  = document.getElementById('getapk');
+  var apkt = document.getElementById('apktxt');
+  var apkn = document.getElementById('apknote');
+  var кнопка = document.getElementById('install');
+  if(apk && apkt && apkn && кнопка){
+    apkt.textContent = d.btnApk;
+    apkn.textContent = d.apkNote;
+    apk.style.display  = apkReady ? '' : 'none';
+    apkn.style.display = apkReady ? '' : 'none';
+    кнопка.className = apkReady ? 'btn two ghost' : 'btn two';
   }
 }
 
@@ -1002,6 +1065,8 @@ window.addEventListener('appinstalled', function(){
 // Chrome умеет сказать, стоит ли уже эта игра на телефоне. Если стоит,
 // окна установки он не покажет никогда — и раньше человек в этом месте
 // упирался в инструкцию, которая ему не нужна. Теперь просто открываем.
+checkApk();
+
 try{
   if(navigator.getInstalledRelatedApps){
     navigator.getInstalledRelatedApps().then(function(list){
