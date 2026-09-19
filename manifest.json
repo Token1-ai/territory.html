@@ -53,24 +53,38 @@
   "screenshots": [
     {
       "src": "shot-plant.jpg",
-      "sizes": "540x1045",
+      "sizes": "540x1038",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Stand where you want the bunker. The sight lights up when the signal is good enough."
+      "label": "Stand where you want the bunker. The sight locks when the signal is good enough."
     },
     {
       "src": "shot-siege.jpg",
-      "sizes": "540x1045",
+      "sizes": "540x1038",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Under siege: step out of the circle, or lose ten seconds."
+      "label": "Under siege: a drone is away and the cannons are answering."
     },
     {
       "src": "shot-cannon.jpg",
-      "sizes": "540x1045",
+      "sizes": "540x1038",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "It never just says no. It says how many metres are left to walk."
+    },
+    {
+      "src": "shot-city.jpg",
+      "sizes": "540x1038",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Dozens of points across a district. Each one is somebody's ground."
+    },
+    {
+      "src": "shot-shop.jpg",
+      "sizes": "540x1038",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "The shop: charges, rockets, drones, soldiers."
     }
   ]
 }
