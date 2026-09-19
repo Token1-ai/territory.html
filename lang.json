@@ -347,7 +347,11 @@
   "wk_stay": "The walker survived and stays as your cannon.",
   "wk_down": "Your walker is down.",
   "bgw_walker": "Set down during your siege, 45 m from you. Hold a finger on it, then tap the target.",
-  "u_m": "m"
+  "u_m": "m",
+  "sh_orcard": "or by card",
+  "sh_card": "Pay by card",
+  "sh_cardnote": "A payment page will open. You pick the amount there, from {n}.",
+  "sh_cardwait": "The payment page is open. Once you pay, the money arrives by itself — no need to wait here."
  },
  "uk": {
   "plant": "Поставити бункер",
@@ -697,7 +701,11 @@
   "wk_stay": "Ходок вижив і лишається твоєю гарматою.",
   "wk_down": "Твого ходока збили.",
   "bgw_walker": "Ставиться в твоєму бою, за 45 м від тебе. Потримай на ньому палець і тицьни в ціль.",
-  "u_m": "м"
+  "u_m": "м",
+  "sh_orcard": "або карткою",
+  "sh_card": "Заплатити карткою",
+  "sh_cardnote": "Відкриється сторінка оплати. Суму вибереш там, від {n}.",
+  "sh_cardwait": "Сторінку оплати відкрито. Заплатиш — гроші прийдуть самі, чекати тут не треба."
  },
  "ru": {
   "plant": "Поставить бункер",
@@ -1047,7 +1055,11 @@
   "wk_stay": "Ходок выжил и остаётся твоей пушкой.",
   "wk_down": "Твоего ходока сбили.",
   "bgw_walker": "Ставится в твоём бою, в 45 м от тебя. Подержи на нём палец и ткни в цель.",
-  "u_m": "м"
+  "u_m": "м",
+  "sh_orcard": "или картой",
+  "sh_card": "Заплатить картой",
+  "sh_cardnote": "Откроется страница оплаты. Сумму выберешь там, от {n}.",
+  "sh_cardwait": "Страница оплаты открыта. Заплатишь — деньги придут сами, ждать здесь не надо."
  },
  "pl": {
   "plant": "Postaw bunkier",
@@ -1397,7 +1409,11 @@
   "wk_stay": "Kroczący przeżył i zostaje twoim działem.",
   "wk_down": "Twój kroczący padł.",
   "bgw_walker": "Stawiasz go w swojej walce, 45 m od siebie. Przytrzymaj na nim palec i stuknij w cel.",
-  "u_m": "m"
+  "u_m": "m",
+  "sh_orcard": "albo kartą",
+  "sh_card": "Zapłać kartą",
+  "sh_cardnote": "Otworzy się strona płatności. Kwotę wybierzesz tam, od {n}.",
+  "sh_cardwait": "Strona płatności jest otwarta. Zapłacisz — pieniądze przyjdą same, nie trzeba tu czekać."
  },
  "zh": {
   "plant": "建造地堡",
@@ -1747,7 +1763,11 @@
   "wk_stay": "步行炮活了下来，成为你的火炮。",
   "wk_down": "你的步行炮被打掉了。",
   "bgw_walker": "在你的战斗中放下，距你 45 米。按住它，再点目标。",
-  "u_m": "米"
+  "u_m": "米",
+  "sh_orcard": "或用银行卡",
+  "sh_card": "用银行卡支付",
+  "sh_cardnote": "将打开支付页面。金额在那里选择，{n} 起。",
+  "sh_cardwait": "支付页面已打开。付款后钱会自动到账，不必在这里等待。"
  },
  "es": {
   "plant": "Plantar búnker",
@@ -2097,7 +2117,11 @@
   "wk_stay": "El andador sobrevivió y se queda como cañón tuyo.",
   "wk_down": "Tu andador ha caído.",
   "bgw_walker": "Se coloca en tu combate, a 45 m de ti. Mantén el dedo sobre él y toca el objetivo.",
-  "u_m": "m"
+  "u_m": "m",
+  "sh_orcard": "o con tarjeta",
+  "sh_card": "Pagar con tarjeta",
+  "sh_cardnote": "Se abrirá una página de pago. Allí eliges el importe, desde {n}.",
+  "sh_cardwait": "La página de pago está abierta. Cuando pagues, el dinero llega solo: no hace falta esperar aquí."
  },
  "de": {
   "plant": "Bunker bauen",
@@ -2447,7 +2471,11 @@
   "wk_stay": "Der Läufer hat überlebt und bleibt als dein Geschütz stehen.",
   "wk_down": "Dein Läufer ist gefallen.",
   "bgw_walker": "Wird in deinem Kampf 45 m neben dir aufgestellt. Halte den Finger darauf und tippe das Ziel an.",
-  "u_m": "m"
+  "u_m": "m",
+  "sh_orcard": "oder mit Karte",
+  "sh_card": "Mit Karte zahlen",
+  "sh_cardnote": "Es öffnet sich eine Zahlungsseite. Den Betrag wählst du dort, ab {n}.",
+  "sh_cardwait": "Die Zahlungsseite ist offen. Nach der Zahlung kommt das Geld von selbst — hier musst du nicht warten."
  },
  "tr": {
   "plant": "Sığınak kur",
@@ -2797,6 +2825,10 @@
   "wk_stay": "Yürüyücü sağ kaldı ve senin topun olarak duruyor.",
   "wk_down": "Yürüyücün düştü.",
   "bgw_walker": "Kendi savaşında, senden 45 m ötede kurulur. Üstünde parmağını tut, sonra hedefe dokun.",
-  "u_m": "m"
+  "u_m": "m",
+  "sh_orcard": "ya da kartla",
+  "sh_card": "Kartla öde",
+  "sh_cardnote": "Bir ödeme sayfası açılacak. Tutarı orada seçersin, {n} üzerinden.",
+  "sh_cardwait": "Ödeme sayfası açık. Ödedikten sonra para kendiliğinden gelir, burada beklemene gerek yok."
  }
 }

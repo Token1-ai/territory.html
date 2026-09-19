@@ -595,7 +595,7 @@ var LANG = { en:{"plant": "Plant bunker", "center": "Center on me", "name": "Nam
 // ОДИН раз за всю жизнь и держит у себя. Так добавление нового языка —
 // правка одного файла, а не всей игры, и никто не качает 23 словаря,
 // которых никогда не увидит.
-var LANG_V = 76;
+var LANG_V = 77;
 // Английский, вшитый в игру. Он ЗАПАСНОЙ и его нельзя затирать
 // словарём из сети: если словарь окажется старым, на экране полезут
 // служебные слова вроде why_ok_gun вместо человеческого текста.
@@ -4664,6 +4664,17 @@ async function openTopUp(needCents){
         + '</div>'
         + '<div class="mv-warn">' + esc(T('sh_min', { n: money$(minCents()) })) + '</div>';
 
+  // ── Карта. Отдельным куском, со своей суммой ──────────────────
+  // Сумму для карты игрок вводит НЕ здесь, а на странице оплаты:
+  // у разных контор свои окна, и подставлять туда число через адрес
+  // — способ однажды подставить не то. Поэтому просто говорим порог.
+  if(cardOn()){
+    html += '<div class="pf-sec" style="margin-top:16px">' + esc(T('sh_orcard')) + '</div>'
+          + '<button class="btn-buy" style="width:100%;padding:12px" onclick="goCard()">'
+          +   esc(T('sh_card')) + '</button>'
+          + '<div class="mv-warn">' + esc(T('sh_cardnote', { n: money$(cardMinCents()) })) + '</div>';
+  }
+
   document.getElementById('sheet-body').innerHTML = html;
   document.getElementById('veil').classList.add('on');
   sheetOpened();
@@ -4674,6 +4685,43 @@ async function openTopUp(needCents){
 // 180 и ещё раз 50. Человек видел одно, а кнопка не пускала по
 // другому. Теперь число приходит с сервера, а здесь только запасное.
 function minCents(){ return Number(money.min_cents) || 200; }
+
+// ── ОПЛАТА КАРТОЙ ───────────────────────────────────────────────
+// Игра НЕ ЗНАЕТ, через какую контору платят. Адрес приходит с сервера
+// (pay_url в настройках). Сменили контору — поменялась одна строка в
+// базе, а игру перевыкладывать не надо: кнопка сама поведёт в новое
+// место. Пусто в настройках — кнопки просто нет.
+function cardOn(){ return /^https:\/\//.test(String(money.pay_url || '')); }
+function cardMinCents(){ return Number(money.card_min_cents) || 500; }
+
+let _cardWatch = null;
+function goCard(){
+  if(!cardOn()) return;
+  // Номер игрока едет вместе с покупкой и возвращается нам обратно —
+  // по нему и понятно, кому зачислять.
+  const url = money.pay_url + (money.pay_url.indexOf('?') < 0 ? '?' : '&')
+            + 'wanted=true&player=' + encodeURIComponent(addr);
+  try{ window.open(url, '_blank', 'noopener'); }catch(_){ location.href = url; }
+  sayT('sh_cardwait', null, 'warn');
+
+  // Деньги придут сами, отдельным письмом от конторы. Чтобы человек не
+  // гадал, минут пять подглядываем за счётом и скажем, когда дойдёт.
+  if(_cardWatch) clearInterval(_cardWatch);
+  const was = Number(money.balance_cents) || 0;
+  let left = 60;                       // 60 раз по 5 секунд
+  _cardWatch = setInterval(async () => {
+    if(--left <= 0){ clearInterval(_cardWatch); _cardWatch = null; return; }
+    try{
+      await loadMoney();
+      const now = Number(money.balance_cents) || 0;
+      if(now > was){
+        clearInterval(_cardWatch); _cardWatch = null;
+        sayT('sh_credited', { n: money$(now - was) });
+        if(sheetMode === 'info') openTopUp();
+      }
+    }catch(_){}
+  }, 5000);
+}
 
 // Сколько платить — решает сам игрок, хоть $2.50
 function readSum(){
@@ -6855,7 +6903,7 @@ function takeUpdate(){
 
 // Запасной способ, если работник не поддерживается или сорвался:
 // просто спрашиваем у сервера метку версии и сравниваем со своей.
-const APP_V = 92;
+const APP_V = 93;
 async function checkVersion(){
   if(!navigator.onLine || document.hidden) return;
   try{
