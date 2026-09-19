@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "bond.opengate.territory.twa",
+        "sha256_cert_fingerprints": ["32:A0:41:57:DF:FA:CD:A9:D2:3A:EA:62:53:5D:C4:56:1F:E4:0D:B5:C7:0D:FC:9F:AB:44:89:B9:6C:49:32:A2"]
+      }
+    }]
