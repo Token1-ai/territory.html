@@ -71,13 +71,6 @@
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "It never just says no. It says how many metres are left to walk."
-    },
-    {
-      "src": "shot-wide.jpg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "Gate Territory — a game about real ground"
     }
   ]
 }
